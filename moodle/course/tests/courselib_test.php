@@ -221,6 +221,7 @@ class core_course_courselib_testcase extends advanced_testcase {
         $moduleinfo->completion = COMPLETION_TRACKING_AUTOMATIC;
         $moduleinfo->completionview = COMPLETION_VIEW_REQUIRED;
         $moduleinfo->completiongradeitemnumber = 1;
+        $moduleinfo->completionpassgrade = 0;
         $moduleinfo->completionexpected = time() + (7 * 24 * 3600);
 
         // Conditional activity.
@@ -283,6 +284,7 @@ class core_course_courselib_testcase extends advanced_testcase {
         $this->assertEquals($moduleinfo->completion, $dbcm->completion);
         $this->assertEquals($moduleinfo->completionview, $dbcm->completionview);
         $this->assertEquals($moduleinfo->completiongradeitemnumber, $dbcm->completiongradeitemnumber);
+        $this->assertEquals($moduleinfo->completionpassgrade, $dbcm->completionpassgrade);
         $this->assertEquals($moduleinfo->completionexpected, $dbcm->completionexpected);
         $this->assertEquals($moduleinfo->availability, $dbcm->availability);
         $this->assertEquals($moduleinfo->showdescription, $dbcm->showdescription);
@@ -504,6 +506,7 @@ class core_course_courselib_testcase extends advanced_testcase {
         $moduleinfo->completion = COMPLETION_TRACKING_AUTOMATIC;
         $moduleinfo->completionview = COMPLETION_VIEW_REQUIRED;
         $moduleinfo->completiongradeitemnumber = 1;
+        $moduleinfo->completionpassgrade = 0;
         $moduleinfo->completionexpected = time() + (7 * 24 * 3600);
         $moduleinfo->completionunlocked = 1;
 
@@ -561,6 +564,7 @@ class core_course_courselib_testcase extends advanced_testcase {
         $this->assertEquals($moduleinfo->completion, $dbcm->completion);
         $this->assertEquals($moduleinfo->completionview, $dbcm->completionview);
         $this->assertEquals($moduleinfo->completiongradeitemnumber, $dbcm->completiongradeitemnumber);
+        $this->assertEquals($moduleinfo->completionpassgrade, $dbcm->completionpassgrade);
         $this->assertEquals($moduleinfo->completionexpected, $dbcm->completionexpected);
         $this->assertEquals($moduleinfo->availability, $dbcm->availability);
         $this->assertEquals($moduleinfo->showdescription, $dbcm->showdescription);
@@ -1702,8 +1706,13 @@ class core_course_courselib_testcase extends advanced_testcase {
                 $this->assertEquals(0, $DB->count_records('question_categories', $criteria));
 
                 // Verify questions deleted.
-                $criteria = array('category' => $qcat->id);
-                $this->assertEquals(0, $DB->count_records('question', $criteria));
+                $criteria = [$qcat->id];
+                $sql = 'SELECT COUNT(q.id)
+                          FROM {question} q
+                          JOIN {question_versions} qv ON qv.questionid = q.id
+                          JOIN {question_bank_entries} qbe ON qbe.id = qv.questionbankentryid
+                          WHERE qbe.questioncategoryid = ?';
+                $this->assertEquals(0, $DB->count_records_sql($sql, $criteria));
                 break;
             default:
                 break;
@@ -3187,7 +3196,6 @@ class core_course_courselib_testcase extends advanced_testcase {
         $this->assertTrue($navoptions->badges);
         $this->assertTrue($navoptions->tags);
         $this->assertFalse($navoptions->search);
-        $this->assertTrue($navoptions->calendar);
         $this->assertTrue($navoptions->competencies);
 
         // Enable global search now.
@@ -3212,7 +3220,6 @@ class core_course_courselib_testcase extends advanced_testcase {
         $this->assertTrue($navoptions->badges);
         $this->assertTrue($navoptions->tags);
         $this->assertTrue($navoptions->search);
-        $this->assertTrue($navoptions->calendar);
     }
 
     /**
@@ -3251,7 +3258,7 @@ class core_course_courselib_testcase extends advanced_testcase {
         $this->assertTrue($navoptions->blogs);
         $this->assertFalse($navoptions->notes);
         $this->assertTrue($navoptions->participants);
-        $this->assertTrue($navoptions->badges);
+        $this->assertFalse($navoptions->badges);
 
         // Disable some options.
         $CFG->badges_allowcoursebadges = 0;
@@ -3264,6 +3271,13 @@ class core_course_courselib_testcase extends advanced_testcase {
         $this->assertFalse($navoptions->notes);
         $this->assertFalse($navoptions->participants);
         $this->assertFalse($navoptions->badges);
+
+        // Re-enable some options to check badges are displayed as expected.
+        $CFG->badges_allowcoursebadges = 1;
+        assign_capability('moodle/badges:createbadge', CAP_ALLOW, $roleid, $context);
+
+        $navoptions = course_get_user_navigation_options($context);
+        $this->assertTrue($navoptions->badges);
     }
 
     /**
@@ -4829,6 +4843,104 @@ class core_course_courselib_testcase extends advanced_testcase {
                 'expectedprocessedcount' => 10
             ],
         ];
+    }
+
+    /**
+     * Test the course_get_enrolled_courses_for_logged_in_user_from_search function.
+     */
+    public function test_course_get_enrolled_courses_for_logged_in_user_from_search() {
+        global $DB;
+
+        // Set up.
+
+        $this->resetAfterTest();
+        $generator = $this->getDataGenerator();
+        $student = $generator->create_user();
+
+        $cat1 = core_course_category::create(['name' => 'Cat1']);
+        $cat2 = core_course_category::create(['name' => 'Cat2', 'parent' => $cat1->id]);
+        $c1 = $this->getDataGenerator()->create_course(['category' => $cat1->id, 'fullname' => 'Test 3', 'summary' => 'Magic', 'idnumber' => 'ID3']);
+        $c2 = $this->getDataGenerator()->create_course(['category' => $cat1->id, 'fullname' => 'Test 1', 'summary' => 'Magic']);
+        $c3 = $this->getDataGenerator()->create_course(['category' => $cat1->id, 'fullname' => 'Математика', 'summary' => ' Test Magic']);
+        $c4 = $this->getDataGenerator()->create_course(['category' => $cat1->id, 'fullname' => 'Test 4', 'summary' => 'Magic', 'idnumber' => 'ID4']);
+
+        $c5 = $this->getDataGenerator()->create_course(['category' => $cat2->id, 'fullname' => 'Test 5', 'summary' => 'Magic']);
+        $c6 = $this->getDataGenerator()->create_course(['category' => $cat2->id, 'fullname' => 'Дискретная Математика', 'summary' => 'Magic']);
+        $c7 = $this->getDataGenerator()->create_course(['category' => $cat2->id, 'fullname' => 'Test 7', 'summary' => 'Magic']);
+        $c8 = $this->getDataGenerator()->create_course(['category' => $cat2->id, 'fullname' => 'Test 8', 'summary' => 'Magic']);
+
+        for ($i = 1; $i < 9; $i++) {
+            $generator->enrol_user($student->id, ${"c$i"}->id, 'student');
+        }
+
+        $this->setUser($student);
+
+        $returnedcourses = course_get_enrolled_courses_for_logged_in_user_from_search(
+            0,
+            0,
+            'id ASC',
+            null,
+            COURSE_DB_QUERY_LIMIT,
+            ['search' => 'test'],
+            ['idonly' => true]
+        );
+
+        $actualresult = array_map(function($course) {
+            return $course->id;
+        }, iterator_to_array($returnedcourses, false));
+
+        $this->assertEquals([$c1->id, $c2->id, $c3->id, $c4->id, $c5->id, $c7->id, $c8->id], $actualresult);
+
+        // Test no courses matching the search.
+        $returnedcourses = course_get_enrolled_courses_for_logged_in_user_from_search(
+            0,
+            0,
+            'id ASC',
+            null,
+            COURSE_DB_QUERY_LIMIT,
+            ['search' => 'foobar'],
+            ['idonly' => true]
+        );
+
+        $actualresult = array_map(function($course) {
+            return $course->id;
+        }, iterator_to_array($returnedcourses, false));
+
+        $this->assertEquals([], $actualresult);
+
+        // Test returning all courses that have a mutual summary.
+        $returnedcourses = course_get_enrolled_courses_for_logged_in_user_from_search(
+            0,
+            0,
+            'id ASC',
+            null,
+            COURSE_DB_QUERY_LIMIT,
+            ['search' => 'Magic'],
+            ['idonly' => true]
+        );
+
+        $actualresult = array_map(function($course) {
+            return $course->id;
+        }, iterator_to_array($returnedcourses, false));
+
+        $this->assertEquals([$c1->id, $c2->id, $c3->id, $c4->id, $c5->id, $c6->id, $c7->id, $c8->id], $actualresult);
+
+        // Test returning a unique course.
+        $returnedcourses = course_get_enrolled_courses_for_logged_in_user_from_search(
+            0,
+            0,
+            'id ASC',
+            null,
+            COURSE_DB_QUERY_LIMIT,
+            ['search' => 'Дискретная'],
+            ['idonly' => true]
+        );
+
+        $actualresult = array_map(function($course) {
+            return $course->id;
+        }, iterator_to_array($returnedcourses, false));
+
+        $this->assertEquals([$c6->id], $actualresult);
     }
 
     /**
@@ -7131,4 +7243,30 @@ class core_course_courselib_testcase extends advanced_testcase {
         $this->assertEquals(1, average_number_of_participants(true));
     }
 
+    /**
+     * Test the set_downloadcontent() function.
+     */
+    public function test_set_downloadcontent() {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $page = $generator->create_module('page', ['course' => $course]);
+
+        // Test the module 'downloadcontent' field is set to enabled.
+        set_downloadcontent($page->cmid, DOWNLOAD_COURSE_CONTENT_ENABLED);
+        $modinfo = get_fast_modinfo($course)->get_cm($page->cmid);
+        $this->assertEquals(DOWNLOAD_COURSE_CONTENT_ENABLED, $modinfo->downloadcontent);
+
+        // Now let's test the 'downloadcontent' value is updated to disabled.
+        set_downloadcontent($page->cmid, DOWNLOAD_COURSE_CONTENT_DISABLED);
+        $modinfo = get_fast_modinfo($course)->get_cm($page->cmid);
+        $this->assertEquals(DOWNLOAD_COURSE_CONTENT_DISABLED, $modinfo->downloadcontent);
+
+        // Nothing to update, the download course content value is the same, it should return false.
+        $this->assertFalse(set_downloadcontent($page->cmid, DOWNLOAD_COURSE_CONTENT_DISABLED));
+
+        // The download course content value has changed, it should return true in this case.
+        $this->assertTrue(set_downloadcontent($page->cmid, DOWNLOAD_COURSE_CONTENT_ENABLED));
+    }
 }

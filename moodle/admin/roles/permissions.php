@@ -97,6 +97,7 @@ if ($context->contextlevel == CONTEXT_BLOCK) {
 }
 
 $PAGE->set_title($title);
+$PAGE->activityheader->disable();
 switch ($context->contextlevel) {
     case CONTEXT_SYSTEM:
         print_error('cannotoverridebaserole', 'error');
@@ -203,7 +204,12 @@ if ($capability && ($allowoverrides || ($allowsafeoverrides && is_safe_capabilit
     }
 }
 
+$PAGE->set_navigation_overflow_state(false);
 echo $OUTPUT->header();
+if ($context->contextlevel == CONTEXT_COURSE || $context->contextlevel == CONTEXT_MODULE) {
+    echo $OUTPUT->render_participants_tertiary_nav($course);
+}
+
 echo $OUTPUT->heading($title);
 
 $adminurl = new moodle_url('/admin/');

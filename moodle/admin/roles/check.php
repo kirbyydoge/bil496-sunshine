@@ -87,6 +87,7 @@ if ($context->contextlevel == CONTEXT_BLOCK) {
     $PAGE->blocks->show_only_fake_blocks(true);
 }
 $PAGE->set_title($title);
+$PAGE->activityheader->disable();
 
 switch ($context->contextlevel) {
     case CONTEXT_SYSTEM:
@@ -125,7 +126,11 @@ if (!is_null($reportuser)) {
     $rolenames = role_get_names($context);
 }
 
+$PAGE->set_navigation_overflow_state(false);
 echo $OUTPUT->header();
+if ($context->contextlevel == CONTEXT_COURSE || $context->contextlevel == CONTEXT_MODULE) {
+    echo $OUTPUT->render_participants_tertiary_nav($course);
+}
 
 // Print heading.
 echo $OUTPUT->heading($title);
@@ -180,7 +185,7 @@ echo '</form>';
 echo $OUTPUT->box_end();
 
 // Appropriate back link.
-if ($context->contextlevel > CONTEXT_USER) {
+if (!$PAGE->has_secondary_navigation() && $context->contextlevel > CONTEXT_USER) {
     echo html_writer::start_tag('div', array('class'=>'backlink'));
     if ($returnurl) {
         $backurl = new moodle_url($returnurl);

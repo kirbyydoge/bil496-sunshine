@@ -35,6 +35,8 @@ I need to limit the submittable file types
     And I set the field "Require attachments" to "1"
     And I set the field "filetypeslist[filetypes]" to ".txt"
     And I press "Save changes"
+    And I am on the "Quiz 1" "mod_quiz > edit" page logged in as teacher1
+    And I set the field "version" to "Always latest"
     Then I log out
 
   @javascript @_file_upload
@@ -44,7 +46,7 @@ I need to limit the submittable file types
     And I upload "lib/tests/fixtures/empty.txt" file to "Files" filemanager
     And I press "Save changes"
     And I am on the "Quiz 1" "quiz activity" page
-    And I press "Attempt quiz now"
+    And I follow "Attempt quiz"
     And I should see "First question"
     And I should see "You can drag and drop files here to add them."
     And I click on "Add..." "button"
@@ -62,7 +64,7 @@ I need to limit the submittable file types
     And I upload "lib/tests/fixtures/upload_users.csv" file to "Files" filemanager
     And I press "Save changes"
     And I am on the "Quiz 1" "quiz activity" page
-    And I press "Attempt quiz now"
+    And I follow "Attempt quiz"
     And I should see "First question"
     And I should see "You can drag and drop files here to add them."
     And I click on "Add..." "button"

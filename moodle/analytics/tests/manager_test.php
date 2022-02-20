@@ -14,13 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Unit tests for the manager.
- *
- * @package   core_analytics
- * @copyright 2017 David Monllaó {@link http://www.davidmonllao.com}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace core_analytics;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -30,13 +24,13 @@ require_once(__DIR__ . '/fixtures/test_indicator_fullname.php');
 require_once(__DIR__ . '/fixtures/test_target_course_level_shortname.php');
 
 /**
- * Unit tests for the manager.
+ * Unit tests for the core_analytics manager.
  *
  * @package   core_analytics
  * @copyright 2017 David Monllaó {@link http://www.davidmonllao.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class analytics_manager_testcase extends advanced_testcase {
+class manager_test extends \advanced_testcase {
 
     /**
      * test_deleted_context
@@ -510,7 +504,11 @@ class analytics_manager_testcase extends advanced_testcase {
 
         $this->assertCount(1, \core_analytics\manager::get_potential_context_restrictions([CONTEXT_COURSECAT], 'Course category'));
         $this->assertCount(1, \core_analytics\manager::get_potential_context_restrictions([CONTEXT_COURSECAT], 'Course category 1'));
-        $this->assertCount(1, \core_analytics\manager::get_potential_context_restrictions([CONTEXT_COURSECAT], 'Miscellaneous'));
+        $this->assertCount(
+            2,
+            \core_analytics\manager::get_potential_context_restrictions([CONTEXT_COURSECAT],
+            get_string('defaultcategoryname')
+        ));
         $this->assertCount(1, \core_analytics\manager::get_potential_context_restrictions([CONTEXT_COURSE], 'Test course 1'));
         $this->assertCount(1, \core_analytics\manager::get_potential_context_restrictions([CONTEXT_COURSE], 'Test course'));
     }

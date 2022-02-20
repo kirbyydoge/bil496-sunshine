@@ -105,7 +105,7 @@ function xmldb_tool_moodlenet_upgrade(int $oldversion) {
     // Automatically generated Moodle v3.9.0 release upgrade line.
     // Put any upgrade step following this.
 
-    if ($oldversion < 2020090700) {
+    if ($oldversion < 2021052501) {
 
         // Find out if there are users with MoodleNet profiles set.
         $sql = "SELECT u.*
@@ -120,14 +120,44 @@ function xmldb_tool_moodlenet_upgrade(int $oldversion) {
             $DB->update_record('user', $record);
         }
 
-        upgrade_plugin_savepoint(true, 2020090700, 'tool', 'moodlenet');
+        upgrade_plugin_savepoint(true, 2021052501, 'tool', 'moodlenet');
     }
 
-    // Automatically generated Moodle v3.10.0 release upgrade line.
-    // Put any upgrade step following this.
+    if ($oldversion < 2022021600) {
+        // This is a special case for if MoodleNet integration has never been enabled,
+        // or if defaultmoodlenet is not set for whatever reason.
+        if (!get_config('tool_moodlenet', 'defaultmoodlenet')) {
+            set_config('defaultmoodlenet', 'https://moodle.net', 'tool_moodlenet');
+            set_config('defaultmoodlenetname', get_string('defaultmoodlenetnamevalue', 'tool_moodlenet'), 'tool_moodlenet');
+        }
 
-    // Automatically generated Moodle v3.11.0 release upgrade line.
-    // Put any upgrade step following this.
+        // Enable MoodleNet and set it to display on activity chooser footer.
+        // But only do this if we know for sure that the default MoodleNet is a working one.
+        if (get_config('tool_moodlenet', 'defaultmoodlenet') == 'https://moodle.net') {
+            set_config('enablemoodlenet', '1', 'tool_moodlenet');
+            set_config('activitychooseractivefooter', 'tool_moodlenet');
+
+            // Send notification.
+            $message = new \core\message\message();
+            $message->component = 'moodle';
+            $message->name = 'notices';
+            $message->userfrom = \core_user::get_noreply_user();
+            $message->userto = get_admin();
+            $message->notification = 1;
+            $message->contexturl = (new moodle_url('/admin/settings.php',
+                ['section' => 'optionalsubsystems'], 'admin-enablemoodlenet'))->out(false);
+            $message->contexturlname = get_string('advancedfeatures', 'admin');
+            $message->subject = get_string('autoenablenotification_subject', 'tool_moodlenet');
+            $message->fullmessageformat = FORMAT_HTML;
+            $message->fullmessagehtml = get_string('autoenablenotification', 'tool_moodlenet', (object) [
+                'settingslink' => (new moodle_url('/admin/settings.php', ['section' => 'tool_moodlenet']))->out(false),
+            ]);
+            $message->smallmessage = strip_tags($message->fullmessagehtml);
+            message_send($message);
+        }
+
+        upgrade_plugin_savepoint(true, 2022021600, 'tool', 'moodlenet');
+    }
 
     return true;
 }

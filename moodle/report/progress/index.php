@@ -55,8 +55,8 @@ $activityinclude = optional_param('activityinclude', 'all', PARAM_TEXT);
 $activityorder = optional_param('activityorder', 'orderincourse', PARAM_TEXT);
 
 // Whether to show extra user identity information
-// TODO Does not support custom user profile fields (MDL-70456).
-$extrafields = \core_user\fields::get_identity_fields($context, false);
+$userfields = \core_user\fields::for_identity($context);
+$extrafields = $userfields->get_required_fields([\core_user\fields::PURPOSE_IDENTITY]);
 $leftcols = 1 + count($extrafields);
 
 function csv_quote($value) {
@@ -156,8 +156,6 @@ $grandtotal = $completion->get_num_tracked_users('', array(), $group);
 // Get user data
 $progress = array();
 
-report_helper::save_selected_report($id, $url);
-
 if ($total) {
     $progress = $completion->get_progress_all(
         implode(' AND ', $where),
@@ -202,9 +200,7 @@ if ($csv && $grandtotal && count($activities)>0) { // Only show CSV if there are
     $PAGE->requires->js_call_amd('report_progress/completion_override', 'init', [fullname($USER)]);
 
     // Handle groups (if enabled).
-    $groupurl = fullclone($url);
-    $groupurl->remove_params(['page', 'group']);
-    groups_print_course_menu($course, $groupurl);
+    echo $output->render_groups_select($url, $course);
 
     // Display include activity filter.
     echo $output->render_include_activity_select($url, $activitytypes, $activityinclude);

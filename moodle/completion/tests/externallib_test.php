@@ -14,15 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * External completion functions unit tests
- *
- * @package    core_completion
- * @category   external
- * @copyright  2015 Juan Leyva <juan@moodle.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @since      Moodle 2.9
- */
+namespace core_completion;
+
+use core_completion_external;
+use externallib_advanced_testcase;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -39,7 +34,7 @@ require_once($CFG->dirroot . '/webservice/tests/helpers.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      Moodle 2.9
  */
-class core_completion_externallib_testcase extends externallib_advanced_testcase {
+class externallib_test extends externallib_advanced_testcase {
 
     /**
      * Test update_activity_completion_status_manually
@@ -63,7 +58,7 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
 
         $result = core_completion_external::update_activity_completion_status_manually($data->cmid, true);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(
+        $result = \external_api::clean_returnvalue(
             core_completion_external::update_activity_completion_status_manually_returns(), $result);
 
         // Check in DB.
@@ -71,14 +66,14 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
                             array('coursemoduleid' => $data->cmid)));
 
         // Check using the API.
-        $completion = new completion_info($course);
+        $completion = new \completion_info($course);
         $completiondata = $completion->get_data($cm);
         $this->assertEquals(1, $completiondata->completionstate);
         $this->assertTrue($result['status']);
 
         $result = core_completion_external::update_activity_completion_status_manually($data->cmid, false);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(
+        $result = \external_api::clean_returnvalue(
             core_completion_external::update_activity_completion_status_manually_returns(), $result);
 
         $this->assertEquals(0, $DB->get_field('course_modules_completion', 'completionstate',
@@ -103,7 +98,7 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
         $course = $this->getDataGenerator()->create_course(array('enablecompletion' => 1,
                                                                     'groupmode' => SEPARATEGROUPS,
                                                                     'groupmodeforce' => 1));
-        availability_completion\condition::wipe_static_cache();
+        \availability_completion\condition::wipe_static_cache();
 
         $data = $this->getDataGenerator()->create_module('data',
             ['course' => $course->id],
@@ -121,6 +116,15 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
         $assign = $this->getDataGenerator()->create_module('assign',
             ['course' => $course->id],
             ['availability' => $availability],
+        );
+        $assignautocompletion = $this->getDataGenerator()->create_module('assign',
+            ['course' => $course->id], [
+                'showdescription' => true,
+                'completionview' => 1,
+                'completion' => COMPLETION_TRACKING_AUTOMATIC,
+                'completiongradeitemnumber' => 1,
+                'completionpassgrade' => 1,
+            ],
         );
         $page = $this->getDataGenerator()->create_module('page',  array('course' => $course->id),
                                                             array('completion' => 1, 'visible' => 0));
@@ -143,19 +147,19 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
 
         $this->setUser($student);
         // Forum complete.
-        $completion = new completion_info($course);
+        $completion = new \completion_info($course);
         $completion->update_state($cmforum, COMPLETION_COMPLETE);
 
         $result = core_completion_external::get_activities_completion_status($course->id, $student->id);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(
+        $result = \external_api::clean_returnvalue(
             core_completion_external::get_activities_completion_status_returns(), $result);
 
-        // We added 5 activities, but only 4 with completion enabled and one of those is hidden.
-        $numberofactivities = 5;
+        // We added 6 activities, but only 4 with completion enabled and one of those is hidden.
+        $numberofactivities = 6;
         $numberofhidden = 1;
         $numberofcompletions = $numberofactivities - $numberofhidden;
-        $numberofstatusstudent = 3;
+        $numberofstatusstudent = 4;
 
         $this->assertCount($numberofstatusstudent, $result['statuses']);
 
@@ -186,6 +190,26 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
                 $this->assertEquals('completionview', $details[0]['rulename']);
                 $this->assertEquals(0, $details[0]['rulevalue']['status']);
 
+            } else if ($status['cmid'] == $assignautocompletion->cmid) {
+                $activitiesfound++;
+                $this->assertEquals(COMPLETION_INCOMPLETE, $status['state']);
+                $this->assertEquals(COMPLETION_TRACKING_AUTOMATIC, $status['tracking']);
+                $this->assertFalse($status['valueused']);
+                $this->assertTrue($status['hascompletion']);
+                $this->assertTrue($status['isautomatic']);
+                $this->assertTrue($status['istrackeduser']);
+                $this->assertTrue($status['uservisible']);
+                $details = $status['details'];
+                $this->assertCount(3, $details);
+                $expecteddetails = [
+                    'completionview',
+                    'completionusegrade',
+                    'completionpassgrade',
+                ];
+                foreach ($expecteddetails as $index => $name) {
+                    $this->assertEquals($name, $details[$index]['rulename']);
+                    $this->assertEquals(0, $details[$index]['rulevalue']['status']);
+                }
             } else if ($status['cmid'] == $data->cmid and $status['modname'] == 'data' and $status['instance'] == $data->id) {
                 $activitiesfound++;
                 $this->assertEquals(COMPLETION_INCOMPLETE, $status['state']);
@@ -200,13 +224,13 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
                 $this->assertCount(0, $details);
             }
         }
-        $this->assertEquals(3, $activitiesfound);
+        $this->assertEquals(4, $activitiesfound);
 
         // Teacher should see students status, they are in different groups but the teacher can access all groups.
         $this->setUser($teacher);
         $result = core_completion_external::get_activities_completion_status($course->id, $student->id);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(
+        $result = \external_api::clean_returnvalue(
             core_completion_external::get_activities_completion_status_returns(), $result);
 
         $this->assertCount($numberofcompletions, $result['statuses']);
@@ -216,7 +240,7 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
 
         $result = core_completion_external::get_activities_completion_status($course->id, $student->id);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(
+        $result = \external_api::clean_returnvalue(
             core_completion_external::get_activities_completion_status_returns(), $result);
 
         // Check forum has been overriden by the teacher.
@@ -232,12 +256,12 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
         // Teacher should see his own completion status.
 
         // Forum complete for teacher.
-        $completion = new completion_info($course);
+        $completion = new \completion_info($course);
         $completion->update_state($cmforum, COMPLETION_COMPLETE);
 
         $result = core_completion_external::get_activities_completion_status($course->id, $teacher->id);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(
+        $result = \external_api::clean_returnvalue(
             core_completion_external::get_activities_completion_status_returns(), $result);
 
         $this->assertCount($numberofcompletions, $result['statuses']);
@@ -248,7 +272,7 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
                 $activitiesfound++;
                 $this->assertEquals(COMPLETION_COMPLETE, $status['state']);
                 $this->assertEquals(COMPLETION_TRACKING_MANUAL, $status['tracking']);
-            } else if ($status['cmid'] == $forumautocompletion->cmid) {
+            } else if (in_array($status['cmid'], [$forumautocompletion->cmid, $assignautocompletion->cmid])) {
                 $activitiesfound++;
                 $this->assertEquals(COMPLETION_INCOMPLETE, $status['state']);
                 $this->assertEquals(COMPLETION_TRACKING_AUTOMATIC, $status['tracking']);
@@ -258,17 +282,17 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
                 $this->assertEquals(COMPLETION_TRACKING_MANUAL, $status['tracking']);
             }
         }
-        $this->assertEquals(4, $activitiesfound);
+        $this->assertEquals(5, $activitiesfound);
 
         // Change teacher role capabilities (disable access all groups).
-        $context = context_course::instance($course->id);
+        $context = \context_course::instance($course->id);
         assign_capability('moodle/site:accessallgroups', CAP_PROHIBIT, $teacherrole->id, $context);
         accesslib_clear_all_caches_for_unit_testing();
 
         try {
             $result = core_completion_external::get_activities_completion_status($course->id, $student->id);
             $this->fail('Exception expected due to groups permissions.');
-        } catch (moodle_exception $e) {
+        } catch (\moodle_exception $e) {
             $this->assertEquals('accessdenied', $e->errorcode);
         }
 
@@ -276,7 +300,7 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
         groups_add_member($group1->id, $teacher->id);
         $result = core_completion_external::get_activities_completion_status($course->id, $student->id);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(
+        $result = \external_api::clean_returnvalue(
             core_completion_external::get_activities_completion_status_returns(), $result);
         $this->assertCount($numberofcompletions, $result['statuses']);
     }
@@ -307,34 +331,34 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
 
         // Manually complete the data activity as the student.
         $this->setUser($student);
-        $completion = new completion_info($course);
+        $completion = new \completion_info($course);
         $completion->update_state($cmdata, COMPLETION_COMPLETE);
 
         // Test overriding the status of the manual-completion-activity 'incomplete'.
         $this->setUser($teacher);
         $result = core_completion_external::override_activity_completion_status($student->id, $data->cmid, COMPLETION_INCOMPLETE);
-        $result = external_api::clean_returnvalue(core_completion_external::override_activity_completion_status_returns(), $result);
+        $result = \external_api::clean_returnvalue(core_completion_external::override_activity_completion_status_returns(), $result);
         $this->assertEquals($result['state'], COMPLETION_INCOMPLETE);
         $completiondata = $completion->get_data($cmdata, false, $student->id);
         $this->assertEquals(COMPLETION_INCOMPLETE, $completiondata->completionstate);
 
         // Test overriding the status of the manual-completion-activity back to 'complete'.
         $result = core_completion_external::override_activity_completion_status($student->id, $data->cmid, COMPLETION_COMPLETE);
-        $result = external_api::clean_returnvalue(core_completion_external::override_activity_completion_status_returns(), $result);
+        $result = \external_api::clean_returnvalue(core_completion_external::override_activity_completion_status_returns(), $result);
         $this->assertEquals($result['state'], COMPLETION_COMPLETE);
         $completiondata = $completion->get_data($cmdata, false, $student->id);
         $this->assertEquals(COMPLETION_COMPLETE, $completiondata->completionstate);
 
         // Test overriding the status of the auto-completion-activity to 'complete'.
         $result = core_completion_external::override_activity_completion_status($student->id, $forum->cmid, COMPLETION_COMPLETE);
-        $result = external_api::clean_returnvalue(core_completion_external::override_activity_completion_status_returns(), $result);
+        $result = \external_api::clean_returnvalue(core_completion_external::override_activity_completion_status_returns(), $result);
         $this->assertEquals($result['state'], COMPLETION_COMPLETE);
         $completionforum = $completion->get_data($cmforum, false, $student->id);
         $this->assertEquals(COMPLETION_COMPLETE, $completionforum->completionstate);
 
         // Test overriding the status of the auto-completion-activity to 'incomplete'.
         $result = core_completion_external::override_activity_completion_status($student->id, $forum->cmid, COMPLETION_INCOMPLETE);
-        $result = external_api::clean_returnvalue(core_completion_external::override_activity_completion_status_returns(), $result);
+        $result = \external_api::clean_returnvalue(core_completion_external::override_activity_completion_status_returns(), $result);
         $this->assertEquals($result['state'], COMPLETION_INCOMPLETE);
         $completionforum = $completion->get_data($cmforum, false, $student->id);
         $this->assertEquals(COMPLETION_INCOMPLETE, $completionforum->completionstate);
@@ -360,7 +384,7 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
         $this->getDataGenerator()->enrol_user($student->id, $course->id, $studentrole->id);
         $teacherrole = $DB->get_record('role', ['shortname' => 'teacher']);
         $this->getDataGenerator()->enrol_user($teacher->id, $course->id, $teacherrole->id);
-        $coursecontext = context_course::instance($course->id);
+        $coursecontext = \context_course::instance($course->id);
 
         // Create an activity with automatic completion (a forum).
         $forum   = $this->getDataGenerator()->create_module('forum',  ['course' => $course->id],
@@ -418,11 +442,11 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
         groups_add_member($group2->id, $teacher->id);
 
         // Set completion rules.
-        $completion = new completion_info($course);
+        $completion = new \completion_info($course);
 
         // Loop through each criteria type and run its update_config() method.
 
-        $criteriadata = new stdClass();
+        $criteriadata = new \stdClass();
         $criteriadata->id = $course->id;
         $criteriadata->criteria_activity = array();
         // Some activities.
@@ -446,12 +470,12 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
             'course'        => $course->id,
             'criteriatype'  => null
         );
-        $aggregation = new completion_aggregation($aggdata);
+        $aggregation = new \completion_aggregation($aggdata);
         $aggregation->setMethod(COMPLETION_AGGREGATION_ALL);
         $aggregation->save();
 
         $aggdata['criteriatype'] = COMPLETION_CRITERIA_TYPE_ACTIVITY;
-        $aggregation = new completion_aggregation($aggdata);
+        $aggregation = new \completion_aggregation($aggdata);
         $aggregation->setMethod(COMPLETION_AGGREGATION_ALL);
         $aggregation->save();
 
@@ -459,7 +483,7 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
 
         $result = core_completion_external::get_course_completion_status($course->id, $student->id);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $studentresult = external_api::clean_returnvalue(
+        $studentresult = \external_api::clean_returnvalue(
             core_completion_external::get_course_completion_status_returns(), $result);
 
         // 3 different criteria.
@@ -476,20 +500,20 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
         $this->setUser($teacher);
         $result = core_completion_external::get_course_completion_status($course->id, $student->id);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $teacherresult = external_api::clean_returnvalue(
+        $teacherresult = \external_api::clean_returnvalue(
             core_completion_external::get_course_completion_status_returns(), $result);
 
         $this->assertEquals($studentresult, $teacherresult);
 
         // Change teacher role capabilities (disable access al goups).
-        $context = context_course::instance($course->id);
+        $context = \context_course::instance($course->id);
         assign_capability('moodle/site:accessallgroups', CAP_PROHIBIT, $teacherrole->id, $context);
         accesslib_clear_all_caches_for_unit_testing();
 
         try {
             $result = core_completion_external::get_course_completion_status($course->id, $student->id);
             $this->fail('Exception expected due to groups permissions.');
-        } catch (moodle_exception $e) {
+        } catch (\moodle_exception $e) {
             $this->assertEquals('accessdenied', $e->errorcode);
         }
 
@@ -497,7 +521,7 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
         groups_add_member($group1->id, $teacher->id);
         $result = core_completion_external::get_course_completion_status($course->id, $student->id);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $teacherresult = external_api::clean_returnvalue(
+        $teacherresult = \external_api::clean_returnvalue(
             core_completion_external::get_course_completion_status_returns(), $result);
 
         $this->assertEquals($studentresult, $teacherresult);
@@ -523,9 +547,9 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
         $this->getDataGenerator()->enrol_user($student->id, $course->id, $studentrole->id);
 
         // Set completion rules.
-        $completion = new completion_info($course);
+        $completion = new \completion_info($course);
 
-        $criteriadata = new stdClass();
+        $criteriadata = new \stdClass();
         $criteriadata->id = $course->id;
         $criteriadata->criteria_activity = array();
 
@@ -540,7 +564,7 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
             'course'        => $course->id,
             'criteriatype'  => null
         );
-        $aggregation = new completion_aggregation($aggdata);
+        $aggregation = new \completion_aggregation($aggdata);
         $aggregation->setMethod(COMPLETION_AGGREGATION_ALL);
         $aggregation->save();
 
@@ -548,7 +572,7 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
 
         $result = core_completion_external::mark_course_self_completed($course->id);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(
+        $result = \external_api::clean_returnvalue(
             core_completion_external::mark_course_self_completed_returns(), $result);
 
         // We expect a valid result.
@@ -556,7 +580,7 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
 
         $result = core_completion_external::get_course_completion_status($course->id, $student->id);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(
+        $result = \external_api::clean_returnvalue(
             core_completion_external::get_course_completion_status_returns(), $result);
 
         // Course must be completed.
@@ -565,7 +589,7 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
         try {
             $result = core_completion_external::mark_course_self_completed($course->id);
             $this->fail('Exception expected due course already self completed.');
-        } catch (moodle_exception $e) {
+        } catch (\moodle_exception $e) {
             $this->assertEquals('useralreadymarkedcomplete', $e->errorcode);
         }
 

@@ -24,6 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2021051700;
-$plugin->requires  = 2021051100;
+$plugin->version   = 2022011000;
+$plugin->requires  = 2021052500;
 $plugin->component = 'theme_boost';

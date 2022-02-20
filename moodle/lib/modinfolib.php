@@ -93,6 +93,12 @@ class course_modinfo {
     private $sections;
 
     /**
+     * Array from section id => section num.
+     * @var array
+     */
+    private $sectionids;
+
+    /**
      * Array from int (cm id) => cm_info object
      * @var cm_info[]
      */
@@ -331,6 +337,24 @@ class course_modinfo {
     }
 
     /**
+     * Gets data about specific section ID.
+     * @param int $sectionid ID (not number) of section
+     * @param int $strictness Use MUST_EXIST to throw exception if it doesn't
+     * @return section_info|null Information for numbered section or null if not found
+     */
+    public function get_section_info_by_id(int $sectionid, int $strictness = IGNORE_MISSING): ?section_info {
+
+        if (!isset($this->sectionids[$sectionid])) {
+            if ($strictness === MUST_EXIST) {
+                throw new moodle_exception('sectionnotexist');
+            } else {
+                return null;
+            }
+        }
+        return $this->get_section_info($this->sectionids[$sectionid], $strictness);
+    }
+
+    /**
      * Static cache for generated course_modinfo instances
      *
      * @see course_modinfo::instance()
@@ -469,6 +493,7 @@ class course_modinfo {
         // Set initial values
         $this->userid = $userid;
         $this->sections = array();
+        $this->sectionids = [];
         $this->cms = array();
         $this->instances = array();
         $this->groups = null;
@@ -540,6 +565,7 @@ class course_modinfo {
         // Expand section objects
         $this->sectioninfo = array();
         foreach ($coursemodinfo->sectioncache as $number => $data) {
+            $this->sectionids[$data->id] = $number;
             $this->sectioninfo[$number] = new section_info($data, $number, null, null,
                     $this, null);
         }
@@ -817,6 +843,7 @@ class course_modinfo {
  * @property-read string $afterlink Extra HTML code to display after link - calculated on request
  * @property-read string $afterediticons Extra HTML code to display after editing icons (e.g. more icons) - calculated on request
  * @property-read bool $deletioninprogress True if this course module is scheduled for deletion, false otherwise.
+ * @property-read bool $downloadcontent True if content download is enabled for this course module, false otherwise.
  */
 class cm_info implements IteratorAggregate {
     /**
@@ -943,6 +970,12 @@ class cm_info implements IteratorAggregate {
      * @var mixed
      */
     private $completiongradeitemnumber;
+
+    /**
+     * 1 if pass grade completion is enabled, 0 otherwise - from course_modules table
+     * @var int
+     */
+    private $completionpassgrade;
 
     /**
      * 1 if 'on view' completion is enabled, 0 otherwise - from course_modules table
@@ -1125,6 +1158,11 @@ class cm_info implements IteratorAggregate {
     private $deletioninprogress;
 
     /**
+     * @var int enable/disable download content for this course module
+     */
+    private $downloadcontent;
+
+    /**
      * List of class read-only properties and their getter methods.
      * Used by magic functions __get(), __isset(), __empty()
      * @var array
@@ -1147,6 +1185,7 @@ class cm_info implements IteratorAggregate {
         'completion' => false,
         'completionexpected' => false,
         'completiongradeitemnumber' => false,
+        'completionpassgrade' => false,
         'completionview' => false,
         'conditionscompletion' => false,
         'conditionsfield' => false,
@@ -1176,7 +1215,8 @@ class cm_info implements IteratorAggregate {
         'visible' => false,
         'visibleoncoursepage' => false,
         'visibleold' => false,
-        'deletioninprogress' => false
+        'deletioninprogress' => false,
+        'downloadcontent' => false
     );
 
     /**
@@ -1622,8 +1662,9 @@ class cm_info implements IteratorAggregate {
         // Standard fields from table course_modules.
         static $cmfields = array('id', 'course', 'module', 'instance', 'section', 'idnumber', 'added',
             'score', 'indent', 'visible', 'visibleoncoursepage', 'visibleold', 'groupmode', 'groupingid',
-            'completion', 'completiongradeitemnumber', 'completionview', 'completionexpected',
-            'showdescription', 'availability', 'deletioninprogress');
+            'completion', 'completiongradeitemnumber', 'completionview', 'completionexpected', 'completionpassgrade',
+            'showdescription', 'availability', 'deletioninprogress', 'downloadcontent');
+
         foreach ($cmfields as $key) {
             $cmrecord->$key = $this->$key;
         }
@@ -1836,11 +1877,13 @@ class cm_info implements IteratorAggregate {
         $this->score = isset($mod->score) ? $mod->score : 0;
         $this->visibleold = isset($mod->visibleold) ? $mod->visibleold : 0;
         $this->deletioninprogress = isset($mod->deletioninprogress) ? $mod->deletioninprogress : 0;
+        $this->downloadcontent = $mod->downloadcontent ?? null;
 
         // Note: it saves effort and database space to always include the
         // availability and completion fields, even if availability or completion
         // are actually disabled
         $this->completion = isset($mod->completion) ? $mod->completion : 0;
+        $this->completionpassgrade = isset($mod->completionpassgrade) ? $mod->completionpassgrade : 0;
         $this->completiongradeitemnumber = isset($mod->completiongradeitemnumber)
                 ? $mod->completiongradeitemnumber : null;
         $this->completionview = isset($mod->completionview)
@@ -2393,10 +2436,7 @@ function rebuild_course_cache($courseid=0, $clearonly=false) {
     // Destroy navigation caches
     navigation_cache::destroy_volatile_caches();
 
-    if (class_exists('format_base')) {
-        // if file containing class is not loaded, there is no cache there anyway
-        format_base::reset_course_cache($courseid);
-    }
+    core_courseformat\base::reset_course_cache($courseid);
 
     $cachecoursemodinfo = cache::make('core', 'coursemodinfo');
     if (empty($courseid)) {

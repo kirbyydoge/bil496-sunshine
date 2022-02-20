@@ -39,7 +39,7 @@ Feature: View activity completion in the SCORM activity
     And "Music history" should have the "Receive a score of 3 or more" completion condition
     And "Music history" should have the "Do all parts of this activity" completion condition
     And "Music history" should have the "Receive a grade" completion condition
-    And "Music history" should have the "Complete and pass the activity" completion condition
+    And "Music history" should have the "Complete or pass the activity" completion condition
 
   @javascript
   Scenario: View automatic completion items as a student
@@ -48,7 +48,7 @@ Feature: View activity completion in the SCORM activity
     And the "Receive a score of 3 or more" completion condition of "Music history" is displayed as "todo"
     And the "Do all parts of this activity" completion condition of "Music history" is displayed as "todo"
     And the "Receive a grade" completion condition of "Music history" is displayed as "todo"
-    And the "Complete and pass the activity" completion condition of "Music history" is displayed as "todo"
+    And the "Complete or pass the activity" completion condition of "Music history" is displayed as "todo"
     And I press "Enter"
     And I switch to the main frame
     And I click on "Par?" "list_item"
@@ -72,20 +72,18 @@ Feature: View activity completion in the SCORM activity
     And I switch to "scorm_object" iframe
     And I click on "[id='question_com.scorm.golfsamples.interactions.fun_1_False']" "css_element"
     And I press "Submit Answers"
-    And I switch to the main frame
-    And I follow "Exit activity"
     When I am on the "Music history" "scorm activity" page
     Then the "View" completion condition of "Music history" is displayed as "done"
     # Conditions that are not possible to achieve (eg score below requirement but all attempts used) are marked as failed.
     And the "Receive a score of 3 or more" completion condition of "Music history" is displayed as "failed"
     And the "Do all parts of this activity" completion condition of "Music history" is displayed as "done"
     And the "Receive a grade" completion condition of "Music history" is displayed as "done"
-    And the "Complete and pass the activity" completion condition of "Music history" is displayed as "done"
+    And the "Complete or pass the activity" completion condition of "Music history" is displayed as "done"
 
   @javascript
   Scenario: Use manual completion
     Given I am on the "Music history" "scorm activity" page logged in as teacher1
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the field "Completion tracking" to "Students can manually mark the activity as completed"
     And I press "Save and display"

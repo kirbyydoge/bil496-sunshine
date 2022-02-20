@@ -113,6 +113,7 @@ function useredit_setup_preference_page($userid, $courseid) {
     }
 
     $PAGE->set_pagelayout('admin');
+    $PAGE->add_body_class('limitedwidth');
     $PAGE->set_context($personalcontext);
     if ($USER->id != $user->id) {
         $PAGE->navigation->extend_for_user($user);
@@ -301,7 +302,7 @@ function useredit_shared_definition(&$mform, $editoroptions, $filemanageroptions
     $mform->addHelpButton('maildisplay', 'emaildisplay');
 
     if (get_config('tool_moodlenet', 'enablemoodlenet')) {
-        $mform->addElement('text', 'moodlenetprofile', get_string('moodlenetprofile', 'user'));
+        $mform->addElement('text', 'moodlenetprofile', get_string('moodlenetprofile', 'user'), 'maxlength="255" size="30"');
         $mform->setType('moodlenetprofile', PARAM_NOTAGS);
         $mform->addHelpButton('moodlenetprofile', 'moodlenetprofile', 'user');
     }

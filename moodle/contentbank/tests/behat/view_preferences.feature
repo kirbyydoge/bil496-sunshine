@@ -12,6 +12,8 @@ Feature: Store the content bank view preference
     And I click on "Save changes" "button"
     And I am on site homepage
     And I turn editing mode on
+    And the following config values are set as admin:
+      | unaddableblocks | | theme_boost|
     And I add the "Navigation" block if not present
     And I configure the "Navigation" block
     And I set the following fields to these values:
@@ -50,7 +52,7 @@ Feature: Store the content bank view preference
     And I should not see "Last modified"
 
   Scenario: Display the number of times a content is used in file details view
-    Given I follow "Dashboard" in the user menu
+    Given I follow "Dashboard"
     And I follow "Manage private files..."
     And I click on "Add..." "button"
     And I select "Content bank" repository in file picker

@@ -145,7 +145,18 @@ class core_filelib_testcase extends advanced_testcase {
         $contents = download_file_content("$testurl?redir=2");
         $this->assertSame('done', $contents);
 
+        $contents = download_file_content("$testurl?redir=2&verbose=1");
+        $this->assertSame('done', $contents);
+
         $response = download_file_content("$testurl?redir=2", null, null, true);
+        $this->assertInstanceOf('stdClass', $response);
+        $this->assertSame('200', $response->status);
+        $this->assertTrue(is_array($response->headers));
+        $this->assertMatchesRegularExpression('|^HTTP/1\.[01] 200 OK$|', rtrim($response->response_code));
+        $this->assertSame('done', $response->results);
+        $this->assertSame('', $response->error);
+
+        $response = download_file_content("$testurl?redir=2&verbose=1", null, null, true);
         $this->assertInstanceOf('stdClass', $response);
         $this->assertSame('200', $response->status);
         $this->assertTrue(is_array($response->headers));
@@ -330,7 +341,27 @@ class core_filelib_testcase extends advanced_testcase {
         $curl = new curl();
         $tofile = "$CFG->tempdir/test.html";
         @unlink($tofile);
+        $fp = fopen($tofile, 'w');
+        $result = $curl->get("$testurl?redir=1&verbose=1", array(), array('CURLOPT_FILE' => $fp));
+        $this->assertTrue($result);
+        fclose($fp);
+        $this->assertFileExists($tofile);
+        $this->assertSame('done', file_get_contents($tofile));
+        @unlink($tofile);
+
+        $curl = new curl();
+        $tofile = "$CFG->tempdir/test.html";
+        @unlink($tofile);
         $result = $curl->download_one("$testurl?redir=1", array(), array('filepath'=>$tofile));
+        $this->assertTrue($result);
+        $this->assertFileExists($tofile);
+        $this->assertSame('done', file_get_contents($tofile));
+        @unlink($tofile);
+
+        $curl = new curl();
+        $tofile = "$CFG->tempdir/test.html";
+        @unlink($tofile);
+        $result = $curl->download_one("$testurl?redir=1&verbose=1", array(), array('filepath' => $tofile));
         $this->assertTrue($result);
         $this->assertFileExists($tofile);
         $this->assertSame('done', file_get_contents($tofile));
@@ -826,6 +857,28 @@ class core_filelib_testcase extends advanced_testcase {
         $text = file_save_draft_area_files(IGNORE_FILE_MERGE, $usercontext->id, 'user', 'private', 0, null, $inlinetext);
         $this->assertCount(2, $fs->get_area_files($usercontext->id, 'user', 'private'));
         $this->assertEquals($inlinetext, $text);
+    }
+
+    /**
+     * Testing deleting file_save_draft_area_files won't accidentally wipe unintended files.
+     */
+    public function test_file_save_draft_area_files_itemid_cannot_be_false() {
+        global $USER, $DB;
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $user = $generator->create_user();
+        $usercontext = context_user::instance($user->id);
+        $USER = $DB->get_record('user', ['id' => $user->id]);
+
+        $draftitemid = 0;
+        file_prepare_draft_area($draftitemid, $usercontext->id, 'user', 'private', 0);
+
+        // Call file_save_draft_area_files with itemid false - which could only happen due to a bug.
+        // This should throw an exception.
+        $this->expectExceptionMessage('file_save_draft_area_files was called with $itemid false. ' .
+                'This suggests a bug, because it would wipe all (' . $usercontext->id . ', user, private) files.');
+        file_save_draft_area_files($draftitemid, $usercontext->id, 'user', 'private', false);
     }
 
     /**

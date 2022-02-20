@@ -76,7 +76,8 @@ if (!$contenttype->can_edit($content)) {
 $values = [
     'contextid' => $contextid,
     'plugin' => $pluginname,
-    'id' => $id
+    'id' => $id,
+    'heading' => $heading
 ];
 
 $title = get_string('contentbank');
@@ -89,8 +90,7 @@ $PAGE->set_url(new \moodle_url('/contentbank/edit.php', $values));
 $PAGE->set_context($context);
 $PAGE->navbar->add(get_string('edit'));
 $PAGE->set_title($title);
-
-$PAGE->set_heading($heading);
+$PAGE->set_pagelayout('incourse');
 
 // Instantiate the content type form.
 $editorclass = "$contenttypename\\form\\editor";

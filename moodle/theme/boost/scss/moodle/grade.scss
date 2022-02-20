@@ -52,11 +52,12 @@
     }
 }
 
-.path-grade-report-grader {
-    span.gradepass {
+.path-grade-report-grader,
+.path-grade-report-user {
+    .gradepass {
         color: $success;
     }
-    span.gradefail {
+    .gradefail {
         color: $danger;
     }
 }
@@ -402,10 +403,6 @@
  */
 .path-grade-report-grader {
     .gradeparent {
-        table {
-            @include border-radius($border-radius);
-        }
-
         tr .cell,
         .floater .cell {
             background-color: $pagination-bg;
@@ -427,6 +424,36 @@
         table .clickable {
             cursor: pointer;
         }
+
+        tr.heading {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tr.lastrow {
+            position: sticky;
+            bottom: 0;
+            z-index: 1;
+
+            td,
+            th {
+                border-top: 1px solid $table-border-color;
+            }
+        }
+
+        th.header {
+            position: sticky;
+            left: -3rem;
+        }
+
+        td.noborder {
+            border-right: transparent;
+        }
+    }
+
+    .show-drawer-left .gradeparent th.header {
+        left: -1rem;
     }
 }
 

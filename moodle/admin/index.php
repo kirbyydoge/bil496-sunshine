@@ -719,6 +719,12 @@ if (during_initial_install()) {
     set_config('rolesactive', 1); // after this, during_initial_install will return false.
     set_config('adminsetuppending', 1);
     set_config('registrationpending', 1); // Remind to register site after all other setup is finished.
+
+    // Apply default preset, if it is defined in $CFG and has a valid value.
+    if (!empty($CFG->setsitepresetduringinstall)) {
+        \core_adminpresets\helper::change_default_preset($CFG->setsitepresetduringinstall);
+    }
+
     // we need this redirect to setup proper session
     upgrade_finished("index.php?sessionstarted=1&amp;lang=$CFG->lang");
 }
@@ -907,6 +913,15 @@ $showcampaigncontent = !isset($CFG->showcampaigncontent) || $CFG->showcampaignco
 // Encourage admins to enable the user feedback feature if it is not enabled already.
 $showfeedbackencouragement = empty($CFG->enableuserfeedback);
 
+// Check if the service and support content setting is enabled or not.
+$servicesandsupportcontent = !isset($CFG->showservicesandsupportcontent) || $CFG->showservicesandsupportcontent;
+
+// Check whether the XML-RPC protocol is enabled or not.
+require_once($CFG->libdir . '/environmentlib.php');
+$result = new environment_results('custom_checks');
+$result = check_xmlrpc_usage($result);
+$xmlrpcwarning = !is_null($result) ? get_string($result->getFeedbackStr(), 'admin') : '';
+
 admin_externalpage_setup('adminnotifications');
 
 $output = $PAGE->get_renderer('core', 'admin');
@@ -915,4 +930,5 @@ echo $output->admin_notifications_page($maturity, $insecuredataroot, $errorsdisp
                                        $maintenancemode, $availableupdates, $availableupdatesfetch, $buggyiconvnomb,
                                        $registered, $cachewarnings, $eventshandlers, $themedesignermode, $devlibdir,
                                        $mobileconfigured, $overridetossl, $invalidforgottenpasswordurl, $croninfrequent,
-                                       $showcampaigncontent, $showfeedbackencouragement);
+                                       $showcampaigncontent, $showfeedbackencouragement, $servicesandsupportcontent,
+                                       $xmlrpcwarning);

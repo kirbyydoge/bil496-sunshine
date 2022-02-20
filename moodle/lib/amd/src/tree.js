@@ -17,7 +17,7 @@
  * Implement an accessible aria tree widget, from a nested unordered list.
  * Based on http://oaa-accessibility.org/example/41/.
  *
- * @module     tool_lp/tree
+ * @module     core/tree
  * @copyright  2015 Damyon Wiese <damyon@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -355,7 +355,7 @@ define(['jquery'], function($) {
      // eslint-disable-next-line complexity
     Tree.prototype.handleKeyDown = function(e) {
         var item = $(e.target);
-        var currentIndex = this.getVisibleItems().index(item);
+        var currentIndex = this.getVisibleItems()?.index(item);
 
         if ((e.altKey || e.ctrlKey || e.metaKey) || (e.shiftKey && e.keyCode != this.keys.tab)) {
             // Do nothing.

@@ -38,14 +38,13 @@ Feature: We can change what we are viewing on the grader report
     And I give the grade "80.00" to the user "Student 1" for the grade item "Test assignment name 1"
     And I give the grade "90.00" to the user "Student 1" for the grade item "Test assignment name 2"
     And I press "Save changes"
-    And I turn editing mode off
 
   @javascript
   Scenario: View and minimise the grader report containing hidden activities
     When I am on "Course 1" course homepage with editing mode on
     And I open "Test assignment name 2" actions menu
     And I click on "Hide" "link" in the "Test assignment name 2" activity
-    And I am on "Course 1" course homepage
+    And I am on "Course 1" course homepage with editing mode off
     And I navigate to "View > Grader report" in the course gradebook
     And I should see "Test assignment name 1"
     And I should see "Test assignment name 2"

@@ -24,6 +24,11 @@
  * @since      Moodle 3.1
  */
 
+namespace core_question;
+
+use core_question_external;
+use externallib_advanced_testcase;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -40,7 +45,7 @@ require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      Moodle 3.1
  */
-class core_question_external_testcase extends externallib_advanced_testcase {
+class externallib_test extends externallib_advanced_testcase {
 
     /**
      * Set up for every test
@@ -57,7 +62,7 @@ class core_question_external_testcase extends externallib_advanced_testcase {
         $this->student = self::getDataGenerator()->create_user();
 
         // Users enrolments.
-        $this->studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $this->studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $this->getDataGenerator()->enrol_user($this->student->id, $this->course->id, $this->studentrole->id, 'manual');
     }
 
@@ -71,17 +76,17 @@ class core_question_external_testcase extends externallib_advanced_testcase {
         // Create a question category.
         $cat = $questiongenerator->create_question_category();
 
-        $quba = question_engine::make_questions_usage_by_activity('core_question_update_flag', context_system::instance());
+        $quba = \question_engine::make_questions_usage_by_activity('core_question_update_flag', \context_system::instance());
         $quba->set_preferred_behaviour('deferredfeedback');
-        $questiondata = $questiongenerator->create_question('numerical', null, array('category' => $cat->id));
-        $question = question_bank::load_question($questiondata->id);
+        $questiondata = $questiongenerator->create_question('numerical', null, ['category' => $cat->id]);
+        $question = \question_bank::load_question($questiondata->id);
         $slot = $quba->add_question($question);
         $qa = $quba->get_question_attempt($slot);
 
         self::setUser($this->student);
 
         $quba->start_all_questions();
-        question_engine::save_questions_usage_by_activity($quba);
+        \question_engine::save_questions_usage_by_activity($quba);
 
         $qubaid = $quba->get_id();
         $questionid = $question->id;
@@ -98,379 +103,9 @@ class core_question_external_testcase extends externallib_advanced_testcase {
 
             core_question_external::update_flag($qubaid, $questionid, $qaid, $slot, $checksum, true);
             $this->fail('Exception expected due to invalid checksum.');
-        } catch (moodle_exception $e) {
+        } catch (\moodle_exception $e) {
             $this->assertEquals('errorsavingflags', $e->errorcode);
         }
-    }
-
-    /**
-     * submit_tags_form should throw an exception when the question id doesn't match
-     * a question.
-     */
-    public function test_submit_tags_form_incorrect_question_id() {
-        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        list ($category, $course, $qcat, $questions) = $questiongenerator->setup_course_and_questions();
-        $questioncontext = context::instance_by_id($qcat->contextid);
-        $editingcontext = $questioncontext;
-        $question = $questions[0];
-        // Generate an id for a question that doesn't exist.
-        $missingquestionid = $questions[1]->id * 2;
-        $question->id = $missingquestionid;
-        $formdata = $this->generate_encoded_submit_tags_form_string($question, $qcat, $questioncontext, [], []);
-
-        // We should receive an exception if the question doesn't exist.
-        $this->expectException('moodle_exception');
-        core_question_external::submit_tags_form($missingquestionid, $editingcontext->id, $formdata);
-    }
-
-    /**
-     * submit_tags_form should throw an exception when the context id doesn't match
-     * a context.
-     */
-    public function test_submit_tags_form_incorrect_context_id() {
-        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        list ($category, $course, $qcat, $questions) = $questiongenerator->setup_course_and_questions();
-        $questioncontext = context::instance_by_id($qcat->contextid);
-        $editingcontext = $questioncontext;
-        $question = $questions[0];
-        // Generate an id for a context that doesn't exist.
-        $missingcontextid = $editingcontext->id * 200;
-        $formdata = $this->generate_encoded_submit_tags_form_string($question, $qcat, $questioncontext, [], []);
-
-        // We should receive an exception if the question doesn't exist.
-        $this->expectException('moodle_exception');
-        core_question_external::submit_tags_form($question->id, $missingcontextid, $formdata);
-    }
-
-    /**
-     * submit_tags_form should return false when tags are disabled.
-     */
-    public function test_submit_tags_form_tags_disabled() {
-        global $CFG;
-
-        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        list ($category, $course, $qcat, $questions) = $questiongenerator->setup_course_and_questions();
-        $questioncontext = context::instance_by_id($qcat->contextid);
-        $editingcontext = $questioncontext;
-        $question = $questions[0];
-        $user = $this->create_user_can_tag($course);
-        $formdata = $this->generate_encoded_submit_tags_form_string($question, $qcat, $questioncontext, [], []);
-
-        $this->setUser($user);
-        $CFG->usetags = false;
-        $result = core_question_external::submit_tags_form($question->id, $editingcontext->id, $formdata);
-        $CFG->usetags = true;
-
-        $this->assertFalse($result['status']);
-    }
-
-    /**
-     * submit_tags_form should return false if the user does not have any capability
-     * to tag the question.
-     */
-    public function test_submit_tags_form_no_tag_permissions() {
-        global $DB;
-
-        $generator = $this->getDataGenerator();
-        $user = $generator->create_user();
-        $teacherrole = $DB->get_record('role', ['shortname' => 'editingteacher']);
-        $questiongenerator = $generator->get_plugin_generator('core_question');
-        list ($category, $course, $qcat, $questions) = $questiongenerator->setup_course_and_questions();
-        $questioncontext = context::instance_by_id($qcat->contextid);
-        $editingcontext = $questioncontext;
-        $question = $questions[0];
-        $formdata = $this->generate_encoded_submit_tags_form_string(
-            $question,
-            $qcat,
-            $questioncontext,
-            ['foo'],
-            ['bar']
-        );
-
-        // Prohibit all of the tag capabilities.
-        assign_capability('moodle/question:tagmine', CAP_PROHIBIT, $teacherrole->id, $questioncontext->id);
-        assign_capability('moodle/question:tagall', CAP_PROHIBIT, $teacherrole->id, $questioncontext->id);
-
-        $generator->enrol_user($user->id, $course->id, $teacherrole->id, 'manual');
-        $user->ignoresesskey = true;
-        $this->setUser($user);
-
-        $result = core_question_external::submit_tags_form($question->id, $editingcontext->id, $formdata);
-
-        $this->assertFalse($result['status']);
-    }
-
-    /**
-     * submit_tags_form should return false if the user only has the capability to
-     * tag their own questions and the question is not theirs.
-     */
-    public function test_submit_tags_form_tagmine_permission_non_owner_question() {
-        global $DB;
-
-        $generator = $this->getDataGenerator();
-        $user = $generator->create_user();
-        $teacherrole = $DB->get_record('role', ['shortname' => 'editingteacher']);
-        $questiongenerator = $generator->get_plugin_generator('core_question');
-        list ($category, $course, $qcat, $questions) = $questiongenerator->setup_course_and_questions();
-        $questioncontext = context::instance_by_id($qcat->contextid);
-        $editingcontext = $questioncontext;
-        $question = $questions[0];
-        $formdata = $this->generate_encoded_submit_tags_form_string(
-            $question,
-            $qcat,
-            $questioncontext,
-            ['foo'],
-            ['bar']
-        );
-
-        // Make sure the question isn't created by the user.
-        $question->createdby = $user->id + 1;
-
-        // Prohibit all of the tag capabilities.
-        assign_capability('moodle/question:tagmine', CAP_ALLOW, $teacherrole->id, $questioncontext->id);
-        assign_capability('moodle/question:tagall', CAP_PROHIBIT, $teacherrole->id, $questioncontext->id);
-
-        $generator->enrol_user($user->id, $course->id, $teacherrole->id, 'manual');
-        $user->ignoresesskey = true;
-        $this->setUser($user);
-
-        $result = core_question_external::submit_tags_form($question->id, $editingcontext->id, $formdata);
-
-        $this->assertFalse($result['status']);
-    }
-
-    /**
-     * Data provided for the submit_tags_form test to check that course tags are
-     * only created in the correct editing and question context combinations.
-     *
-     * @return array Test cases
-     */
-    public function get_submit_tags_form_testcases() {
-        return [
-            'course - course' => [
-                'editingcontext' => 'course',
-                'questioncontext' => 'course',
-                'questiontags' => ['foo'],
-                'coursetags' => ['bar'],
-                'expectcoursetags' => false
-            ],
-            'course - course - empty tags' => [
-                'editingcontext' => 'course',
-                'questioncontext' => 'course',
-                'questiontags' => [],
-                'coursetags' => ['bar'],
-                'expectcoursetags' => false
-            ],
-            'course - course category' => [
-                'editingcontext' => 'course',
-                'questioncontext' => 'category',
-                'questiontags' => ['foo'],
-                'coursetags' => ['bar'],
-                'expectcoursetags' => true
-            ],
-            'course - system' => [
-                'editingcontext' => 'course',
-                'questioncontext' => 'system',
-                'questiontags' => ['foo'],
-                'coursetags' => ['bar'],
-                'expectcoursetags' => true
-            ],
-            'course category - course' => [
-                'editingcontext' => 'category',
-                'questioncontext' => 'course',
-                'questiontags' => ['foo'],
-                'coursetags' => ['bar'],
-                'expectcoursetags' => false
-            ],
-            'course category - course category' => [
-                'editingcontext' => 'category',
-                'questioncontext' => 'category',
-                'questiontags' => ['foo'],
-                'coursetags' => ['bar'],
-                'expectcoursetags' => false
-            ],
-            'course category - system' => [
-                'editingcontext' => 'category',
-                'questioncontext' => 'system',
-                'questiontags' => ['foo'],
-                'coursetags' => ['bar'],
-                'expectcoursetags' => false
-            ],
-            'system - course' => [
-                'editingcontext' => 'system',
-                'questioncontext' => 'course',
-                'questiontags' => ['foo'],
-                'coursetags' => ['bar'],
-                'expectcoursetags' => false
-            ],
-            'system - course category' => [
-                'editingcontext' => 'system',
-                'questioncontext' => 'category',
-                'questiontags' => ['foo'],
-                'coursetags' => ['bar'],
-                'expectcoursetags' => false
-            ],
-            'system - system' => [
-                'editingcontext' => 'system',
-                'questioncontext' => 'system',
-                'questiontags' => ['foo'],
-                'coursetags' => ['bar'],
-                'expectcoursetags' => false
-            ],
-        ];
-    }
-
-    /**
-     * Tests that submit_tags_form only creates course tags when the correct combination
-     * of editing context and question context is provided.
-     *
-     * Course tags can only be set on a course category or system context question that
-     * is being editing in a course context.
-     *
-     * @dataProvider get_submit_tags_form_testcases()
-     * @param string $editingcontext The type of the context the question is being edited in
-     * @param string $questioncontext The type of the context the question belongs to
-     * @param string[] $questiontags The tag names to set as question tags
-     * @param string[] $coursetags The tag names to set as course tags
-     * @param bool $expectcoursetags If the given course tags should have been set or not
-     */
-    public function test_submit_tags_form_context_combinations(
-        $editingcontext,
-        $questioncontext,
-        $questiontags,
-        $coursetags,
-        $expectcoursetags
-    ) {
-        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        list ($category, $course, $qcat, $questions) = $questiongenerator->setup_course_and_questions($questioncontext);
-        $coursecontext = context_course::instance($course->id);
-        $questioncontext = context::instance_by_id($qcat->contextid);
-
-        switch($editingcontext) {
-            case 'system':
-                $editingcontext = context_system::instance();
-                break;
-
-            case 'category':
-                $editingcontext = context_coursecat::instance($category->id);
-                break;
-
-            default:
-                $editingcontext = context_course::instance($course->id);
-        }
-
-        $user = $this->create_user_can_tag($course);
-        $question = $questions[0];
-        $formdata = $this->generate_encoded_submit_tags_form_string(
-            $question,
-            $qcat,
-            $questioncontext,
-            $questiontags, // Question tags.
-            $coursetags // Course tags.
-        );
-
-        $this->setUser($user);
-
-        $result = core_question_external::submit_tags_form($question->id, $editingcontext->id, $formdata);
-
-        $this->assertTrue($result['status']);
-
-        $tagobjects = core_tag_tag::get_item_tags('core_question', 'question', $question->id);
-        $coursetagobjects = [];
-        $questiontagobjects = [];
-
-        if ($expectcoursetags) {
-            // If the use case is expecting course tags to be created then split
-            // the tags into course tags and question tags and ensure we have
-            // the correct number of course tags.
-
-            while ($tagobject = array_shift($tagobjects)) {
-                if ($tagobject->taginstancecontextid == $questioncontext->id) {
-                    $questiontagobjects[] = $tagobject;
-                } else if ($tagobject->taginstancecontextid == $coursecontext->id) {
-                    $coursetagobjects[] = $tagobject;
-                }
-            }
-
-            $this->assertCount(count($coursetags), $coursetagobjects);
-        } else {
-            $questiontagobjects = $tagobjects;
-        }
-
-        // Ensure the expected number of question tags was created.
-        $this->assertCount(count($questiontags), $questiontagobjects);
-
-        foreach ($questiontagobjects as $tagobject) {
-            // If we have any question tags then make sure they are in the list
-            // of expected tags and have the correct context.
-            $this->assertContains($tagobject->name, $questiontags);
-            $this->assertEquals($questioncontext->id, $tagobject->taginstancecontextid);
-        }
-
-        foreach ($coursetagobjects as $tagobject) {
-            // If we have any course tags then make sure they are in the list
-            // of expected course tags and have the correct context.
-            $this->assertContains($tagobject->name, $coursetags);
-            $this->assertEquals($coursecontext->id, $tagobject->taginstancecontextid);
-        }
-    }
-
-    /**
-     * Build the encoded form data expected by the submit_tags_form external function.
-     *
-     * @param  stdClass $question         The question record
-     * @param  stdClass $questioncategory The question category record
-     * @param  context  $questioncontext  Context for the question category
-     * @param  array  $tags               A list of tag names for the question
-     * @param  array  $coursetags         A list of course tag names for the question
-     * @return string                    HTML encoded string of the data
-     */
-    protected function generate_encoded_submit_tags_form_string($question, $questioncategory,
-            $questioncontext, $tags = [], $coursetags = []) {
-        global $CFG;
-
-        require_once($CFG->dirroot . '/question/type/tags_form.php');
-
-        $data = [
-            'id' => $question->id,
-            'categoryid' => $questioncategory->id,
-            'contextid' => $questioncontext->id,
-            'questionname' => $question->name,
-            'questioncategory' => $questioncategory->name,
-            'context' => $questioncontext->get_context_name(false),
-            'tags' => $tags,
-            'coursetags' => $coursetags
-        ];
-        $data = core_question\form\tags::mock_generate_submit_keys($data);
-
-        return http_build_query($data, '', '&');
-    }
-
-    /**
-     * Create a user, enrol them in the course, and give them the capability to
-     * tag all questions in the system context.
-     *
-     * @param  stdClass $course The course record to enrol in
-     * @return stdClass         The user record
-     */
-    protected function create_user_can_tag($course) {
-        global $DB;
-
-        $generator = $this->getDataGenerator();
-        $user = $generator->create_user();
-        $roleid = $generator->create_role();
-        $teacherrole = $DB->get_record('role', ['shortname' => 'editingteacher']);
-        $systemcontext = context_system::instance();
-
-        $generator->role_assign($roleid, $user->id, $systemcontext->id);
-        $generator->enrol_user($user->id, $course->id, $teacherrole->id, 'manual');
-
-        // Give the user global ability to tag questions.
-        assign_capability('moodle/question:tagall', CAP_ALLOW, $roleid, $systemcontext, true);
-        // Allow the user to submit form data.
-        $user->ignoresesskey = true;
-
-        return $user;
     }
 
     /**
@@ -562,7 +197,7 @@ class core_question_external_testcase extends externallib_advanced_testcase {
     ) {
         $this->resetAfterTest();
 
-        $context = context_system::instance();
+        $context = \context_system::instance();
         $categories = [];
         $questions = [];
         $tagnames = [
@@ -571,8 +206,8 @@ class core_question_external_testcase extends externallib_advanced_testcase {
             'subcat',
             'foo'
         ];
-        $collid = core_tag_collection::get_default();
-        $tags = core_tag_tag::create_if_missing($collid, $tagnames);
+        $collid = \core_tag_collection::get_default();
+        $tags = \core_tag_tag::create_if_missing($collid, $tagnames);
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
 
         // First category and questions.
@@ -624,8 +259,8 @@ class core_question_external_testcase extends externallib_advanced_testcase {
     public function test_get_random_question_summaries_invalid_category_id_param() {
         $this->resetAfterTest();
 
-        $context = context_system::instance();
-        $this->expectException('invalid_parameter_exception');
+        $context = \context_system::instance();
+        $this->expectException('\invalid_parameter_exception');
         core_question_external::get_random_question_summaries('invalid value', false, [], $context->id);
     }
 
@@ -636,8 +271,8 @@ class core_question_external_testcase extends externallib_advanced_testcase {
     public function test_get_random_question_summaries_invalid_includesubcategories_param() {
         $this->resetAfterTest();
 
-        $context = context_system::instance();
-        $this->expectException('invalid_parameter_exception');
+        $context = \context_system::instance();
+        $this->expectException('\invalid_parameter_exception');
         core_question_external::get_random_question_summaries(1, 'invalid value', [], $context->id);
     }
 
@@ -648,8 +283,8 @@ class core_question_external_testcase extends externallib_advanced_testcase {
     public function test_get_random_question_summaries_invalid_tagids_param() {
         $this->resetAfterTest();
 
-        $context = context_system::instance();
-        $this->expectException('invalid_parameter_exception');
+        $context = \context_system::instance();
+        $this->expectException('\invalid_parameter_exception');
         core_question_external::get_random_question_summaries(1, false, ['invalid', 'values'], $context->id);
     }
 
@@ -660,7 +295,7 @@ class core_question_external_testcase extends externallib_advanced_testcase {
     public function test_get_random_question_summaries_invalid_context() {
         $this->resetAfterTest();
 
-        $this->expectException('invalid_parameter_exception');
+        $this->expectException('\invalid_parameter_exception');
         core_question_external::get_random_question_summaries(1, false, [1, 2], 'context');
     }
 
@@ -673,8 +308,8 @@ class core_question_external_testcase extends externallib_advanced_testcase {
         $this->resetAfterTest();
 
         $course = $this->getDataGenerator()->create_course();
-        $coursecontext = context_course::instance($course->id);
-        $systemcontext = context_system::instance();
+        $coursecontext = \context_course::instance($course->id);
+        $systemcontext = \context_system::instance();
         // Restrict access to external functions for the logged in user to only
         // the course we just created. External functions should not be allowed
         // to execute in any contexts above the course context.
@@ -686,7 +321,7 @@ class core_question_external_testcase extends externallib_advanced_testcase {
             // Do this in a try/catch statement to allow the context restriction
             // to be reset afterwards.
             core_question_external::get_random_question_summaries(1, false, [], $systemcontext->id);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->assertInstanceOf('restricted_context_exception', $e);
         }
         // Reset the restriction so that other tests don't fail aftwards.
@@ -700,7 +335,7 @@ class core_question_external_testcase extends externallib_advanced_testcase {
         $this->resetAfterTest();
 
         list($category, $questions) = $this->create_category_and_questions(1);
-        $context = context_system::instance();
+        $context = \context_system::instance();
         $question = $questions[0];
         $expected = (object) [
             'id' => $question->id,
@@ -736,7 +371,7 @@ class core_question_external_testcase extends externallib_advanced_testcase {
         $tagids = [];
         $limit = 1;
         $offset = 0;
-        $context = context_system::instance();
+        $context = \context_system::instance();
         list($category, $questions) = $this->create_category_and_questions($numberofquestions);
 
         // Sort the questions by id to match the ordering of the result.
@@ -781,13 +416,13 @@ class core_question_external_testcase extends externallib_advanced_testcase {
         $generator = $this->getDataGenerator();
         $user = $generator->create_user();
         $roleid = $generator->create_role();
-        $systemcontext = context_system::instance();
+        $systemcontext = \context_system::instance();
         $numberofquestions = 5;
         $includesubcategories = false;
         $tagids = [];
-        $context = context_system::instance();
+        $context = \context_system::instance();
         list($category, $questions) = $this->create_category_and_questions($numberofquestions);
-        $categorycontext = context::instance_by_id($category->contextid);
+        $categorycontext = \context::instance_by_id($category->contextid);
 
         $generator->role_assign($roleid, $user->id, $systemcontext->id);
         // Prohibit all of the tag capabilities.
@@ -829,8 +464,8 @@ class core_question_external_testcase extends externallib_advanced_testcase {
         }
 
         if (!empty($tagnames) && !empty($questions)) {
-            $context = context::instance_by_id($category->contextid);
-            core_tag_tag::set_item_tags('core_question', 'question', $questions[0]->id, $context, $tagnames);
+            $context = \context::instance_by_id($category->contextid);
+            \core_tag_tag::set_item_tags('core_question', 'question', $questions[0]->id, $context, $tagnames);
         }
 
         return [$category, $questions];

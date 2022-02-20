@@ -17,13 +17,15 @@
 /**
  * Repository generator tests
  *
- * @package   repository
+ * @package   core_repository
  * @category  test
  * @copyright 2013 Frédéric Massart
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace core_repository;
+
+use repository_exception;
 
 /**
  * Repository generator tests class
@@ -33,7 +35,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright 2013 Frédéric Massart
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class core_repository_generator_testcase extends advanced_testcase {
+class generator_test extends \advanced_testcase {
 
     /**
      * Basic test of creation of repository types.
@@ -45,8 +47,8 @@ class core_repository_generator_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
 
         // All the repository types.
-        $all = array('boxnet', 'coursefiles', 'dropbox', 'equella', 'filesystem', 'flickr',
-            'flickr_public', 'googledocs', 'local', 'nextcloud', 'merlot', 'picasa', 'recent', 's3', 'upload', 'url',
+        $all = array('coursefiles', 'dropbox', 'equella', 'filesystem', 'flickr',
+            'flickr_public', 'googledocs', 'local', 'nextcloud', 'merlot', 'recent', 's3', 'upload', 'url',
             'user', 'webdav', 'wikimedia', 'youtube');
 
         // The ones enabled during installation.
@@ -87,7 +89,7 @@ class core_repository_generator_testcase extends advanced_testcase {
 
         // Single instances.
         // Note: for single instances repositories enablecourseinstances and enableuserinstances are forced set to 0.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->pluginname = 'Custom Flickr';
         $record->api_key = '12345';
         $record->secret = '67890';
@@ -100,10 +102,20 @@ class core_repository_generator_testcase extends advanced_testcase {
         $this->assertEquals('Custom Flickr',
             $DB->get_field('repository_instances', 'name', array('typeid' => $flickr->id), MUST_EXIST));
 
-        $record = new stdClass();
+        // Create a dropbox oauth issuer.
+        $this->setAdminUser();
+        $params = [
+            'name' => 'Dropbox',
+            'clientid' => 'key',
+            'clientsecret' => 'secret',
+            'loginparamsoffline' => 'token_access_type=offline',
+            'image' => '',
+            'showonloginpage' => 1,
+        ];
+        $issuer = \core\oauth2\api::create_issuer((object)$params);
+        $record = new \stdClass();
         $record->pluginname = 'Custom Dropbox';
-        $record->dropbox_key = '12345';
-        $record->dropbox_secret = '67890';
+        $record->dropbox_issuerid = $issuer->get('id');
         $record->dropbox_cachelimit = '123';
         $dropbox = $this->getDataGenerator()->create_repository_type('dropbox', $record);
 
@@ -115,7 +127,7 @@ class core_repository_generator_testcase extends advanced_testcase {
             $DB->get_field('repository_instances', 'name', array('typeid' => $dropbox->id), MUST_EXIST));
 
         // Multiple instances.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->pluginname = 'Custom WebDAV';
         $record->enableuserinstances = '0';
         $record->enablecourseinstances = '0';
@@ -125,7 +137,7 @@ class core_repository_generator_testcase extends advanced_testcase {
         $this->assertEquals($record, $config);
         $this->assertFalse( $DB->record_exists('repository_instances', array('typeid' => $webdav->id)));
 
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->pluginname = 'Custom Equella';
         $record->enableuserinstances = '1';
         $record->enablecourseinstances = '0';
@@ -150,7 +162,7 @@ class core_repository_generator_testcase extends advanced_testcase {
         $block = $this->getDataGenerator()->create_block('online_users');
 
         $type = $this->getDataGenerator()->create_repository_type('webdav');
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->name = 'A WebDAV instance';
         $record->webdav_type = '1';
         $record->webdav_server = 'localhost';
@@ -164,7 +176,7 @@ class core_repository_generator_testcase extends advanced_testcase {
         $this->assertEquals(1, $DB->count_records('repository_instances', array('typeid' => $type->id)));
         $this->assertEquals($record->name, $DB->get_field('repository_instances', 'name', array('id' => $instance->id)));
         $entries = $DB->get_records('repository_instance_config', array('instanceid' => $instance->id));
-        $config = new stdClass();
+        $config = new \stdClass();
         foreach ($entries as $entry) {
             $config->{$entry->name} = $entry->value;
         }
@@ -172,21 +184,21 @@ class core_repository_generator_testcase extends advanced_testcase {
         $this->assertEquals($config, $record);
 
         // Course context.
-        $record = new stdClass();
-        $record->contextid = context_course::instance($course->id)->id;
+        $record = new \stdClass();
+        $record->contextid = \context_course::instance($course->id)->id;
         $instance = $this->getDataGenerator()->create_repository('webdav', $record);
         $this->assertEquals(2, $DB->count_records('repository_instances', array('typeid' => $type->id)));
         $this->assertEquals($record->contextid, $instance->contextid);
 
         // User context.
-        $record->contextid = context_user::instance($user->id)->id;
+        $record->contextid = \context_user::instance($user->id)->id;
         $instance = $this->getDataGenerator()->create_repository('webdav', $record);
         $this->assertEquals(3, $DB->count_records('repository_instances', array('typeid' => $type->id)));
         $this->assertEquals($record->contextid, $instance->contextid);
 
         // Invalid context.
         $this->expectException('coding_exception');
-        $record->contextid = context_block::instance($block->id)->id;
+        $record->contextid = \context_block::instance($block->id)->id;
         $instance = $this->getDataGenerator()->create_repository('webdav', $record);
     }
 

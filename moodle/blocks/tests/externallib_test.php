@@ -14,15 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * External block functions unit tests
- *
- * @package    core_block
- * @category   external
- * @copyright  2017 Juan Leyva <juan@moodle.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @since      Moodle 3.3
- */
+namespace core_block;
+
+use core_block_external;
+use externallib_advanced_testcase;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -40,7 +35,7 @@ require_once($CFG->dirroot . '/my/lib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      Moodle 3.0
  */
-class core_block_externallib_testcase extends externallib_advanced_testcase {
+class externallib_test extends externallib_advanced_testcase {
 
     /**
      * Test get_course_blocks
@@ -55,8 +50,8 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
         $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
 
-        $page = new moodle_page();
-        $page->set_context(context_course::instance($course->id));
+        $page = new \moodle_page();
+        $page->set_context(\context_course::instance($course->id));
         $page->set_pagelayout('course');
         $course->format = course_get_format($course)->get_format();
         $page->set_pagetype('course-view-' . $course->format);
@@ -68,7 +63,7 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
         // Check for the new block.
         $result = core_block_external::get_course_blocks($course->id);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_block_external::get_course_blocks_returns(), $result);
+        $result = \external_api::clean_returnvalue(core_block_external::get_course_blocks_returns(), $result);
 
         // Expect the new block.
         $this->assertCount(1, $result['blocks']);
@@ -85,8 +80,8 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
 
         $user = $this->getDataGenerator()->create_user();
 
-        $page = new moodle_page();
-        $page->set_context(context_course::instance(SITEID));
+        $page = new \moodle_page();
+        $page->set_context(\context_course::instance(SITEID));
         $page->set_pagelayout('frontpage');
         $page->set_pagetype('site-index');
         $page->blocks->load_blocks();
@@ -97,7 +92,7 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
         // Check for the new block.
         $result = core_block_external::get_course_blocks(SITEID);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_block_external::get_course_blocks_returns(), $result);
+        $result = \external_api::clean_returnvalue(core_block_external::get_course_blocks_returns(), $result);
 
         // Expect the new block.
         $this->assertCount(1, $result['blocks']);
@@ -124,7 +119,7 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
         // Try default blocks.
         $result = core_block_external::get_course_blocks($course->id);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_block_external::get_course_blocks_returns(), $result);
+        $result = \external_api::clean_returnvalue(core_block_external::get_course_blocks_returns(), $result);
 
         // Expect 4 default blocks.
         $this->assertCount(4, $result['blocks']);
@@ -151,13 +146,13 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
         $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
-        $coursecontext = context_course::instance($course->id);
+        $coursecontext = \context_course::instance($course->id);
 
         // Create a HTML block.
         $title = 'Some course info';
         $body = 'Some course info<br /><p>Some contents</p>';
         $bodyformat = FORMAT_MOODLE;
-        $page = new moodle_page();
+        $page = new \moodle_page();
         $page->set_context($coursecontext);
         $page->set_pagelayout('course');
         $course->format = course_get_format($course)->get_format();
@@ -168,7 +163,7 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
 
         $this->setUser($user);
         // Re-create the page.
-        $page = new moodle_page();
+        $page = new \moodle_page();
         $page->set_context($coursecontext);
         $page->set_pagelayout('course');
         $course->format = course_get_format($course)->get_format();
@@ -192,7 +187,7 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
         $block->instance_config_save((object) $configdata);
         $filename = 'img.png';
         $filerecord = array(
-            'contextid' => context_block::instance($block->instance->id)->id,
+            'contextid' => \context_block::instance($block->instance->id)->id,
             'component' => 'block_html',
             'filearea' => 'content',
             'itemid' => 0,
@@ -207,7 +202,7 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
         // Check for the new block.
         $result = core_block_external::get_course_blocks($course->id, true);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_block_external::get_course_blocks_returns(), $result);
+        $result = \external_api::clean_returnvalue(core_block_external::get_course_blocks_returns(), $result);
 
         // Expect the new block.
         $this->assertCount(1, $result['blocks']);
@@ -255,13 +250,13 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
         $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
-        $coursecontext = context_course::instance($course->id);
+        $coursecontext = \context_course::instance($course->id);
 
         // Create a HTML block.
         $title = 'My block $$(a+b)=2$$';
         $body = 'My block contents $$(a+b)=2$$';
         $bodyformat = FORMAT_MOODLE;
-        $page = new moodle_page();
+        $page = new \moodle_page();
         $page->set_context($coursecontext);
         $page->set_pagelayout('course');
         $course->format = course_get_format($course)->get_format();
@@ -272,7 +267,7 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
 
         $this->setUser($user);
         // Re-create the page.
-        $page = new moodle_page();
+        $page = new \moodle_page();
         $page->set_context($coursecontext);
         $page->set_pagelayout('course');
         $course->format = course_get_format($course)->get_format();
@@ -297,10 +292,10 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
 
         // Check for the new block.
         $result = core_block_external::get_course_blocks($course->id, true);
-        $result = external_api::clean_returnvalue(core_block_external::get_course_blocks_returns(), $result);
+        $result = \external_api::clean_returnvalue(core_block_external::get_course_blocks_returns(), $result);
 
         // Format the original data.
-        $sitecontext = context_system::instance();
+        $sitecontext = \context_system::instance();
         $title = external_format_string($title, $coursecontext->id);
         list($body, $bodyformat) = external_format_text($body, $bodyformat, $coursecontext->id, 'block_html', 'content');
 
@@ -325,27 +320,32 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
         $PAGE->set_url('/my/index.php');    // Need this because some internal API calls require the $PAGE url to be set.
 
         // Force a setting change to check the returned blocks settings.
-        set_config('displaycategories', 0, 'block_recentlyaccessedcourses');
+        set_config('displaycategories', 0, 'block_myoverview');
 
+        $systempage = $DB->get_record('my_pages', array('userid' => null, 'name' => MY_PAGE_DEFAULT, 'private' => true));
         // Get the expected default blocks.
-        $alldefaultblocksordered = $DB->get_records_menu('block_instances',
-            array('pagetypepattern' => 'my-index'), 'defaultregion, defaultweight ASC', 'id, blockname');
+        $alldefaultblocksordered = $DB->get_records_menu(
+            'block_instances',
+            array('pagetypepattern' => 'my-index', 'subpagepattern' => $systempage->id),
+            'defaultregion, defaultweight ASC',
+            'id, blockname'
+        );
 
         $this->setUser($user);
 
         // Check for the default blocks.
         $result = core_block_external::get_dashboard_blocks($user->id);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_block_external::get_dashboard_blocks_returns(), $result);
-        // Expect all blogs except learning plans one (no learning plans to show).
-        $this->assertCount(count($alldefaultblocksordered) - 1, $result['blocks']);
+        $result = \external_api::clean_returnvalue(core_block_external::get_dashboard_blocks_returns(), $result);
+        // Expect all default blocks defined in blocks_add_default_system_blocks().
+        $this->assertCount(count($alldefaultblocksordered), $result['blocks']);
         $returnedblocks = array();
         foreach ($result['blocks'] as $block) {
             // Check all the returned blocks are in the expected blocks array.
             $this->assertContains($block['name'], $alldefaultblocksordered);
             $returnedblocks[] = $block['name'];
             // Check the configuration returned for this default block.
-            if ($block['name'] == 'recentlyaccessedcourses') {
+            if ($block['name'] == 'myoverview') {
                 // Convert config to associative array to avoid DB sorting randomness.
                 $config = array_column($block['configs'], null, 'name');
                 $this->assertArrayHasKey('displaycategories', $config);
@@ -353,8 +353,7 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
                 $this->assertEquals('plugin', $config['displaycategories']['type']);
             }
         }
-        // Remove lp block.
-        array_shift($alldefaultblocksordered);
+
         // Check that we received the blocks in the expected order.
         $this->assertEquals(array_values($alldefaultblocksordered), $returnedblocks);
     }
@@ -369,14 +368,19 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $PAGE->set_url('/my/index.php');    // Need this because some internal API calls require the $PAGE url to be set.
 
+        $systempage = $DB->get_record('my_pages', array('userid' => null, 'name' => MY_PAGE_DEFAULT, 'private' => true));
         // Get the expected default blocks.
-        $alldefaultblocks = $DB->get_records_menu('block_instances', array('pagetypepattern' => 'my-index'), '', 'id, blockname');
+        $alldefaultblocks = $DB->get_records_menu(
+            'block_instances', array('pagetypepattern' => 'my-index', 'subpagepattern' => $systempage->id),
+            '',
+            'id, blockname'
+        );
 
         // Now, add a sticky block.
-        $page = new moodle_page();
-        $page->set_context(context_system::instance());
+        $page = new \moodle_page();
+        $page->set_context(\context_system::instance());
         $page->set_pagetype('my-index');
-        $page->set_url(new moodle_url('/'));
+        $page->set_url(new \moodle_url('/'));
         $page->blocks->add_region('side-pre');
         $page->blocks->load_blocks();
         $page->blocks->add_block('myprofile', 'side-pre', 0, true, '*');
@@ -386,9 +390,9 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
         // Check for the default blocks plus the sticky.
         $result = core_block_external::get_dashboard_blocks($user->id);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_block_external::get_dashboard_blocks_returns(), $result);
-        // Expect all blogs plus sticky one except learning plans one (no learning plans to show).
-        $this->assertCount(count($alldefaultblocks), $result['blocks']);
+        $result = \external_api::clean_returnvalue(core_block_external::get_dashboard_blocks_returns(), $result);
+        // Expect all default blocks defined in blocks_add_default_system_blocks() plus sticky one.
+        $this->assertCount(count($alldefaultblocks) + 1, $result['blocks']);
         $found = false;
         foreach ($result['blocks'] as $block) {
             if ($block['name'] == 'myprofile') {
@@ -412,12 +416,18 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $PAGE->set_url('/my/index.php');    // Need this because some internal API calls require the $PAGE url to be set.
 
+        $systempage = $DB->get_record('my_pages', array('userid' => null, 'name' => MY_PAGE_DEFAULT, 'private' => true));
         // Get the expected default blocks.
-        $alldefaultblocks = $DB->get_records_menu('block_instances', array('pagetypepattern' => 'my-index'), '', 'id, blockname');
+        $alldefaultblocks = $DB->get_records_menu(
+            'block_instances',
+            array('pagetypepattern' => 'my-index', 'subpagepattern' => $systempage->id),
+            '',
+            'id, blockname'
+        );
 
         // Add a custom block.
-        $page = new moodle_page();
-        $page->set_context(context_user::instance($user->id));
+        $page = new \moodle_page();
+        $page->set_context(\context_user::instance($user->id));
         $page->set_pagelayout('mydashboard');
         $page->set_pagetype('my-index');
         $page->blocks->add_region('content');
@@ -431,9 +441,9 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
         // Check for the new block as admin for a user.
         $result = core_block_external::get_dashboard_blocks($user->id);
         // We need to execute the return values cleaning process to simulate the web service server.
-        $result = external_api::clean_returnvalue(core_block_external::get_dashboard_blocks_returns(), $result);
-        // Expect all default blogs plys the one we added except learning plans one (no learning plans to show).
-        $this->assertCount(count($alldefaultblocks), $result['blocks']);
+        $result = \external_api::clean_returnvalue(core_block_external::get_dashboard_blocks_returns(), $result);
+        // Expect all default blocks defined in blocks_add_default_system_blocks() plus the one we added.
+        $this->assertCount(count($alldefaultblocks) + 1, $result['blocks']);
         $found = false;
         foreach ($result['blocks'] as $block) {
             if ($block['name'] == 'myprofile') {
@@ -460,5 +470,72 @@ class core_block_externallib_testcase extends externallib_advanced_testcase {
 
         $this->expectException('moodle_exception');
         core_block_external::get_dashboard_blocks($user2->id);
+    }
+
+    /**
+     * Test user get default dashboard blocks for my courses page.
+     */
+    public function test_get_dashboard_blocks_my_courses() {
+        global $PAGE, $DB;
+        $this->resetAfterTest(true);
+
+        $user = $this->getDataGenerator()->create_user();
+        $PAGE->set_url('/my/index.php');    // Need this because some internal API calls require the $PAGE url to be set.
+
+        // Force a setting change to check the returned blocks settings.
+        set_config('displaycategories', 0, 'block_myoverview');
+
+        $systempage = $DB->get_record('my_pages', ['userid' => null, 'name' => MY_PAGE_COURSES, 'private' => false]);
+        // Get the expected default blocks.
+        $alldefaultblocksordered = $DB->get_records_menu(
+            'block_instances',
+            ['pagetypepattern' => 'my-index', 'subpagepattern' => $systempage->id],
+            'defaultregion, defaultweight ASC',
+            'id, blockname'
+        );
+
+        $this->setUser($user);
+
+        // Check for the default blocks.
+        $result = core_block_external::get_dashboard_blocks($user->id, false, MY_PAGE_COURSES);
+        // We need to execute the return values cleaning process to simulate the web service server.
+        $result = \external_api::clean_returnvalue(core_block_external::get_dashboard_blocks_returns(), $result);
+        // Expect all default blocks defined in blocks_add_default_system_blocks().
+        $this->assertCount(count($alldefaultblocksordered), $result['blocks']);
+        $returnedblocks = [];
+        foreach ($result['blocks'] as $block) {
+            // Check all the returned blocks are in the expected blocks array.
+            $this->assertContains($block['name'], $alldefaultblocksordered);
+            $returnedblocks[] = $block['name'];
+            // Check the configuration returned for this default block.
+            if ($block['name'] == 'myoverview') {
+                // Convert config to associative array to avoid DB sorting randomness.
+                $config = array_column($block['configs'], null, 'name');
+                $this->assertArrayHasKey('displaycategories', $config);
+                $this->assertEquals(json_encode('0'), $config['displaycategories']['value']);
+                $this->assertEquals('plugin', $config['displaycategories']['type']);
+            }
+        }
+
+        // Check that we received the blocks in the expected order.
+        $this->assertEquals(array_values($alldefaultblocksordered), $returnedblocks);
+    }
+
+    /**
+     * Test user passing the wrong page type and getting an exception.
+     */
+    public function test_get_dashboard_blocks_incorrect_page() {
+        global $PAGE;
+        $this->resetAfterTest(true);
+
+        $user = $this->getDataGenerator()->create_user();
+        $PAGE->set_url('/my/index.php');    // Need this because some internal API calls require the $PAGE url to be set.
+
+        $this->setUser($user);
+
+        $this->expectException('moodle_exception');
+        // Check for the default blocks with a fake page, no need to assign as it'll throw.
+        core_block_external::get_dashboard_blocks($user->id, false, 'fakepage');
+
     }
 }

@@ -229,7 +229,7 @@
 
 body.path-question-type {
     /* Hacks to display the labels within a form group. */
-    .form-group .sr-only:not(legend):not([for="id_category"]) {
+    .form-group .col-form-label.sr-only:not(legend):not([for="id_category"]) {
         position: static;
         width: auto;
         height: auto;
@@ -583,35 +583,6 @@ body.jsenabled .questionflag input[type=checkbox] {
 
 #page-mod-quiz-edit div.questionbank .categoryinfo {
     padding: 0.3em 0;
-}
-
-#page-mod-quiz-edit div.questionbank .modulespecificbuttonscontainer {
-    padding: 0;
-
-    strong {
-        display: block;
-    }
-
-    hr,
-    br {
-        display: none;
-    }
-
-    strong {
-        margin-left: -0.3em;
-    }
-
-    strong label {
-        margin-left: 0.3em;
-    }
-
-    input {
-        margin-left: 0;
-    }
-
-    input + input {
-        margin-left: 5px;
-    }
 }
 
 .questionbankwindow .module {

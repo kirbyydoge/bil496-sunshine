@@ -1615,7 +1615,7 @@ class MoodleQuickForm extends HTML_QuickForm_DHTMLRulesTableless {
      */
     var $_disableShortforms = false;
 
-    /** @var bool whether to automatically initialise M.formchangechecker for this form. */
+    /** @var bool whether to automatically initialise the form change detector this form. */
     protected $_use_form_change_checker = true;
 
     /**
@@ -2465,12 +2465,17 @@ class MoodleQuickForm extends HTML_QuickForm_DHTMLRulesTableless {
 
         $js = '
 
-require(["core/event", "jquery"], function(Event, $) {
+require([
+    "core_form/events",
+    "jquery",
+], function(
+    FormEvents,
+    $
+) {
 
     function qf_errorHandler(element, _qfMsg, escapedName) {
-        var event = $.Event(Event.Events.FORM_FIELD_VALIDATION);
-        $(element).trigger(event, _qfMsg);
-        if (event.isDefaultPrevented()) {
+        const event = FormEvents.notifyFieldValidationFailure(element, _qfMsg);
+        if (event.defaultPrevented) {
             return _qfMsg == \'\';
         } else {
             // Legacy mforms.
@@ -2586,11 +2591,11 @@ require(["core/event", "jquery"], function(Event, $) {
       ret = validate_' . $this->_formName . '_' . $escapedElementName.'(frm.elements[\''.$elementName.'\'], \''.$escapedElementName.'\') && ret;
       if (!ret && !first_focus) {
         first_focus = true;
-        Y.use(\'moodle-core-event\', function() {
-            Y.Global.fire(M.core.globalEvents.FORM_ERROR, {formid: \'' . $this->_attributes['id'] . '\',
-                                                           elementid: \'' . $errorid. '\'});
-            document.getElementById(\'' . $errorid . '\').focus();
-        });
+        const element = document.getElementById("' . $errorid . '");
+        if (element) {
+          FormEvents.notifyFormError(element);
+          element.focus();
+        }
       }
 ';
 
@@ -2618,12 +2623,12 @@ require(["core/event", "jquery"], function(Event, $) {
       return ret;
     }
 
-    var form = $(document.getElementById(\'' . $this->_attributes['id'] . '\')).closest(\'form\');
-    form.on(M.core.event.FORM_SUBMIT_AJAX, function() {
+    var form = document.getElementById(\'' . $this->_attributes['id'] . '\').closest(\'form\');
+    form.addEventListener(FormEvents.eventTypes.formSubmittedByJavascript, () => {
         try {
             var myValidator = validate_' . $this->_formName . ';
         } catch(e) {
-            return true;
+            return;
         }
         if (myValidator) {
             myValidator();
@@ -3132,14 +3137,10 @@ class MoodleQuickForm_Renderer extends HTML_QuickForm_Renderer_Tableless{
         }
 
         if ($form->is_form_change_checker_enabled()) {
-            $PAGE->requires->yui_module('moodle-core-formchangechecker',
-                    'M.core_formchangechecker.init',
-                    array(array(
-                        'formid' => $formid,
-                        'initialdirtystate' => $form->is_dirty(),
-                    ))
-            );
-            $PAGE->requires->string_for_js('changesmadereallygoaway', 'moodle');
+            $PAGE->requires->js_call_amd('core_form/changechecker', 'watchFormById', [$formid]);
+            if ($form->is_dirty()) {
+                $PAGE->requires->js_call_amd('core_form/changechecker', 'markFormAsDirtyById', [$formid]);
+            }
         }
         if (!empty($this->_collapsibleElements)) {
             if (count($this->_collapsibleElements) > 1) {

@@ -162,9 +162,10 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="userid-forumid" UNIQUE="false" FIELDS="userid, forumid"/>
-        <INDEX NAME="userid-discussionid" UNIQUE="false" FIELDS="userid, discussionid"/>
+        <INDEX NAME="forumid-userid" UNIQUE="false" FIELDS="forumid, userid"/>
+        <INDEX NAME="discussionid-userid" UNIQUE="false" FIELDS="discussionid, userid"/>
         <INDEX NAME="postid-userid" UNIQUE="false" FIELDS="postid, userid"/>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="forum_track_prefs" COMMENT="Tracks each users untracked forums">
@@ -202,8 +203,7 @@
         <FIELD NAME="forum" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The ID of the forum that this grade relates to"/>
         <FIELD NAME="itemnumber" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The grade itemnumber"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The user who was graded"/>
-        <FIELD NAME="grade" TYPE="number" LENGTH="10" NOTNULL="false" SEQUENCE="false" DECIMALS="5" COMMENT="The numerical grade for this user's forum assessment.
-Can be determined by scales/advancedgradingforms etc but will always be converted back to a floating point number."/>
+        <FIELD NAME="grade" TYPE="number" LENGTH="10" NOTNULL="false" SEQUENCE="false" DECIMALS="5" COMMENT="The numerical grade for this user's forum assessment. Can be determined by scales/advancedgradingforms etc but will always be converted back to a floating point number."/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>

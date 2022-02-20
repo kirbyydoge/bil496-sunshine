@@ -1107,6 +1107,12 @@ function file_save_draft_area_files($draftitemid, $contextid, $component, $filea
         return $text;
     }
 
+    if ($itemid === false) {
+        // Catch a potentially dangerous coding error.
+        throw new coding_exception('file_save_draft_area_files was called with $itemid false. ' .
+                "This suggests a bug, because it would wipe all ($contextid, $component, $filearea) files.");
+    }
+
     $usercontext = context_user::instance($USER->id);
     $fs = get_file_storage();
 
@@ -3667,7 +3673,7 @@ class curl {
         }
 
         // Augment all installed plugin's security helpers if there is any.
-        // The plugin's function has to be defined as plugintype_pluginname_security_helper in pluginname/lib.php file.
+        // The plugin's function has to be defined as plugintype_pluginname_curl_security_helper in pluginname/lib.php.
         $plugintypes = get_plugins_with_function('curl_security_helper');
 
         // If any of the security helper's function returns true, treat as URL is blocked.
@@ -3706,7 +3712,8 @@ class curl {
         $this->reset_request_state_vars();
 
         if ((defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
-            if ($mockresponse = array_pop(self::$mockresponses)) {
+            $mockresponse = array_pop(self::$mockresponses);
+            if ($mockresponse !== null) {
                 $this->info = [ 'http_code' => 200 ];
                 return $mockresponse;
             }
@@ -3820,6 +3827,16 @@ class curl {
                     $this->reset_request_state_vars();
                     curl_close($curl);
                     return $urlisblocked;
+                }
+
+                // If the response body is written to a seekable stream resource, reset the stream pointer to avoid
+                // appending multiple response bodies to the same resource.
+                if (!empty($this->options['CURLOPT_FILE'])) {
+                    $streammetadata = stream_get_meta_data($this->options['CURLOPT_FILE']);
+                    if ($streammetadata['seekable']) {
+                        ftruncate($this->options['CURLOPT_FILE'], 0);
+                        rewind($this->options['CURLOPT_FILE']);
+                    }
                 }
 
                 curl_setopt($curl, CURLOPT_URL, $redirecturl);

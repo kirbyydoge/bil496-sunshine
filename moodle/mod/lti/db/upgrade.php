@@ -166,7 +166,7 @@ function xmldb_lti_upgrade($oldversion) {
     // Automatically generated Moodle v3.9.0 release upgrade line.
     // Put any upgrade step following this.
 
-    if ($oldversion < 2020061501) {
+    if ($oldversion < 2021052501) {
 
         // Changing type of field instructorcustomparameters on table lti to text.
         $table = new xmldb_table('lti');
@@ -177,14 +177,8 @@ function xmldb_lti_upgrade($oldversion) {
         $dbman->change_field_type($table, $field);
 
         // Lti savepoint reached.
-        upgrade_mod_savepoint(true, 2020061501, 'lti');
+        upgrade_mod_savepoint(true, 2021052501, 'lti');
     }
-
-    // Automatically generated Moodle v3.10.0 release upgrade line.
-    // Put any upgrade step following this.
-
-    // Automatically generated Moodle v3.11.0 release upgrade line.
-    // Put any upgrade step following this.
 
     return true;
 }
