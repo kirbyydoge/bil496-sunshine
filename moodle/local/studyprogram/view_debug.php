@@ -22,35 +22,30 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// Temporary localization function until moodle support is implemented.
-function get_string_temp($query) {
-    $string = array();
-    $string["view_title"] = 'Çalışma Programı Görüntüle';
-    if (in_array($query, $string)) {
-        return $string[$query];
-    }
-    return $query;
-}
-
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/../../calendar/lib.php');
-require_once(__DIR__ . '/view_debug.php');
-
-$PAGE->set_url(new moodle_url('/local/studyprogram/view.php'));
-$PAGE->set_context(\context_system::instance());
-$PAGE->set_title(get_string_temp("view_title"));
 
 const SECONDS_PER_DAY = 86400;
-const DEBUG = true;
 
-$time = time();
+function print_user_debug($userid) {
+    $time_offset = 30 * SECONDS_PER_DAY;
+    $start_time = time();
+    $end_time = $start_time + $time_offset;
 
-echo $OUTPUT->header();
+    $enrolled_courses = enrol_get_all_users_courses($userid);
 
-echo '<h1>Still in development...</h1>';
+    echo "<p>DEBUG: Cur userid {$userid}</p>";
 
-if(DEBUG) {
-    print_user_debug($USER->id);
+    echo "<p>DEBUG: Have ".count($enrolled_courses)." enrolled course(s)</p>";
+
+    foreach ($enrolled_courses as $course) {
+        echo "<p>DEBUG: Course {$course->id}</p>";
+
+        $course_events = calendar_get_events($start_time, $end_time, false, false, $course->id);
+
+        foreach ($course_events as $event) {
+            echo "<p>DEBUG: Course Event id:'{$event->id}' type:'{$event->eventtype}' name:'{$event->name}'</p>";
+        }
+    }
+
 }
-
-echo $OUTPUT->footer();
