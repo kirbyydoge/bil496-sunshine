@@ -22,6 +22,22 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-function read_upcoming() {
+const EVENT_ID = 0;
+const EVENT_NAME = 1;
+const EVENT_TIME = 2;
 
+function analyze_user_dates($user_events, $study_width) {
+    $study_dates = array();
+    for($i = count($user_events) - 1; $i > 0; $i--) {
+        $cur_event = $user_events[$i];
+        $prev_event = $user_events[$i-1];
+        $cur_time = $cur_event[EVENT_TIME];
+        $prev_time = $prev_event[EVENT_TIME];
+        if($cur_time - $prev_time > $study_width) {
+            $study_dates[$cur_event[EVENT_ID]] = [$cur_event[EVENT_NAME], $cur_time - $study_width];
+        }
+    }
+    $fist_event = $user_events[0];
+    $study_dates[$fist_event[EVENT_ID]] = [$fist_event[EVENT_NAME], $fist_event[EVENT_TIME] - $study_width];
+    return $study_dates;
 }
