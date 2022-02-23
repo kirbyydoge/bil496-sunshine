@@ -15,30 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Form for editing HTML block instances.
+ * Strings for component 'block_forumblock', language 'en', branch 'MOODLE_20_STABLE'
  *
- * @package   block_forumblock
+ * @package   block_archiveblock
  * @author    Elcin Duman
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class block_forumblock extends block_base {
-
-    function init() {
-        $this->title = get_string('pluginname', 'block_forumblock');
-    }
-
-
-    function get_content() {
-
-        if ($this->content !== NULL) {
-            return $this->content;
-        }
-
-        $content = 'Latest forums are shown...';
-        $this->content = new stdClass;
-        $this->content->text = $content;
-        $this->content->footer = 'Click here to reach forums';
-        return $this->content;
-    }
-}
+$string['archiveblock:addinstance'] = 'Add a new Archive Block';
+$string['archiveblock:myaddinstance'] = 'Add a new Archive Block to Dashboard';
+$string['archiveblock'] = 'Archives';
+$string['pluginname'] = 'Archives';

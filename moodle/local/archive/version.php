@@ -15,30 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Form for editing HTML block instances.
+ * Version details
  *
- * @package   block_forumblock
- * @author    Elcin Duman
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    local_archive
+ * @author     Elcin Duman
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class block_forumblock extends block_base {
+defined('MOODLE_INTERNAL') || die();
 
-    function init() {
-        $this->title = get_string('pluginname', 'block_forumblock');
-    }
-
-
-    function get_content() {
-
-        if ($this->content !== NULL) {
-            return $this->content;
-        }
-
-        $content = 'Latest forums are shown...';
-        $this->content = new stdClass;
-        $this->content->text = $content;
-        $this->content->footer = 'Click here to reach forums';
-        return $this->content;
-    }
-}
+$plugin->version   = 2021121600;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->requires  = 2021052500;        // Requires this Moodle version.
+$plugin->component = 'local_archive';  // Full name of the plugin (used for diagnostics)

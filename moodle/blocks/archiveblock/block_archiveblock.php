@@ -17,28 +17,33 @@
 /**
  * Form for editing HTML block instances.
  *
- * @package   block_forumblock
+ * @package   block_archiveblock
  * @author    Elcin Duman
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class block_forumblock extends block_base {
+class block_archiveblock extends block_base {
 
     function init() {
-        $this->title = get_string('pluginname', 'block_forumblock');
+        $this->title = get_string('pluginname', 'block_archiveblock');
     }
 
 
     function get_content() {
+        global $DB;
 
         if ($this->content !== NULL) {
             return $this->content;
         }
 
-        $content = 'Latest forums are shown...';
+        $courses = $DB->get_records('course');
+        foreach($courses as $cs) {
+            $content .= $cs->fullname . '<br>';
+        }
+
         $this->content = new stdClass;
         $this->content->text = $content;
-        $this->content->footer = 'Click here to reach forums';
+        $this->content->footer = 'Click here to reach archives';
         return $this->content;
     }
 }

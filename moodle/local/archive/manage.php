@@ -14,16 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
+/** This serves the usage of managing archives in Moodle.
+ *
  * Version details
  *
- * @package    block_forumblock
+ * @package    local_archive
  * @author     Elcin Duman
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+$CFG = '';
+$PAGE = '';
+$OUTPUT = ''; //initialized the values.
 
-$plugin->version   = 2021121600;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2021052500;        // Requires this Moodle version.
-$plugin->component = 'block_forumblock';  // Full name of the plugin (used for diagnostics)
+require_once(__DIR__ . '/../../config.php');
+require_once($CFG->dirroot . '/local/archive/classes/form/edit.php');
+
+global $DB;
+
+$PAGE->set_url(new moodle_url('/local/archive/manage.php'));
+$PAGE->set_context(\context_system::instance());
+$PAGE->set_title('Archives');
+
+echo $OUTPUT->header();
+
+$templatecontext = (object)[
+    'texttodisplay' => 'List of all archives of BIL 470',
+    'editurl' => new moodle_url('/local/archive/edit.php'),
+];
+
+echo $OUTPUT->render_from_template('local_archive/manage', $templatecontext);
+
+echo $OUTPUT->footer();

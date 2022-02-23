@@ -14,31 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Form for editing HTML block instances.
+/** This serves the usage of managing archives in Moodle.
  *
- * @package   block_forumblock
- * @author    Elcin Duman
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Version details
+ *
+ * @package    local_archive
+ * @author     Elcin Duman
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string['user_name'] = 'User Name';
+$string['user_lastname'] = 'User Last Name';
+$string['course_short_name'] = 'Short Name of the Class';
+$string['course_full_name'] = 'Full Name of the Class';
+$string['record_type'] = 'Type of the Record';
+$string['date_of_the_record'] = 'Datetime of the Record';
 
-class block_forumblock extends block_base {
-
-    function init() {
-        $this->title = get_string('pluginname', 'block_forumblock');
-    }
-
-
-    function get_content() {
-
-        if ($this->content !== NULL) {
-            return $this->content;
-        }
-
-        $content = 'Latest forums are shown...';
-        $this->content = new stdClass;
-        $this->content->text = $content;
-        $this->content->footer = 'Click here to reach forums';
-        return $this->content;
-    }
-}
