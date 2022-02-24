@@ -48,7 +48,7 @@ const DEBUG = true;
 $time_offset = 30 * SECONDS_PER_DAY;
 $start_time = time();
 $end_time = $start_time + $time_offset;
-$study_width = 5 * SECONDS_PER_DAY; //Minimum required days of work per due date.
+$study_width = 10 * SECONDS_PER_DAY; //Minimum required days of work per due date.
 
 //Get user's enrolled courses.
 $enrolled_courses = enrol_get_all_users_courses($USER->id);
@@ -82,9 +82,9 @@ usort($user_events, function ($a, $b) {
 });
 
 if(DEBUG) {
-    $study_dates = analyze_user_dates($user_events, $study_width);
+    $study_dates = analyze_user_dates_advanced($user_events, $study_width);
     foreach ($study_dates as $advice) {
-        echo "<p>Start studying for ".str_replace("is due", "", $advice[0])." at ".date("d/m/y", $advice[1])." </p>";
+        echo "<p>Start studying for ".str_replace("is due", "", $advice["name"])." at ".date("d/m/y", $advice["start_date"])." </p>";
     }
 }
 
