@@ -55,26 +55,38 @@ class edit extends moodleform {
         $mform->setDefault('course_full_name', get_string('course_full_name', 'local_archive'));        //Default value
 
         $choices = array();
-        $choices['0'] = 'Quiz';
-        $choices['1'] = 'Midterm Exam';
-        $choices['2'] = 'Final Exam';
-        $choices['3'] = 'Homework';
-        $choices['4'] = 'Practice Questions';
-        $choices['5'] = 'Slides';
-        $choices['6'] = 'Solutions';
-        $choices['7'] = 'Other';
+
+        $choices['0'] = get_string('quiz', 'local_archive');
+        $choices['1'] = get_string('midterm_exam', 'local_archive');
+        $choices['2'] = get_string('final_exam', 'local_archive');
+        $choices['3'] = get_string('homework', 'local_archive');
+        $choices['4'] = get_string('practice_questions', 'local_archive');
+        $choices['5'] = get_string('slides', 'local_archive');
+        $choices['6'] = get_string('solutions', 'local_archive');
+        $choices['7'] = get_string('other', 'local_archive');
+
         $mform->addElement('select', 'record_type', get_string('record_type', 'local_archive'), $choices);
         $mform->setDefault('record_type', '7');
 
-        /*
-         *  set a datetime.
-         *
-         *  $mform->addElement('hidden', 'time_created');
-            $mform->setType('time_created', PARAM_INT);
+        $mform->addElement('text', 'date_of_the_record', get_string('date_of_the_record', 'local_archive')); // Add elements to your form
+        $mform->setType('date_of_the_record', PARAM_INT);          //Set type of element
+        $mform->setDefault('date_of_the_record', get_string('date_of_the_record', 'local_archive'));
 
-            $mform->addElement('hidden', 'time_modified');
-            $mform->setType('time_modified', PARAM_INT);
-         */
+        date_default_timezone_set('Europe/Istanbul');
+        $date = new DateTime('NOW');
+        $date = date_format($date, 'Y-m-d h:i:s');
+
+        $mform->addElement('hidden', 'time_created');
+        $mform->setType('time_created', PARAM_NOTAGS);
+        $mform->setDefault('time_created', $date);
+
+        $mform->addElement('hidden', 'time_modified');
+        $mform->setType('time_modified', PARAM_NOTAGS);
+        $mform->setDefault('time_modified', $date);
+
+        //upload yeri lazim. Moodle'in upload kısmı olabilir ya da url verilebilir.
+
+        $this->add_action_buttons();
     }
 
     //Custom validation should be added here

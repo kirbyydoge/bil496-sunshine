@@ -38,7 +38,10 @@ class block_forumblock extends block_base {
         $content = 'Latest forums are shown...';
         $this->content = new stdClass;
         $this->content->text = $content;
-        $this->content->footer = 'Click here to reach forums';
+        $url = new \moodle_url('/local/forums/manage.php');
+        $this->content->footer = html_writer::div(
+            html_writer::link($url, get_string('gotoforums', 'block_forumblock')),
+        );
         return $this->content;
     }
 }

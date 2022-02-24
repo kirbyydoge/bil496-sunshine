@@ -26,3 +26,4 @@ $string['archiveblock:addinstance'] = 'Add a new Archive Block';
 $string['archiveblock:myaddinstance'] = 'Add a new Archive Block to Dashboard';
 $string['archiveblock'] = 'Archives';
 $string['pluginname'] = 'Archives';
+$string['gotoarchives'] = 'Go to archives...';

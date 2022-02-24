@@ -28,4 +28,14 @@ $string['course_short_name'] = 'Short Name of the Class';
 $string['course_full_name'] = 'Full Name of the Class';
 $string['record_type'] = 'Type of the Record';
 $string['date_of_the_record'] = 'Datetime of the Record';
+$string['time_created'] = 'Time Created';
+$string['time_modified'] = 'Time Modified';
+$string['quiz'] = 'Quiz';
+$string['midterm_exam'] = 'Midterm Exam';
+$string['final_exam'] = 'Final Exam';
+$string['homework'] = 'Homework';
+$string['practice_questions'] = 'Practice Questions';
+$string['slides'] = 'Slides';
+$string['solutions'] = 'Solutions';
+$string['other'] = 'Other';
 

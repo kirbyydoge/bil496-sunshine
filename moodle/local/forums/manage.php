@@ -18,33 +18,23 @@
  *
  * Version details
  *
- * @package    local_archive
+ * @package    local_forums
  * @author     Elcin Duman
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $CFG = '';
 $PAGE = '';
-$OUTPUT = ''; //initialized the values.
+$OUTPUT = '';
 
 require_once(__DIR__ . '/../../config.php');
-require_once($CFG->dirroot . '/local/archive/classes/form/edit.php');
 
 global $DB;
 
-$PAGE->set_url(new moodle_url('/local/archive/manage.php'));
+$PAGE->set_url(new moodle_url('/local/forums/manage.php'));
 $PAGE->set_context(\context_system::instance());
-$PAGE->set_title('Archives');
-
-$records = $DB->get_records('local_archive');
+$PAGE->set_title('Forums');
 
 echo $OUTPUT->header();
-
-$templatecontext = (object)[
-    'records' => array_values($records),
-    'editurl' => new moodle_url('/local/archive/edit.php'),
-];
-
-echo $OUTPUT->render_from_template('local_archive/manage', $templatecontext);
 
 echo $OUTPUT->footer();

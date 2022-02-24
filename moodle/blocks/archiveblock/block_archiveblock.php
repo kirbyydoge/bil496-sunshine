@@ -28,7 +28,6 @@ class block_archiveblock extends block_base {
         $this->title = get_string('pluginname', 'block_archiveblock');
     }
 
-
     function get_content() {
         global $DB;
 
@@ -43,7 +42,12 @@ class block_archiveblock extends block_base {
 
         $this->content = new stdClass;
         $this->content->text = $content;
-        $this->content->footer = 'Click here to reach archives';
+
+        $url = new \moodle_url('/local/archive/manage.php');
+        $this->content->footer = html_writer::div(
+            html_writer::link($url, get_string('gotoarchives', 'block_archiveblock')),
+        );
+
         return $this->content;
     }
 }

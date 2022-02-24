@@ -10,8 +10,8 @@ Courses Short Name should be the name of the class. For Example: Bil 470.
 Courses Long Name should be the full name of the class. Example: Machine Learning.
 
 Record Type can be consisting of:
-1) Midterm Exam
-2) Quiz
+1) Quiz
+2) Midterm Exam
 3) Final Exam
 4) HW
 5) Practice Questions

@@ -37,18 +37,38 @@ $PAGE->set_title('Add a new Archive Record');
 
 $mform = new edit();
 
-//Form processing and displaying is done here
+//Form processing is done here
 if ($mform->is_cancelled()) {
+
     //Handle form cancel operation, if cancel button is present on form
-    redirect($CFG->wwwroot . '/local/archive/manage.php', 'Cancelled the archive form');
+    redirect($CFG->wwwroot . '/local/archive/manage.php', 'Archive Form is cancelled.');
 
 } else if ($fromform = $mform->get_data()) {
     //Insert the data to our database.
+
+    $insert_record = new stdClass();
+    $insert_record->user_name = $fromform->user_name;
+    $insert_record->user_lastname = $fromform->user_lastname;
+    $insert_record->course_short_name = $fromform->course_short_name;
+    $insert_record->course_full_name = $fromform->course_full_name;
+    $insert_record->record_type = $fromform->record_type;
+    $insert_record->date_of_the_record = $fromform->date_of_the_record;
+    $insert_record->time_created = $fromform->time_created;
+    $insert_record->time_modified = $fromform->time_modified;
+
+    $DB->insert_record('local_archive', $insert_record);
+
+    redirect($CFG->wwwroot . '/local/archive/manage.php', 'Archive Record has been submitted.');
+
 }
 
-//$mform->display();
 echo $OUTPUT->header();
 
+$templatecontext = (object)[
+
+];
+
+echo $OUTPUT->render_from_template('local_archive/edit', $templatecontext);
 $mform->display();
 
 echo $OUTPUT->footer();

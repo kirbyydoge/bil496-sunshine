@@ -26,3 +26,4 @@ $string['forumblock:addinstance'] = 'Add a new Forum Block';
 $string['forumblock:myaddinstance'] = 'Add a new Forum Block to Dashboard';
 $string['forumblock'] = 'Forums';
 $string['pluginname'] = 'Forums';
+$string['gotoforums'] = 'Go to forums...';

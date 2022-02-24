@@ -12,9 +12,9 @@
                 <FIELD NAME="course_short_name" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="course_full_name" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="record_type" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="date_of_the_record" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="time_created" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="time_modified" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="date_of_the_record" TYPE="int" LENGTH="10" DEFAULT="0" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="time_created" TYPE="datetime" NOTNULL="true" DEFAULT="CURRENT_TIMESTAMP" SEQUENCE="false"/>
+                <FIELD NAME="time_modified" TYPE="datetime" NOTNULL="true" DEFAULT="CURRENT_TIMESTAMP" SEQUENCE="false"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
