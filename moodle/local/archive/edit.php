@@ -58,11 +58,10 @@ if ($mform->is_cancelled()) {
         redirect($CFG->wwwroot . '/local/archive/manage.php', get_string('updated_record', 'local_archive'));
     }
     else {
-        /*
         $manager->create_record($fromform->user_name, $fromform->user_lastname,
             $fromform->course_short_name, $fromform->course_full_name,
             $fromform->record_type, $fromform->date_of_the_record,
-            $fromform->time_created, $fromform->time_modified);*/
+            $fromform->time_created, $fromform->time_modified);
         redirect($CFG->wwwroot . '/local/archive/manage.php', 'Archive Record has been submitted.');
     }
 }
