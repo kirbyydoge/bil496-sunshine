@@ -107,4 +107,13 @@ class manager {
         return true;
     }
  */
+
+    /** Get a message given an id
+     *  @param $id
+     *  @return object of requested record
+     */
+    public function get_archive(int $id) {
+        global $DB;
+        return $DB->get_record('local_archive', ['id' => $id]);
+    }
 }
