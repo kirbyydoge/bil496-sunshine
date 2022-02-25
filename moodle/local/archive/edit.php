@@ -22,41 +22,57 @@
  * @author     Elcin Duman
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 $CFG = '';
 $PAGE = '';
 $OUTPUT = ''; //initialized the values.
+global $DB;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/local/archive/classes/form/edit.php');
+require_once($CFG->dirroot . '/local/archive/classes/manager.php');
 
-global $DB;
+$id = optional_param('id',0, PARAM_INT);
+echo $id;
+$archive = $DB->get_record('local_archive', array('id'=>$id), '*');
 
 $PAGE->set_url(new moodle_url('/local/archive/edit.php'));
 $PAGE->set_context(\context_system::instance());
 $PAGE->set_title('Add a new Archive Record');
 
-$mform = new edit();
+$mform = new edit(null, array('id' => $archive->id));
+$mform->set_data($archive);
 
 //Form processing is done here
 if ($mform->is_cancelled()) {
-
-    //Handle form cancel operation, if cancel button is present on form
     redirect($CFG->wwwroot . '/local/archive/manage.php', 'Archive Form is cancelled.');
 
 } else if ($fromform = $mform->get_data()) {
-    //Insert the data to our database.
 
-    $insert_record = new stdClass();
-    $insert_record->user_name = $fromform->user_name;
-    $insert_record->user_lastname = $fromform->user_lastname;
-    $insert_record->course_short_name = $fromform->course_short_name;
-    $insert_record->course_full_name = $fromform->course_full_name;
-    $insert_record->record_type = $fromform->record_type;
-    $insert_record->date_of_the_record = $fromform->date_of_the_record;
-    $insert_record->time_created = $fromform->time_created;
-    $insert_record->time_modified = $fromform->time_modified;
+    $manager = new manager();
 
-    $DB->insert_record('local_archive', $insert_record);
+    $DB->update_record('local_archive', $fromform);
+
+    if ($fromform->id) {
+
+        $manager->update_records($fromform->id, $fromform->user_name, $fromform->user_lastname, $fromform->course_short_name, $fromform->course_full_name, $fromform->record_type, $fromform->date_of_the_record);
+
+        $courses = $DB->get_records('local_archive');
+        foreach($courses as $cs) {
+            $content .= $cs->course_short_name . '<br>';
+        }
+        echo $content;
+        echo $archive->id . '<br>';
+        echo $archive->course_full_name . '<br>';
+        var_dump();
+        die();
+        redirect($CFG->wwwroot . '/local/archive/manage.php', get_string('updated_record', 'local_archive'));
+    }
+
+    $manager->create_record($fromform->user_name, $fromform->user_lastname,
+                           $fromform->course_short_name, $fromform->course_full_name,
+                           $fromform->record_type, $fromform->date_of_the_record,
+                           $fromform->time_created, $fromform->time_modified);
 
     redirect($CFG->wwwroot . '/local/archive/manage.php', 'Archive Record has been submitted.');
 

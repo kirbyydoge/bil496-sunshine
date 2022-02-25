@@ -38,4 +38,5 @@ $string['practice_questions'] = 'Practice Questions';
 $string['slides'] = 'Slides';
 $string['solutions'] = 'Solutions';
 $string['other'] = 'Other';
+$string['updated_record'] = 'Record has been updated.';
 
