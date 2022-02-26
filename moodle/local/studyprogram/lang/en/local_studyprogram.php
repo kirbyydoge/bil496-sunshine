@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle Study Program Plugin
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,8 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->component = 'local_studyprogram';        // Full name of the plugin (used for diagnostics)
-$plugin->version   = 2021052501;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2021052500;        // Requires th is Moodle version.
+$string["view_title"] = "View Study Program";
+$string["in_development"] = "Still in development...";
+$string["start_study"] = "Start studying.";
+$string["view_btn_setup"] = "Setup new program";
