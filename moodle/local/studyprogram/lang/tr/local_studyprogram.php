@@ -22,7 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string["view_title"] = "Çalışma Programı Görüntüle";
+$string["title_view"] = "Çalışma Programı Görüntüle";
+$string["title_setup"] = "Çalışma Programı Hazırla";
 $string["in_development"] = "Geliştirmeler devam ediyor...";
 $string["start_study"] = "Çalışmaya başla.";
-$string["view_btn_setup"] = "Yeni program oluştur";
+$string["btn_view_setup"] = "Yeni program oluştur";
+$string["err_numeric"] = "Tam sayı değer giriniz";

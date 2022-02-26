@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle Study Program Plugin
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,17 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Version details
- *
- * @package    local_studyprogram
- * @author     Oğuzhan Canpolat
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-$string["title_view"] = "View Study Program";
-$string["title_setup"] = "Setup Study Program";
-$string["in_development"] = "Still in development...";
-$string["start_study"] = "Start studying.";
-$string["btn_view_setup"] = "Setup new program";
-$string["err_numeric"] = "Enter an integer value";
+const EVENT_ID = "id";
+const EVENT_COURSEID = "courseid";
+const EVENT_NAME = "name";
+const EVENT_TIME = "timestart";
+const EVENT_DURATION = "duration";
+const EVENT_STUDY_START = "start_date";
+const EVENT_STUDY_WIDTH = "study_width";
+const STUDY_ADVICE_TYPE = "STUDY_ADVICE";
+const SECONDS_PER_DAY = 86400;
+const SETUP_DEF_DAYS = 5;
+const EVENT_FIELD_TEXT = "t_";

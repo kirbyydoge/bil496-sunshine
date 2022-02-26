@@ -23,19 +23,11 @@
  */
 
 include "Stack.php";
-
-const EVENT_ID = "id";
-const EVENT_COURSEID = "courseid";
-const EVENT_NAME = "name";
-const EVENT_TIME = "timestart";
-const EVENT_STUDY_START = "start_date";
-const SECONDS_PER_DAY = 86400;
-
-const STUDY_ADVICE_TYPE = "STUDY_ADVICE";
+require_once(__DIR__ . "/../constants.php");
 
 class Cardinal {
 
-    public function analyze_user_dates_simple($user_events, $study_width) {
+    public function analyze_user_dates_simple(array $user_events, int $study_width) {
         $study_dates = array();
         for($i = count($user_events) - 1; $i > 0; $i--) {
             $cur_event = $user_events[$i];
@@ -51,35 +43,35 @@ class Cardinal {
         return $study_dates;
     }
 
-    public function handle_collisions(& $study_dates, & $colliding_stack, $cur_time, $prev_time, $loosen = 3600) {
+    public function handle_collisions(array& $study_dates, Stack& $colliding_stack, int $cur_time, int $prev_time, int $loosen = 3600) {
         $prev_time += $loosen; // Loosens some time after a deadline.
         while((!$colliding_stack->isEmpty()) && ($cur_time - $prev_time > 0)) {
             $top_event = $colliding_stack->pop();
-            if($cur_time - $prev_time > $top_event["study_width"]) {
-                $duration = $top_event["study_width"];
+            if($cur_time - $prev_time > $top_event[EVENT_STUDY_WIDTH]) {
+                $duration = $top_event[EVENT_STUDY_WIDTH];
             }
             else {
                 $duration = $cur_time - $prev_time;
-                $top_event["study_width"] -= $duration;
+                $top_event[EVENT_STUDY_WIDTH] -= $duration;
                 $colliding_stack->push($top_event);
             }
             $cur_time -= $duration;
             $study_dates[] = [
-                "id" => $top_event[EVENT_ID],
-                "courseid" => $top_event[EVENT_COURSEID],
-                "name" => $top_event[EVENT_NAME],
-                "start_date" => $cur_time,
-                "duration" => $duration
+                EVENT_ID => $top_event[EVENT_ID],
+                EVENT_COURSEID => $top_event[EVENT_COURSEID],
+                EVENT_NAME => $top_event[EVENT_NAME],
+                EVENT_STUDY_START => $cur_time,
+                EVENT_DURATION => $duration
             ];
         }
     }
 
-    public function analyze_user_dates_advanced($user_events, $study_width) {
+    public function analyze_user_dates_advanced(array $user_events, int $study_width) {
         $study_dates = array();
         $colliding_stack = new Stack(count($user_events));
         for($i = 0; $i < count($user_events); $i++) {
-            if(!array_key_exists("study_width", $user_events[$i])) {
-                $user_events[$i]["study_width"] = $study_width;
+            if(!array_key_exists(EVENT_STUDY_WIDTH, $user_events[$i])) {
+                $user_events[$i][EVENT_STUDY_WIDTH] = $study_width;
             }
         }
         for($i = count($user_events)-1; $i > 0; $i--) {
@@ -95,7 +87,14 @@ class Cardinal {
         return $study_dates;
     }
 
-    public function create_studyprogram_event($userid, $studyevent) {
+    public function create_studyprogram(int $userid, array $study_program) {
+        foreach($study_program as $entry) {
+            $eventid = $this->create_studyprogram_event($userid, $entry);
+            $this->create_studyprogram_record($userid, $eventid);
+        }
+    }
+
+    public function create_studyprogram_event(int $userid, array $studyevent) {
         global $CFG, $DB;
         require_once($CFG->dirroot.'/calendar/lib.php');
 
@@ -115,10 +114,10 @@ class Cardinal {
         $event->timeduration = 0;
 
         $db_entry = calendar_event::create($event);
-        $this->create_studyprogram_record($userid, $db_entry->id);
+        return $db_entry->id;
     }
 
-    public function create_studyprogram_record($userid, $eventid) {
+    public function create_studyprogram_record(int $userid, int $eventid) {
         global $DB;
         $study_event = new stdClass();
         $study_event->userid = $userid;
@@ -130,7 +129,7 @@ class Cardinal {
         }
     }
 
-    public function delete_studyprogram_record($recordid) {
+    public function delete_studyprogram_record(int $recordid) {
         global $DB;
         $transaction = $DB->start_delegated_transaction();
         $deleted_record = $DB->delete_records("local_studyprogram_events", ["id" => $recordid]);
@@ -138,5 +137,46 @@ class Cardinal {
             $DB->commit_delegated_transaction($transaction);
         }
         return true;
+    }
+
+    public function get_user_events_sorted(int $id) {
+        //Get timestamp of current second and the second 30 days after.
+        $time_offset = 30 * SECONDS_PER_DAY;
+        $start_time = time();
+        $end_time = $start_time + $time_offset;
+
+        //Get user's enrolled courses.
+        $enrolled_courses = enrol_get_all_users_courses($id);
+        $user_events = array();
+
+        //For each course, get due dates from calendar API
+        foreach ($enrolled_courses as $course) {
+            $course_events = calendar_get_events($start_time, $end_time, false, false, $course->id);
+            $user_events[$course->id] = array();
+            foreach ($course_events as $event) {
+                if ($event->eventtype == "due") {
+                    $user_events[] = [
+                        EVENT_ID => $event->id,
+                        EVENT_COURSEID => $course->id,
+                        EVENT_NAME => $event->name,
+                        EVENT_TIME => $event->timestart
+                    ];
+                }
+            }
+        }
+
+        //Remove null elements.
+        $user_events = array_filter($user_events, function ($val, $key) {
+            return array_key_exists(EVENT_TIME, $val);
+        }, ARRAY_FILTER_USE_BOTH);
+
+        //Sort due dates from earliest to latest.
+        usort($user_events, function ($a, $b) {
+            $a_time = $a[EVENT_TIME];
+            $b_time = $b[EVENT_TIME];
+            return ($a_time < $b_time) ? -1 : (($a_time > $b_time) ? 1 : 0);
+        });
+
+        return $user_events;
     }
 }
