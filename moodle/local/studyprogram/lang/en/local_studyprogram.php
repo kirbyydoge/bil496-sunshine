@@ -25,6 +25,7 @@
 $string["title_view"] = "View Study Program";
 $string["title_setup"] = "Setup Study Program";
 $string["in_development"] = "Still in development...";
-$string["start_study"] = "Start studying.";
+$string["start_study"] = "Study program event";
 $string["btn_view_setup"] = "Setup new program";
 $string["err_numeric"] = "Enter an integer value";
+$string["start_study_format"] = 'Start studying for {$a->name}';

@@ -43,6 +43,11 @@ class Cardinal {
         return $study_dates;
     }
 
+    public function format_event_name(string $event_name) {
+        $formatted = str_replace("is due", "", $event_name);
+        return get_string("start_study_format", "local_studyprogram", ["name" => $formatted]);
+    }
+
     public function handle_collisions(array& $study_dates, Stack& $colliding_stack, int $cur_time, int $prev_time, int $loosen = 3600) {
         $prev_time += $loosen; // Loosens some time after a deadline.
         while((!$colliding_stack->isEmpty()) && ($cur_time - $prev_time > 0)) {
@@ -59,8 +64,8 @@ class Cardinal {
             $study_dates[] = [
                 EVENT_ID => $top_event[EVENT_ID],
                 EVENT_COURSEID => $top_event[EVENT_COURSEID],
-                EVENT_NAME => $top_event[EVENT_NAME],
-                EVENT_STUDY_START => $cur_time,
+                EVENT_NAME => $this->format_event_name($top_event[EVENT_NAME]),
+                EVENT_STUDY_START => $cur_time + 60,
                 EVENT_DURATION => $duration
             ];
         }
@@ -83,7 +88,7 @@ class Cardinal {
             $this->handle_collisions($study_dates, $colliding_stack, $cur_time, $prev_time);
         }
         $colliding_stack->push($user_events[0]);
-        $this->handle_collisions($study_dates, $colliding_stack, $user_events[0][EVENT_TIME], 0);
+        $this->handle_collisions($study_dates, $colliding_stack, $user_events[0][EVENT_TIME], time());
         return $study_dates;
     }
 
@@ -100,17 +105,19 @@ class Cardinal {
 
         $event = new stdClass();
         $event->eventtype = STUDY_ADVICE_TYPE; // Constant defined somewhere in your code - this can be any string value you want. It is a way to identify the event.
-        $event->type = CALENDAR_EVENT_TYPE_STANDARD; // This is used for events we only want to display on the calendar, and are not needed on the block_myoverview.
+        $event->type = CALENDAR_EVENT_TYPE_ACTION; // This is used for events we only want to display on the calendar, and are not needed on the block_myoverview.
         $event->name = $studyevent[EVENT_NAME];
         $event->description = get_string("start_study", "local_studyprogram");
         $event->format = FORMAT_HTML;
         $event->courseid = $studyevent[EVENT_COURSEID];
         $event->groupid = 0;
         $event->userid = 0;
-        $event->modulename = 'local_studyprogram';
-        $event->instance = 0;
+        $event->modulename = 0;
+        //$event->modulename = "local_studyprogram"; // Setting modulename makes these events invisible for some reason.
+        $event->instance = 3;
         $event->timestart = $studyevent[EVENT_STUDY_START];
-        $event->visible = 1;
+        $event->timesort = $studyevent[EVENT_STUDY_START];
+        $event->visible = true;
         $event->timeduration = 0;
 
         $db_entry = calendar_event::create($event);
@@ -127,6 +134,27 @@ class Cardinal {
         } catch (dml_exception $e) {
             return false;
         }
+    }
+
+    public function cleanup_studyprogram(int $userid) {
+        global $DB;
+        $user_records = $DB->get_records("local_studyprogram_events", ["userid" => $userid]);
+        $transaction = $DB->start_delegated_transaction();
+        $deletedrecords = $DB->delete_records("local_studyprogram_events", ["userid" => $userid]);
+        if ($deletedrecords) {
+            foreach($user_records as $record) {
+                try {
+                    $event = calendar_event::load($record->eventid);
+                    $event->delete(true);
+                }
+                catch(dml_missing_record_exception $e) {
+                    // Another entity (user/admin/another plugin) has removed this event. No longer valid.
+                    continue;
+                }
+            }
+            $DB->commit_delegated_transaction($transaction);
+        }
+        return true;
     }
 
     public function delete_studyprogram_record(int $recordid) {

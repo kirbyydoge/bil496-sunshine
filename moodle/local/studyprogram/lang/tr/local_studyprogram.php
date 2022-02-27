@@ -25,6 +25,7 @@
 $string["title_view"] = "Çalışma Programı Görüntüle";
 $string["title_setup"] = "Çalışma Programı Hazırla";
 $string["in_development"] = "Geliştirmeler devam ediyor...";
-$string["start_study"] = "Çalışmaya başla.";
+$string["start_study"] = "Çalışmaya programı etkinliği";
 $string["btn_view_setup"] = "Yeni program oluştur";
 $string["err_numeric"] = "Tam sayı değer giriniz";
+$string["start_study_format"] = '{$a->name} için çalışmaya başla';

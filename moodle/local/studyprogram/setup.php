@@ -49,27 +49,16 @@ else if($data) {
     $counter = 0;
     foreach ($user_events as & $event) {
         $field_name = EVENT_FIELD_TEXT . $counter++;
-        $event[EVENT_STUDY_WIDTH] = $data->$field_name;
+        $event[EVENT_STUDY_WIDTH] = $data->$field_name * SECONDS_PER_DAY;
     }
-    $study_program = $cardinal->analyze_user_dates_advanced($user_events, SETUP_DEF_DAYS);
-    //$cardinal->create_studyprogram($USER->id, $study_program);
+    $study_program = $cardinal->analyze_user_dates_advanced($user_events, SETUP_DEF_DAYS * SECONDS_PER_DAY);
+    $cardinal->cleanup_studyprogram($USER->id);
+    $cardinal->create_studyprogram($USER->id, $study_program);
+    redirect($CFG->wwwroot . "/local/studyprogram/view.php");
 }
 
 echo $OUTPUT->header();
 
 echo $mform->render();
-
-if($data) {
-    $cardinal = new Cardinal();
-    $counter = 0;
-    foreach ($user_events as & $event) {
-        $field_name = EVENT_FIELD_TEXT . $counter++;
-        $event[EVENT_STUDY_WIDTH] = $data->$field_name * SECONDS_PER_DAY;
-    }
-    $study_program = $cardinal->analyze_user_dates_advanced($user_events, SETUP_DEF_DAYS);
-    foreach($study_program as $event) {
-        echo "Study for " . $event[EVENT_NAME] . " for " . $event[EVENT_DURATION] / SECONDS_PER_DAY . " at " .date("d/m/y", $event[EVENT_STUDY_START]). ".<br>";
-    }
-}
 
 echo $OUTPUT->footer();

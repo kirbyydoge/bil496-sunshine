@@ -21,3 +21,26 @@
  * @author     Oğuzhan Canpolat
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+/**
+ * Is the event visible?
+ *
+ * This is used to determine global visibility of an event in all places throughout Moodle. For example,
+ * the STUDY_ADVICE_TYPE event will not be shown to any other user on the site except the user it is
+ * created for.
+ *
+ * @param calendar_event $event
+ * @return bool Returns true if the event is visible to the current user, false otherwise.
+ */
+function mod_local_studyprogram_core_calendar_is_event_visible(calendar_event $event, int $userid = 0) {
+    global $USER;
+
+    if(empty($userid)) {
+        $userid = $USER->id;
+    }
+
+    if($event->eventtype == STUDY_ADVICE_TYPE) {
+        return $event->userid == $userid;
+    }
+    return true;
+}
