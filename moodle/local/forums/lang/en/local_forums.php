@@ -18,7 +18,7 @@
  *
  * Version details
  *
- * @package    local_archive
+ * @package    local_forums
  * @author     Elcin Duman
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -30,14 +30,6 @@ $string['record_type'] = 'Type of the Record';
 $string['date_of_the_record'] = 'Datetime of the Record';
 $string['time_created'] = 'Time Created';
 $string['time_modified'] = 'Time Modified';
-$string['quiz'] = 'Quiz';
-$string['midterm_exam'] = 'Midterm Exam';
-$string['final_exam'] = 'Final Exam';
-$string['homework'] = 'Homework';
-$string['practice_questions'] = 'Practice Questions';
-$string['slides'] = 'Slides';
-$string['solutions'] = 'Solutions';
-$string['other'] = 'Other';
-$string['updated_record'] = 'Record has been updated.';
-$string['attachment'] = 'Attachment';
-
+$string['title_of_forum'] = "Title of the Form";
+$string['description'] = 'Description';
+$string['updated_record'] = 'Form has been updated.';

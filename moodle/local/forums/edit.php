@@ -18,7 +18,7 @@
  *
  * Version details
  *
- * @package    local_archive
+ * @package    local_forums
  * @author     Elcin Duman
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -29,20 +29,20 @@ $OUTPUT = ''; //initialized the values.
 global $DB;
 
 require_once(__DIR__ . '/../../config.php');
-require_once($CFG->dirroot . '/local/archive/classes/form/edit.php');
-require_once($CFG->dirroot . '/local/archive/classes/manager.php');
+require_once($CFG->dirroot . '/local/forums/classes/form/edit.php');
+require_once($CFG->dirroot . '/local/forums/classes/manager.php');
 
-$id = optional_param('recordid',0, PARAM_INT);
+$id = optional_param('forumid',0, PARAM_INT);
 
-$PAGE->set_url(new moodle_url('/local/archive/edit.php'));
+$PAGE->set_url(new moodle_url('/local/forums/edit.php'));
 $PAGE->set_context(\context_system::instance());
-$PAGE->set_title('Add a new Archive Record');
+$PAGE->set_title('Add a new Forum Discussion');
 
 $mform = new edit();
 
 //Form processing is done here
 if ($mform->is_cancelled()) {
-    redirect($CFG->wwwroot . '/local/archive/manage.php', 'Archive Form is cancelled.');
+    redirect($CFG->wwwroot . '/local/forums/manage.php', 'Form Discussion is cancelled.');
 } else if ($fromform = $mform->get_data()) {
     $manager = new manager();
     if ($fromform->id) {
@@ -52,37 +52,31 @@ if ($mform->is_cancelled()) {
             $fromform->user_lastname,
             $fromform->course_short_name,
             $fromform->course_full_name,
-            $fromform->record_type,
-            $fromform->date_of_the_record
+            $fromform->title_of_forum,
+            $fromform->description
         );
-        redirect($CFG->wwwroot . '/local/archive/manage.php', get_string('updated_record', 'local_archive'));
+        redirect($CFG->wwwroot . '/local/forums/manage.php', get_string('updated_record', 'local_forums'));
     }
     else {
         $manager->create_record($fromform->user_name, $fromform->user_lastname,
             $fromform->course_short_name, $fromform->course_full_name,
-            $fromform->record_type, $fromform->date_of_the_record,
+            $fromform->title_of_forum, $fromform->description,
             $fromform->time_created, $fromform->time_modified);
-        redirect($CFG->wwwroot . '/local/archive/manage.php', 'Archive Record has been submitted.');
-
+        redirect($CFG->wwwroot . '/local/forums/manage.php', 'Forum discussion has been submitted.');
     }
 }
 
 if($id) {
     $manager = new manager();
-    $archive = $manager->get_archive($id);
-    if (!$archive) {
-        throw new invalid_parameter_exception("Archive Not Found.");
+    $forum = $manager->get_form($id);
+    if (!$forum) {
+        throw new invalid_parameter_exception("Form Not Found.");
     }
-    $mform->set_data($archive);
+    $mform->set_data($forum);
 }
 
+
 echo $OUTPUT->header();
-
-$templatecontext = (object)[
-
-];
-
-echo $OUTPUT->render_from_template('local_archive/edit', $templatecontext);
 $mform->display();
 
 echo $OUTPUT->footer();

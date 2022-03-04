@@ -84,7 +84,10 @@ class edit extends moodleform {
         $mform->setType('time_modified', PARAM_NOTAGS);
         $mform->setDefault('time_modified', $date);
 
-        //upload yeri lazim. Moodle'in upload kısmı olabilir ya da url verilebilir.
+        $maxbytes = 1000000000;
+        $mform->addElement('filemanager', 'attachments', get_string('attachment', 'local_archive'), null,
+            array('subdirs' => 0, 'maxbytes' => $maxbytes, 'areamaxbytes' => 10485760, 'maxfiles' => 1,
+                'accepted_types' => array('document'), 'return_types'=> FILE_INTERNAL | FILE_EXTERNAL));
 
         $this->add_action_buttons();
     }

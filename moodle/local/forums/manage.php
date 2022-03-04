@@ -36,5 +36,13 @@ $PAGE->set_context(\context_system::instance());
 $PAGE->set_title('Forums');
 
 echo $OUTPUT->header();
+$records = $DB->get_records('local_forums');
+
+$templatecontext = (object)[
+    'records' => array_values($records),
+    'editurl' => new moodle_url('/local/forums/edit.php'),
+];
+
+echo $OUTPUT->render_from_template('local_forums/manage', $templatecontext);
 
 echo $OUTPUT->footer();
