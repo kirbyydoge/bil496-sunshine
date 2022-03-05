@@ -1,0 +1,10 @@
+.center {
+    border: 5px solid #00FF00;
+    text-align: center;
+}
+
+.m-local-studyprogram-title {
+    margin: auto;
+    width: 400px;
+    text-align: center;
+}

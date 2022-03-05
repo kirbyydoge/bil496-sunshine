@@ -14,6 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace form;
+use moodleform;
+use function calendar_get_events;
+use function enrol_get_all_users_courses;
+use const SECONDS_PER_DAY;
+
 /**
  * Version details
  *
@@ -22,17 +28,24 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__ . '/../../config.php');
-require_once(__DIR__ . '/lib.php');
+global $CFG;
 
-global $CFG, $USER, $PAGE, $OUTPUT, $SESSION;
+require_once("$CFG->libdir/formslib.php");
 
-$PAGE->set_url(new moodle_url('/local/studyprogram/index.php'));
-$PAGE->set_context(\context_system::instance());
-$PAGE->set_title(get_string("title_view", "local_autograde"));
+class upload extends moodleform {
 
-echo $OUTPUT->header();
+    public function definition() {
+        global $USER;
+        $mform = $this->_form;
 
+        $user_events = $this->_customdata["user_events"];
 
+        $mform->addElement("filemanager", "attachments", "Attachments", null, array(
+            "subdirs" => 0, "maxbytes" => 1048576, "areamaxbytes" => 1048576, "maxfiles" => 20,
+                "accepted_types" => "*", "return_types" => 2 | 1
+        ));
 
-echo $OUTPUT->footer();
+        $this->add_action_buttons();
+    }
+
+}
