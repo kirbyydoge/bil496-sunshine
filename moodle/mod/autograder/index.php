@@ -17,13 +17,22 @@
 /**
  * Version details
  *
- * @package    local_autograder
+ * @package    mod_autograder
  * @author     Oğuzhan Canpolat
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
 
-$plugin->component = 'local_autograder';        // Full name of the plugin (used for diagnostics)
-$plugin->version   = 2021052501;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2021052500;        // Requires th is Moodle version.
+global $CFG, $USER, $PAGE, $OUTPUT, $SESSION;
+
+$PAGE->set_url(new moodle_url('/mod/studyprogram/index.php'));
+$PAGE->set_context(\context_system::instance());
+$PAGE->set_title(get_string("title_view", "mod_autograder"));
+
+echo $OUTPUT->header();
+
+
+
+echo $OUTPUT->footer();

@@ -17,7 +17,7 @@
 /**
  * Version details
  *
- * @package    local_studyprogram
+ * @package    mod_autograder
  * @author     Oğuzhan Canpolat
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,29 +27,29 @@ require_once(__DIR__ . '/classes/form/upload.php');
 
 global $CFG, $USER, $PAGE, $OUTPUT;
 
-$PAGE->set_url(new moodle_url('/local/autograder/upload.php'));
+$PAGE->set_url(new moodle_url('/mod/autograder/upload.php'));
 $PAGE->set_context(\context_system::instance());
-$PAGE->set_title(get_string("title_upload", "local_autograder"));
+$PAGE->set_title(get_string("title_upload", "mod_autograder"));
 
 $mform = new \form\upload();
 $data = $mform->get_data();
 
 if ($mform->is_cancelled()) {
-    redirect($CFG->wwwroot . "/local/autograder/index.php");
+    redirect($CFG->wwwroot . "/mod/autograder/index.php");
 }
 else if($data) {
-    file_save_draft_area_files($data->attachments, $PAGE->context->id, 'local_autograder', 'attachments',
+    file_save_draft_area_files($data->attachments, $PAGE->context->id, 'mod_autograder', 'autograde',
         0, array('subdirs' => 0, 'maxbytes' => 1048576, 'maxfiles' => 50));
-    redirect($CFG->wwwroot . "/local/autograder/index.php");
+    redirect($CFG->wwwroot . "/mod/autograder/index.php");
 }
 
 $template_context = [
-    "body_title" => get_string("title_upload", "local_autograder"),
+    "body_title" => get_string("title_upload", "mod_autograder"),
     "form_html" => $mform->render()
 ];
 
 echo $OUTPUT->header();
 
-echo $OUTPUT->render_from_template("local_autograder/upload", $template_context);
+echo $OUTPUT->render_from_template("mod_autograder/upload", $template_context);
 
 echo $OUTPUT->footer();

@@ -17,22 +17,7 @@
 /**
  * Version details
  *
- * @package    local_studyprogram
+ * @package    mod_autograder
  * @author     Oğuzhan Canpolat
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-require_once(__DIR__ . '/../../config.php');
-require_once(__DIR__ . '/lib.php');
-
-global $CFG, $USER, $PAGE, $OUTPUT, $SESSION;
-
-$PAGE->set_url(new moodle_url('/local/studyprogram/index.php'));
-$PAGE->set_context(\context_system::instance());
-$PAGE->set_title(get_string("title_view", "local_autograde"));
-
-echo $OUTPUT->header();
-
-
-
-echo $OUTPUT->footer();

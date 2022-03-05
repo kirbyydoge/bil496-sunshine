@@ -17,7 +17,13 @@
 /**
  * Version details
  *
- * @package    local_studyprogram
+ * @package    mod_autograder
  * @author     Oğuzhan Canpolat
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die();
+
+$plugin->component = 'mod_autograder';        // Full name of the plugin (used for diagnostics)
+$plugin->version   = 2021052501;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->requires  = 2021052500;        // Requires th is Moodle version.
