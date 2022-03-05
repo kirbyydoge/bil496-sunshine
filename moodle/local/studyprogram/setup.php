@@ -57,8 +57,13 @@ else if($data) {
     redirect($CFG->wwwroot . "/local/studyprogram/view.php");
 }
 
+$template_context = [
+    "body_title" => get_string("title_setup", "local_studyprogram"),
+    "form_html" => $mform->render()
+];
+
 echo $OUTPUT->header();
 
-echo $mform->render();
+echo $OUTPUT->render_from_template("local_studyprogram/setup", $template_context);
 
 echo $OUTPUT->footer();

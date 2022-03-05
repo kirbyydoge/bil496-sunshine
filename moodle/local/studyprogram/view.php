@@ -36,13 +36,6 @@ $PAGE->set_title(get_string("title_view", "local_studyprogram"));
 
 echo $OUTPUT->header();
 
-$template_context = [
-    "body_title" => get_string("title_view", "local_studyprogram"),
-    "name_setup" => get_string("btn_view_setup", "local_studyprogram"),
-    "url_setup" => new moodle_url("/local/studyprogram/setup.php")
-];
-
-
 $time = time();
 $courseid = SITEID;
 $categoryid = null;
@@ -60,20 +53,39 @@ switch($view) {
         break;
 }
 
+$calendar_html = "";
+
 $renderer = $PAGE->get_renderer('core_calendar');
 $calendar->add_sidecalendar_blocks($renderer, true, $view);
 
-echo $OUTPUT->render_from_template("local_studyprogram/view", $template_context);
-echo $renderer->start_layout();
-echo html_writer::start_tag('div', ['class' => 'heightcontainer', 'data-calendar-type' => 'main-block']);
+$calendar_html .= $renderer->start_layout();
+$calendar_html .= html_writer::start_tag('div', ['class' => 'heightcontainer', 'data-calendar-type' => 'main-block']);
 
 list($data, $template) = calendar_get_view($calendar, $view, true, false, null);
-echo $renderer->render_from_template($template, $data);
+$calendar_html .= $renderer->render_from_template($template, $data);
 
-echo html_writer::end_tag('div');
+$calendar_html .= html_writer::end_tag('div');
 
 list($data, $template) = calendar_get_footer_options($calendar);
-echo $renderer->render_from_template($template, $data);
+$calendar_html .= $renderer->render_from_template($template, $data);
 
-echo $renderer->complete_layout();
+$calendar_html .= $renderer->complete_layout();
+
+$template_context = [
+    "body_title" => get_string("title_view", "local_studyprogram"),
+    "name_setup" => get_string("btn_view_setup", "local_studyprogram"),
+    "url_setup" => new moodle_url("/local/studyprogram/setup.php"),
+    "calendar_html" => $calendar_html
+];
+
+$button_html = '<input style="margin-right: 5px" type="button" class="btn btn-primary" value="'
+    .$template_context["name_setup"]
+    .'" onclick="location.href=\''
+    . $template_context["url_setup"]
+    .'\'">';
+
+$template_context["calendar_html"] = preg_replace('/(<button((?!button).)*data-action="new-event-button".*?>)(.*?)(<\/button>)/ms', $button_html.'$1$2$3', $calendar_html, 1);
+
+echo $OUTPUT->render_from_template("local_studyprogram/view", $template_context);
+
 echo $OUTPUT->footer();
