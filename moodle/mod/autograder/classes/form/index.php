@@ -30,22 +30,20 @@ global $CFG;
 require_once("$CFG->libdir/formslib.php");
 require_once(__DIR__ . "/../course_manager.php");
 
-class assign extends moodleform {
+class index extends moodleform {
 
     public function definition() {
         global $USER;
         $mform = $this->_form;
-        $courses = $this->_customdata["courses"];
+        $assignments = $this->_customdata["assignments"];
         $choices = array();
-        foreach ($courses as $course) {
-            $choices[$course->id] = $course->fullname;
+        foreach ($assignments as $assignment) {
+            $choices[$assignment->id] = $assignment->name;
         }
-        $mform->addElement("select", "course_select",
-            get_string("course_select","mod_autograder"), $choices);
-        $mform->setDefault("course_select", $courses[0]->id);
-        $mform->addElement("text", "assignment_name", get_string("assignment_name", "mod_autograder"));
-        $mform->addElement('date_time_selector', 'due_date', get_string("due_date", "mod_autograder"));
-        $this->add_action_buttons();
+        $mform->addElement("select", "autograde_select",
+            get_string("autograde_select","mod_autograder"), $choices);
+        $mform->setDefault("autograde_select", $assignments[0]->id);
+        $this->add_action_buttons(get_string("autograde", "mod_autograder"));
     }
 
 }

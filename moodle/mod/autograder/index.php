@@ -24,6 +24,9 @@
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/lib.php');
+require_once(__DIR__ . '/classes/form/index.php');
+require_once(__DIR__ . '/classes/assignment_manager.php');
+require_once(__DIR__ . '/classes/autograder.php');
 
 global $CFG, $USER, $PAGE, $OUTPUT, $SESSION;
 
@@ -31,8 +34,34 @@ $PAGE->set_url(new moodle_url('/mod/autograder/index.php'));
 $PAGE->set_context(\context_system::instance());
 $PAGE->set_title(get_string("title_view", "mod_autograder"));
 
+$assignment_manager = new assignment_manager();
+$user_assignments = $assignment_manager->get_all_user_autograder_assignments($USER->id);
+
+$autograder = new autograder();
+
+$mform = new \form\index(null, array("assignments" => $user_assignments));
+$data = $mform->get_data();
+
+if ($mform->is_cancelled()) {
+    redirect($CFG->wwwroot . '/mod/autograder/index.php');
+}
+
+$template_context = [
+    "body_title" => get_string("title_assign", "mod_autograder"),
+    "form_html" => $mform->render()
+];
+
 echo $OUTPUT->header();
 
+echo $OUTPUT->render_from_template("mod_autograder/index", $template_context);
 
-
+if($data) {
+    $assignmentid = $data->autograde_select;
+    $res = $autograder->autograde_assignment($assignmentid);
+    foreach ($res as $user) {
+       foreach ($user as $file) {
+           echo $file->get_content() . "<br>";
+       }
+    }
+}
 echo $OUTPUT->footer();

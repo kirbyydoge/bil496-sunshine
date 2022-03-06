@@ -24,6 +24,8 @@
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/classes/form/upload.php');
+require_once(__DIR__ . '/classes/assignment_manager.php');
+require_once(__DIR__ . '/classes/file_manager.php');
 
 global $CFG, $USER, $PAGE, $OUTPUT;
 
@@ -31,15 +33,23 @@ $PAGE->set_url(new moodle_url('/mod/autograder/upload.php'));
 $PAGE->set_context(\context_system::instance());
 $PAGE->set_title(get_string("title_upload", "mod_autograder"));
 
-$mform = new \form\upload();
+$assignment_manager = new assignment_manager();
+$user_assignments = $assignment_manager->get_all_user_autograder_assignments($USER->id);
+
+$file_manager = new file_manager();
+
+$mform = new \form\upload(null, array("assignments" => $user_assignments));
 $data = $mform->get_data();
 
 if ($mform->is_cancelled()) {
     redirect($CFG->wwwroot . "/mod/autograder/index.php");
 }
-else if($data) {
-    file_save_draft_area_files($data->attachments, $PAGE->context->id, 'mod_autograder', 'autograde',
-        0, array('subdirs' => 0, 'maxbytes' => 1048576, 'maxfiles' => 50));
+else if($data){
+    $draftid = $data->attachments;
+    $contextid = $PAGE->context->id;
+    $userid = $USER->id;
+    $assignmentid = $data->assignment_select;
+    $file_manager->save_draft_area($draftid, $contextid, $userid, $assignmentid);
     redirect($CFG->wwwroot . "/mod/autograder/index.php");
 }
 

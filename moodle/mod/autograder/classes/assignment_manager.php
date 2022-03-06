@@ -24,4 +24,24 @@
 
 class assignment_manager {
 
+    public function get_all_user_autograder_assignments($userid) {
+        $user_courses = enrol_get_all_users_courses($userid, true);
+        $assignments = array();
+        $cur_time = time();
+        foreach ($user_courses as $course) {
+            $course_assignments = $this->get_autograder_assignments_by_courseid($course->id);
+            foreach ($course_assignments as $assignment) {
+                if($assignment->deadline > $cur_time) {
+                    $assignments[] = $assignment;
+                }
+            }
+        }
+        return $assignments;
+    }
+
+    public function get_autograder_assignments_by_courseid($courseid) {
+        global $DB;
+        return $DB->get_records("mod_autograder_assignments", ["courseid" => $courseid]);
+    }
+
 }
