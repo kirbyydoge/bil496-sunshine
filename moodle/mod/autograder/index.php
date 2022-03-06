@@ -47,7 +47,7 @@ if ($mform->is_cancelled()) {
 }
 
 $template_context = [
-    "body_title" => get_string("title_assign", "mod_autograder"),
+    "body_title" => get_string("title_autograde", "mod_autograder"),
     "form_html" => $mform->render()
 ];
 
@@ -57,11 +57,11 @@ echo $OUTPUT->render_from_template("mod_autograder/index", $template_context);
 
 if($data) {
     $assignmentid = $data->autograde_select;
-    $res = $autograder->autograde_assignment($assignmentid);
-    foreach ($res as $user) {
-       foreach ($user as $file) {
-           echo $file->get_content() . "<br>";
-       }
-    }
+    $autograder->autograde_assignment($assignmentid, "TestAssign", array(
+        array(
+            "args" => "Hi",
+            "outs" => ["Hi"]
+        )
+    ));
 }
 echo $OUTPUT->footer();
