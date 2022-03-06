@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle Study Program Plugin
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,17 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__ . '/../../config.php');
-require_once(__DIR__ . '/lib.php');
-
-global $CFG, $USER, $PAGE, $OUTPUT, $SESSION;
-
-$PAGE->set_url(new moodle_url('/mod/autograder/index.php'));
-$PAGE->set_context(\context_system::instance());
-$PAGE->set_title(get_string("title_view", "mod_autograder"));
-
-echo $OUTPUT->header();
-
-
-
-echo $OUTPUT->footer();
+$string["modulename"] = "mod_autograder";
+$string["pluginname"] = "Moodle Oto-Notlandırıcı";
+$string["title_view"] = "Görüntüle";

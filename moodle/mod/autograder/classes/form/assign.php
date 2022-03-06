@@ -28,18 +28,23 @@ use moodleform;
 global $CFG;
 
 require_once("$CFG->libdir/formslib.php");
+require_once(__DIR__ . "/../course_manager.php");
 
-class upload extends moodleform {
+class assign extends moodleform {
 
     public function definition() {
         global $USER;
         $mform = $this->_form;
-
-        $mform->addElement("filemanager", "attachments", "Attachments", null, array(
-            "subdirs" => 0, "maxbytes" => 1048576, "areamaxbytes" => 1048576, "maxfiles" => 20,
-                "accepted_types" => "*", "return_types" => 2 | 1
-        ));
-
+        $courses = $this->_customdata["courses"];
+        $choices = array();
+        foreach ($courses as $course) {
+            $choices[$course->id] = $course->fullname;
+        }
+        $mform->addElement("select", "course_select",
+            get_string("course_select","mod_autograder"), $choices);
+        $mform->setDefault("course_select", $courses[0]->id);
+        $mform->addElement("text", "assignment_name", get_string("assignment_name", "mod_autograder"));
+        $mform->addElement('date_selector', 'due_date', get_string("due_date", "mod_autograder"));
         $this->add_action_buttons();
     }
 
