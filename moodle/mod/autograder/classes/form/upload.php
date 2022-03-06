@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle Study Program Plugin
+// This file is part of Moodle Autograder Plugin
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -34,7 +34,14 @@ class upload extends moodleform {
     public function definition() {
         global $USER;
         $mform = $this->_form;
-
+        $assignments = $this->_customdata["assignments"];
+        $choices = array();
+        foreach ($assignments as $assignment) {
+            $choices[$assignment->id] = $assignment->fullname;
+        }
+        $mform->addElement("select", "assignment_select",
+            get_string("assignment_select","mod_autograder"), $choices);
+        $mform->setDefault("course_select", $assignments[0]->id);
         $mform->addElement("filemanager", "attachments", "Attachments", null, array(
             "subdirs" => 0, "maxbytes" => 1048576, "areamaxbytes" => 1048576, "maxfiles" => 20,
                 "accepted_types" => "*", "return_types" => 2 | 1
