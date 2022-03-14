@@ -44,4 +44,32 @@ class assignment_manager {
         return $DB->get_records("mod_autograder_assignments", ["courseid" => $courseid]);
     }
 
+    public function create_assignment(string $name, string $run_command, array $assignment_args,
+                                      array $assignment_outs, int $userid, int $courseid,
+                                      int $deadline) {
+        global $DB;
+        $assignment = new stdClass();
+        $assignment->name = $name;
+        $assignment->userid = $userid;
+        $assignment->courseid = $courseid;
+        $assignment->deadline = $deadline;
+        $assignid = $DB->insert_record("mod_autograder_assignments", $assignment);
+        $runcommand = new stdClass();
+        $runcommand->assignid = $assignid;
+        $runcommand->runcommand = $run_command;
+        $commandid = $DB->insert_record("mod_autograder_runcommands", $runcommand);
+        $testcases = array();
+        for($i = 0; $i < count($assignment_args); $i++) {
+            $arg = $assignment_args[$i];
+            $out = $assignment_outs[$i];
+            $testcase = new stdClass();
+            $testcase->commandid = $commandid;
+            $testcase->argument = $arg;
+            $testcase->output = $out;
+            $testcases[] = $testcase;
+        }
+        $DB->insert_records("mod_autograder_testcases", $testcases);
+        return $assignid;
+    }
+
 }

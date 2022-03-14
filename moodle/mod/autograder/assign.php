@@ -24,6 +24,7 @@
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/lib.php');
+require_once(__DIR__ . '/classes/assignment_manager.php');
 require_once(__DIR__ . '/classes/course_manager.php');
 require_once(__DIR__ . '/classes/form/assign.php');
 
@@ -34,7 +35,10 @@ $PAGE->set_context(\context_system::instance());
 $PAGE->set_title(get_string("title_view", "mod_autograder"));
 
 $course_manager = new \course_manager();
+$assignment_manager = new assignment_manager();
+
 $courses = $course_manager->user_get_courses_teaching($USER->id);
+
 $mform = new \form\assign(null, array("courses" => $courses));
 $data = $mform->get_data();
 
@@ -43,9 +47,12 @@ if ($mform->is_cancelled()) {
 }
 else if($data) {
     $name = $data->assignment_name;
+    $run_command = $data->assignment_run;
+    $args_list = str_getcsv($data->assignment_args);
+    $outs_list = str_getcsv($data->assignment_outs);
     $course_id = $data->course_select;
     $due_date = $data->due_date;
-    $course_manager->create_assignment($name, $USER->id, $course_id, $due_date);
+    $assignment_manager->create_assignment($name, $run_command, $args_list, $outs_list, $USER->id, $course_id, $due_date);
     redirect($CFG->wwwroot . '/mod/autograder/index.php');
 }
 

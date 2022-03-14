@@ -61,6 +61,10 @@ if($data) {
         array(
             "args" => "Hi",
             "outs" => ["Hi"]
+        ),
+        array(
+            "args" => "BIL496",
+            "outs" => ["BIL496"]
         )
     ));
 }

@@ -42,7 +42,9 @@ class index extends moodleform {
         }
         $mform->addElement("select", "autograde_select",
             get_string("autograde_select","mod_autograder"), $choices);
-        $mform->setDefault("autograde_select", $assignments[0]->id);
+        if($assignments) {
+            $mform->setDefault("autograde_select", $assignments[0]->id);
+        }
         $this->add_action_buttons(get_string("autograde", "mod_autograder"));
     }
 

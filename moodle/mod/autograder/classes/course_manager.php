@@ -75,14 +75,4 @@ class course_manager {
         return $courses;
     }
 
-    public function create_assignment(string $name, int $userid, int $courseid, int $deadline) {
-        global $DB;
-        $assignment = new stdClass();
-        $assignment->name = $name;
-        $assignment->userid = $userid;
-        $assignment->courseid = $courseid;
-        $assignment->deadline = $deadline;
-        return $DB->insert_record("mod_autograder_assignments", $assignment);
-    }
-
 }

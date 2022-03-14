@@ -22,18 +22,4 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string["modulename"] = "mod_autograder";
-$string["pluginname"] = "Moodle Autograder";
-$string["course_select"] = "Ödev için Ders Seçiniz";
-$string["due_date"] = "Ödev için Son Teslim Tarihi Seçiniz";
-$string["title_view"] = "Görüntüle";
-$string["title_assign"] = "Ödev Oluştur";
-$string["title_upload"] = "Gönderim Yap";
-$string["title_autograde"] = "Ödevi Otomatik Notlandır";
-$string["assignment_name"] = "Ödev Adı";
-$string["assignment_run"] = "Ödev Çalıştırma Komutu";
-$string["assignment_args"] = "Ödev Argümanları (Virgülle Ayırılmış Şekilde Giriniz)";
-$string["assignment_outs"] = "Ödev Çıktıları (Virgülle Ayırılmış Şekilde Giriniz)";
-$string["assignment_select"] = "Ödev Seçiniz";
-$string["autograde_select"] = "Otomatik Notlandırılacak Ödev Seçiniz";
-$string["autograde"] = "OtoNotlandırıcı";
+//TODO: Add services to enable dynamic extension of forums.
