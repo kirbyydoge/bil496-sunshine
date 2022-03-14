@@ -72,4 +72,22 @@ class assignment_manager {
         return $assignid;
     }
 
+    public function get_run_command(int $assignid) {
+        global $DB;
+        return $DB->get_record("mod_autograder_runcommands", ["assignid" => $assignid]);
+    }
+
+    public function get_testcases(int $commandid) {
+        global $DB;
+        $pairs = $DB->get_records("mod_autograder_testcases", ["commandid" => $commandid]);
+        $testcases = array();
+        foreach ($pairs as $pair) {
+            $testcases[] = [
+                "args" => $pair->argument,
+                "outs" => [$pair->output]
+            ];
+        }
+        return $testcases;
+    }
+
 }

@@ -57,15 +57,8 @@ echo $OUTPUT->render_from_template("mod_autograder/index", $template_context);
 
 if($data) {
     $assignmentid = $data->autograde_select;
-    $autograder->autograde_assignment($assignmentid, "TestAssign", array(
-        array(
-            "args" => "Hi",
-            "outs" => ["Hi"]
-        ),
-        array(
-            "args" => "BIL496",
-            "outs" => ["BIL496"]
-        )
-    ));
+    $runobject = $assignment_manager->get_run_command($assignmentid);
+    $testcases = $assignment_manager->get_testcases($runobject->id);
+    $autograder->autograde_assignment($assignmentid, $runobject->runcommand, $testcases);
 }
 echo $OUTPUT->footer();
