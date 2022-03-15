@@ -23,47 +23,37 @@
  */
 
 require_once(__DIR__ . '/../../config.php');
-require_once(__DIR__ . '/classes/form/upload.php');
+require_once(__DIR__ . '/lib.php');
+require_once(__DIR__ . '/classes/form/index.php');
 require_once(__DIR__ . '/classes/assignment_manager.php');
-require_once(__DIR__ . '/classes/file_manager.php');
+require_once(__DIR__ . '/classes/autograder.php');
 
-global $CFG, $USER, $PAGE, $OUTPUT;
+global $CFG, $USER, $PAGE, $OUTPUT, $SESSION;
 
-$PAGE->set_url(new moodle_url('/mod/autograder/upload.php'));
+$PAGE->set_url(new moodle_url('/mod/autograder/deadlines.php'));
 $PAGE->set_context(\context_system::instance());
-$PAGE->set_title(get_string("title_upload", "mod_autograder"));
-
-$assignid = required_param('id', PARAM_INT);
+$PAGE->set_title(get_string("title_view", "mod_autograder"));
 
 $assignment_manager = new assignment_manager();
 $user_assignments = $assignment_manager->get_all_user_autograder_assignments($USER->id);
 
-$assignment = $assignment_manager->get_assignment($assignid);
-
-$file_manager = new file_manager();
-
-$mform = new \form\upload();
-$data = $mform->get_data();
-
-if ($mform->is_cancelled()) {
-    redirect($CFG->wwwroot . "/mod/autograder/index.php");
-}
-else if($data){
-    $draftid = $data->attachments;
-    $contextid = $PAGE->context->id;
-    $userid = $USER->id;
-    $assignmentid = $assignid;
-    $file_manager->save_draft_area($draftid, $contextid, $userid, $assignmentid);
-    redirect($CFG->wwwroot . "/mod/autograder/index.php");
+for($i = 0; $i < count($user_assignments); $i++) {
+    $assign = $user_assignments[$i];
+    $course = get_course($assign->courseid);
+    $user_assignments[$i]->date = gmdate("d-m-Y", $assign->deadline);
+    $user_assignments[$i]->course_name = $course->fullname;
+    $user_assignments[$i]->course_url = $CFG->wwwroot . "/course/view.php?id=" . $course->id;
+    $user_assignments[$i]->assign_url = $CFG->wwwroot . "/mod/autograder/upload.php?id=" . $assign->id;
+    $user_assignments[$i]->submit_name = "Add Submission";
 }
 
 $template_context = [
-    "body_title" => $assignment->name,
-    "form_html" => $mform->render()
+    "body_title" => get_string("title_autograde", "mod_autograder"),
+    "assignments" => $user_assignments
 ];
 
 echo $OUTPUT->header();
 
-echo $OUTPUT->render_from_template("mod_autograder/upload", $template_context);
+echo $OUTPUT->render_from_template("mod_autograder/deadlines", $template_context);
 
 echo $OUTPUT->footer();

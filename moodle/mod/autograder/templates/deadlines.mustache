@@ -1,0 +1,61 @@
+{{!
+    This file is part of Moodle Autograder Plugin
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+<h1 class="m-mod-autograder-title">{{body_title}}</h1>
+
+<div style="margin: 20px auto auto auto; width: 65%;">
+    {{#assignments}}
+        <div class="card rounded calendar_event_course">
+            <div class="box card-header clearfix">
+                <div class="d-inline-block">
+                    <h3 class="name d-inline-block">{{name}}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="description card-body">
+            <div class="row">
+                <div class="col-1">
+                    <i class="icon fa fa-clock-o fa-fw" title="When" role="img" aria-label="When"></i>
+                </div>
+                <div class="col-11">
+                    <a>{{date}}</a>
+                </div>
+            </div>
+            <div class="row mt-1">
+                <div class="col-1">
+                    <i class="icon fa fa-calendar fa-fw" title="Event Type" role="img" aria-label="Event Type"></i>
+                </div>
+                <div class="col-11">
+                    <a>Autograder Event</a>
+                </div>
+            </div>
+            <div class="row mt-1">
+                <div class="col-1">
+                    <i class="icon fa fa-graduation-cap fa-fw" title="Course" role="img" aria-label="Course"></i>
+                </div>
+                <div class="col-11">
+                    <a href="{{course_url}}">{{course_name}}</a>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer text-right bg-transparent">
+            <a href="{{assign_url}}" class="card-link">{{submit_name}}</a>
+        </div>
+    {{/assignments}}
+</div>
+
+<script>
+
+</script>

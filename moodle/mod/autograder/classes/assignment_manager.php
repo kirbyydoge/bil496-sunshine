@@ -72,6 +72,11 @@ class assignment_manager {
         return $assignid;
     }
 
+    public function get_assignment(int $assignid) {
+        global $DB;
+        return $DB->get_record("mod_autograder_assignments", ["id" => $assignid]);
+    }
+
     public function get_run_command(int $assignid) {
         global $DB;
         return $DB->get_record("mod_autograder_runcommands", ["assignid" => $assignid]);

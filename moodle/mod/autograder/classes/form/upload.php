@@ -34,16 +34,8 @@ class upload extends moodleform {
     public function definition() {
         global $USER;
         $mform = $this->_form;
-        $assignments = $this->_customdata["assignments"];
-        $choices = array();
-        foreach ($assignments as $assignment) {
-            $choices[$assignment->id] = $assignment->name;
-        }
-        $mform->addElement("select", "assignment_select",
-            get_string("assignment_select","mod_autograder"), $choices);
-        if($assignments) {
-            $mform->setDefault("assignment_select", $assignments[0]->id);
-        }
+        $mform->addElement("hidden", "assignid");
+        $mform->setType("assignid", PARAM_INT);
         $mform->addElement("filemanager", "attachments", "Attachments", null, array(
             "subdirs" => 0, "maxbytes" => 1048576, "areamaxbytes" => 1048576, "maxfiles" => 20,
                 "accepted_types" => "*", "return_types" => 2 | 1
