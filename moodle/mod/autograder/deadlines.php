@@ -43,7 +43,9 @@ for($i = 0; $i < count($user_assignments); $i++) {
     $user_assignments[$i]->date = gmdate("d-m-Y", $assign->deadline);
     $user_assignments[$i]->course_name = $course->fullname;
     $user_assignments[$i]->course_url = $CFG->wwwroot . "/course/view.php?id=" . $course->id;
+    $user_assignments[$i]->autograde_url = $CFG->wwwroot . "/mod/autograder/autograde.php?id=" . $assign->id;
     $user_assignments[$i]->assign_url = $CFG->wwwroot . "/mod/autograder/upload.php?id=" . $assign->id;
+    $user_assignments[$i]->autograde_name = "Autograde Submission";
     $user_assignments[$i]->submit_name = "Add Submission";
 }
 

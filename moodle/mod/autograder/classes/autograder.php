@@ -32,20 +32,27 @@ class autograder {
     public function autograde_assignment(int $assignmentid, string $main, array $test_cases) {
         global $DB;
         $fm = new file_manager();
-        $fs = get_file_storage();
         $file_map = $fm->get_assignment_files($assignmentid);
+        $out_buffer = array();
         foreach ($file_map as $key => $value) {
             $user_entry = $DB->get_record("user", ["id" => $key]);
             $username = $user_entry->firstname . " " . $user_entry->lastname;
-            $this->autograde_single_assignment($username, $value, $main, $test_cases);
+            $user_buffer = array();
+            $this->autograde_single_assignment($username, $value, $main, $test_cases, $user_buffer);
+            $out_buffer[] = [
+                "username" => $username,
+                "result" => $user_buffer
+            ];
         }
+        return $out_buffer;
     }
 
-    private function autograde_single_assignment(string $username, array $files, string $main, array $test_cases) {
+    private function autograde_single_assignment(string $username, array $files, string $main,
+                                                    array $test_cases, array &$out_buffer) {
         $this->write_files(self::SRC_PATH, $files);
-        $this->compile_files(self::SRC_PATH, self::BIN_PATH);
-        echo "Autograding user: " . $username . "<br>";
-        $this->run_program(self::BIN_PATH, $main, $test_cases);
+        $this->compile_files(self::SRC_PATH, self::BIN_PATH, $out_buffer);
+        $out_buffer[] = "Autograding user: " . $username;
+        $this->run_program(self::BIN_PATH, $main, $test_cases, $out_buffer);
         $this->cleanup(self::SRC_PATH);
         $this->cleanup(self::BIN_PATH);
     }
@@ -58,37 +65,37 @@ class autograder {
         }
     }
 
-    private function compile_files($src_path, $compile_path) {
+    private function compile_files($src_path, $compile_path, array &$out_buffer) {
         exec("javac -d ". $compile_path . " " . $src_path . "/*.java 2>&1", $output, $result);
         foreach ($output as $item) {
-            echo $item . "<br>";
+            $out_buffer[] = $item;
         }
     }
 
-    private function run_program($class_path, $main, $test_cases) {
+    private function run_program($class_path, $main, $test_cases, array &$out_buffer) {
         foreach ($test_cases as $test_case) {
             $args = $test_case["args"];
             $outs = $test_case["outs"];
-            $test_result = $this->run_test($class_path, $main, $args, $outs);
+            $test_result = $this->run_test($class_path, $main, $args, $outs, $out_buffer);
         }
     }
 
-    private function run_test($class_path, $main, $args, $outs) {
-        echo "Running With Args: " . $args. " ";
+    private function run_test($class_path, $main, $args, $outs, array &$out_buffer) {
+        $out_buffer[] =  "Running With Args: " . $args;
         exec("java -cp ". $class_path . "; ". $main . " " . $args . " 2>&1", $output, $result);
         $test_result = $outs === $output;
         if($test_result) {
-            echo "(Test Passed) <br>";
+            $out_buffer[] = "(Test Passed)";
         }
         else {
-            echo "(Test Failed) <br>";
-            echo "\tProgram Output:<br>";
+            $out_buffer[] = "(Test Failed)\n";
+            $out_buffer[] = "\tProgram Output:\n";
             foreach ($output as $line) {
-                echo "\t" . $line . "<br>";
+                $out_buffer[] = "\t" . $line;
             }
-            echo "\tExpected Output:<br>";
+            $out_buffer[] = "\tExpected Output:\n";
             foreach ($outs as $line) {
-                echo "\t" . $line . "<br>";
+                $out_buffer[] = "\t" . $line;
             }
         }
         return $test_result;
