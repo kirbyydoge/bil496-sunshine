@@ -30,13 +30,18 @@ $OUTPUT = ''; //initialized the values.
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/local/archive/classes/form/edit.php');
 
+require_login();
+$context = context_system::instance();
+
 global $DB;
 
 $PAGE->set_url(new moodle_url('/local/archive/manage.php'));
 $PAGE->set_context(\context_system::instance());
-$PAGE->set_title('Archives');
+$PAGE->set_title(get_string('archives', 'local_archive'));
+$PAGE->set_heading(get_string('manage_records', 'local_archive'));
+$PAGE->requires->js_call_amd('local_archive/confirm');
 
-$records = $DB->get_records('local_archive');
+$records = $DB->get_records('local_archive', null, 'id');
 
 echo $OUTPUT->header();
 

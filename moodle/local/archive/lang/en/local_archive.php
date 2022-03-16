@@ -40,4 +40,9 @@ $string['solutions'] = 'Solutions';
 $string['other'] = 'Other';
 $string['updated_record'] = 'Record has been updated.';
 $string['attachment'] = 'Attachment';
-
+$string['delete_message'] = 'Delete record';
+$string['pluginname'] = 'Archives';
+$string['archive:managemessages'] = 'Manage Records';
+$string['manage_records'] = 'Manage Records';
+$string['archives'] = 'Archives';
+$string['delete_message_confirm'] = 'Are you sure you want to delete the record?';

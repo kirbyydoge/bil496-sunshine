@@ -1,5 +1,5 @@
-<<?php
-// This file is part of Moodle - http://moodle.org/
+<?php
+// This file is part of Moodle Course Rollover Plugin
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,15 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
- *
- * @package    local_archive
- * @author     Elcin Duman
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     local_archive
+ * @author      Elcin Duman
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version   = 2022021900;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2021052500;        // Requires this Moodle version.
-$plugin->component = 'local_archive';  // Full name of the plugin (used for diagnostics)

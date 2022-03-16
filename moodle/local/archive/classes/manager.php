@@ -30,8 +30,14 @@ use stdClass;
 class manager {
 
     /** Insert the data into our database table.
-     * @param string $message_text
-     * @param string $message_type
+     * @param string $user_name
+     * @param string $user_lastname
+     * @param string $course_short_name
+     * @param string $course_full_name
+     * @param string $record_type
+     * @param int    $date_of_the_record
+     * @param string $time_created
+     * @param string $time_modified
      * @return bool true if successful
      */
     public function create_record(string $user_name,
@@ -57,10 +63,14 @@ class manager {
 
     }
 
-    /** Update details for a single message.
-     * @param int $messageid the message we're trying to get.
-     * @param string $message_text the new text for the message.
-     * @param string $message_type the new type for the message.
+    /** Update details for a single record.
+     * @param int $id the message we're trying to get.
+     * @param string $user_name the new text for the user name.
+     * @param string $user_lastname the new type for the user lastname.
+     * @param string $course_short_name the new type for the course name.
+     * @param string $course_full_name the new type for the course name.
+     * @param string $record_type the new type for the record name.
+     * @param int $date_of_the_record the new type for the record name.
      * @return bool message data or false if not found.
      */
     public function update_records(int $id, string $user_name,
@@ -89,30 +99,28 @@ class manager {
         return $DB->update_record('local_archive', $object);
     }
 
-    /** Delete a message and all the read history.
-     * @param $messageid
+    /** Delete a record.
+     * @param $id
      * @return bool
      * @throws \dml_transaction_exception
      * @throws dml_exception
      */
- /*   public function delete_message($messageid)
+    public function delete_message($messageid)
     {
         global $DB;
         $transaction = $DB->start_delegated_transaction();
-        $deletedMessage = $DB->delete_records('local_message', ['id' => $messageid]);
-        $deletedRead = $DB->delete_records('local_message_read', ['messageid' => $messageid]);
-        if ($deletedMessage && $deletedRead) {
+        $deletedMessage = $DB->delete_records('local_archive', ['id' => $messageid]);
+        if ($deletedMessage) {
             $DB->commit_delegated_transaction($transaction);
         }
         return true;
     }
- */
 
-    /** Get a message given an id
+    /** Get an archive record given an id
      *  @param $id
      *  @return object of requested record
      */
-    public function get_archive(int $id) {
+    public function get_record(int $id) {
         global $DB;
         return $DB->get_record('local_archive', ['id' => $id]);
     }

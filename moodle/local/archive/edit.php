@@ -69,7 +69,7 @@ if ($mform->is_cancelled()) {
 
 if($id) {
     $manager = new manager();
-    $archive = $manager->get_archive($id);
+    $archive = $manager->get_record($id);
     if (!$archive) {
         throw new invalid_parameter_exception("Archive Not Found.");
     }
