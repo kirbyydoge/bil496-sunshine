@@ -46,3 +46,7 @@ $string['archive:managemessages'] = 'Manage Records';
 $string['manage_records'] = 'Manage Records';
 $string['archives'] = 'Archives';
 $string['delete_message_confirm'] = 'Are you sure you want to delete the record?';
+$string['list_of_records'] = 'List of Records';
+$string['create_record'] = 'Create';
+$string['edit_record'] = 'Edit';
+$string['delete_record'] = 'Delete';

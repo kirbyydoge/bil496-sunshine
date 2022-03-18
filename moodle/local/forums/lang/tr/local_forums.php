@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -19,7 +18,7 @@
  *
  * Version details
  *
- * @package    local_archive
+ * @package    local_forums
  * @author     Elcin Duman
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -30,24 +29,7 @@ $string['course_full_name'] = 'Dersin Tam Adı';
 $string['record_type'] = 'Kaydın Tipi';
 $string['date_of_the_record'] = 'Kaydın Tarihi';
 $string['time_created'] = 'Oluşturulma Tarihi';
-$string['time_modified'] = 'Değiştirme Tarihi';
-$string['quiz'] = 'Kısa Sınav';
-$string['midterm_exam'] = 'Ara Sınav';
-$string['final_exam'] = 'Final Sınavı';
-$string['homework'] = 'Ödev';
-$string['practice_questions'] = 'Pratik Soruları';
-$string['slides'] = 'Slaytlar';
-$string['solutions'] = 'Çözümler';
-$string['other'] = 'Diğer';
-$string['updated_record'] = 'Kayıt güncellendi.';
-$string['attachment'] = 'Ekler';
-$string['delete_message'] = 'Kaydı Sil';
-$string['pluginname'] = 'Arşivler';
-$string['archive:managemessages'] = 'Kayıtları Yönetin';
-$string['manage_records'] = 'Kayıtları Yönetin';
-$string['archives'] = 'Arşivler';
-$string['delete_message_confirm'] = 'Bu kaydı silmek istediğinize emin misiniz?';
-$string['list_of_records'] = 'Kayıtların Listesi';
-$string['create_record'] = 'Oluştur';
-$string['edit_record'] = 'Düzenle';
-$string['delete_record'] = 'Sil';
+$string['time_modified'] = 'Değiştirilme Tarihi';
+$string['title_of_forum'] = "Başlık";
+$string['description'] = 'Açıklama';
+$string['updated_record'] = 'Form güncellendi.';

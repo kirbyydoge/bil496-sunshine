@@ -29,11 +29,11 @@
     <div class="card mt-2 mb-2">
         <div class="card-body">
             <p>{{course_short_name}}</p>
-            <input type="button" class="btn btn-primary" value="Edit Record" onclick="location.href='{{editurl}}?recordid={{id}}'">
-            <input type="button" class="local_messageid{{id}} btn btn-danger local_message_delete_button" value="Delete Record">
+            <input type="button" class="btn btn-primary" value={{edit_record}} onclick="location.href='{{editurl}}?recordid={{id}}'">
+            <input type="button" class="local_messageid{{id}} btn btn-danger local_message_delete_button" value={{delete_record}}>
         </div>
     </div>
 {{/records}}
 
 <hr>
-<input type="button" class="btn btn-primary" value="Create a new Record" onclick="location.href='{{editurl}}'">
+<input type="button" class="btn btn-primary" value={{create}} onclick="location.href='{{editurl}}'">

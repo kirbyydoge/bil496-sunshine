@@ -42,14 +42,16 @@ $PAGE->set_heading(get_string('manage_records', 'local_archive'));
 $PAGE->requires->js_call_amd('local_archive/confirm');
 
 $records = $DB->get_records('local_archive', null, 'id');
-
 echo $OUTPUT->header();
 
 $templatecontext = (object)[
     'records' => array_values($records),
     'editurl' => new moodle_url('/local/archive/edit.php'),
+    'edit_record' => (get_string('edit_record', 'local_archive')),
+    'delete_record' => (get_string('delete_record', 'local_archive')),
+    'create' => get_string('create_record', 'local_archive'),
+    'list' => get_string('list_of_records', 'local_archive'),
 ];
 
 echo $OUTPUT->render_from_template('local_archive/manage', $templatecontext);
-
 echo $OUTPUT->footer();
