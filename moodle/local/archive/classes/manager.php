@@ -44,11 +44,16 @@ class manager {
                                   string $user_lastname,
                                   string $course_short_name,
                                   string $course_full_name, string $record_type, int $date_of_the_record,
-                                  string $time_created, string $time_modified): bool
+                                  string $time_created, string $time_modified,
+                                  int $draftid, int $contextid, int $userid, int $assignmentid): bool
     {
         global $DB;
 
         $insert_record = new stdClass();
+        $itemid = $this->generate_itemid($userid, $assignmentid);
+
+        file_save_draft_area_files($draftid, $contextid, 'local_archive', 'attachment',
+            $itemid, array('subdirs' => 0, 'maxbytes' => 1048576, 'maxfiles' => 50));
 
         $insert_record->user_name = $user_name;
         $insert_record->user_lastname = $user_lastname;
@@ -58,9 +63,16 @@ class manager {
         $insert_record->date_of_the_record = $date_of_the_record;
         $insert_record->time_created = $time_created;
         $insert_record->time_modified = $time_modified;
+        $insert_record->userid = $userid;
+        $insert_record->assignmentid = $assignmentid;
+        $insert_record->fileid = $itemid;
 
         return $DB->insert_record('local_archive', $insert_record, false);
+    }
 
+
+    public function generate_itemid(int $userid, int $assignmentid) {
+        return $userid * 10**10 + $assignmentid;
     }
 
     /** Update details for a single record.
@@ -78,7 +90,8 @@ class manager {
                                    string $course_short_name,
                                    string $course_full_name,
                                    string $record_type,
-                                   int $date_of_the_record): bool
+                                   int $date_of_the_record,
+                                   int $draftid, int $contextid, int $userid, int $assignmentid): bool
     {
         global $DB;
         date_default_timezone_set('Europe/Istanbul');
@@ -86,6 +99,10 @@ class manager {
         $date = date_format($date, 'Y-m-d h:i:s');
 
         $object = new stdClass();
+        $itemid = $this->generate_itemid($userid, $id);
+
+        file_save_draft_area_files($draftid, $contextid, 'local_archive', 'attachment',
+            $itemid, array('subdirs' => 0, 'maxbytes' => 1048576, 'maxfiles' => 20));
 
         $object->id = $id;
         $object->user_name = $user_name;
@@ -95,6 +112,9 @@ class manager {
         $object->record_type = $record_type;
         $object->date_of_the_record = $date_of_the_record;
         $object->time_modified = $date;
+        $object->userid = $userid;
+        $object->assignmentid = $assignmentid;
+        $object->fileid = $itemid;
 
         return $DB->update_record('local_archive', $object);
     }
@@ -121,6 +141,7 @@ class manager {
      *  @return object of requested record
      */
     public function get_record(int $id) {
+
         global $DB;
         return $DB->get_record('local_archive', ['id' => $id]);
     }

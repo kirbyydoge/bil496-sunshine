@@ -84,11 +84,10 @@ class edit extends moodleform {
         $mform->setType('time_modified', PARAM_NOTAGS);
         $mform->setDefault('time_modified', $date);
 
-        $maxbytes = 1000000000;
-        $mform->addElement('filemanager', 'attachments', get_string('attachment', 'local_archive'), null,
-            array('subdirs' => 0, 'maxbytes' => $maxbytes, 'areamaxbytes' => 10485760, 'maxfiles' => 1,
-                'accepted_types' => array('document'), 'return_types'=> FILE_INTERNAL | FILE_EXTERNAL));
-
+        $mform->addElement("filemanager", "attachments",  get_string('attachment', 'local_archive'), null, array(
+            "subdirs" => 0, "maxbytes" => 1048576, "areamaxbytes" => 1048576, "maxfiles" => 20,
+            "accepted_types" => "*", "return_types" => 2 | 1
+        ));
         $this->add_action_buttons();
     }
 

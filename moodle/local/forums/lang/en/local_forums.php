@@ -33,3 +33,4 @@ $string['time_modified'] = 'Time Modified';
 $string['title_of_forum'] = "Title of the Form";
 $string['description'] = 'Description';
 $string['updated_record'] = 'Form has been updated.';
+$string['pluginname'] = 'Forums';

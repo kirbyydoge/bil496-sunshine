@@ -33,3 +33,4 @@ $string['time_modified'] = 'Değiştirilme Tarihi';
 $string['title_of_forum'] = "Başlık";
 $string['description'] = 'Açıklama';
 $string['updated_record'] = 'Form güncellendi.';
+$string['pluginname'] = 'Forumlar';

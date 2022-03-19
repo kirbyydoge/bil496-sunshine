@@ -15,9 +15,15 @@
                 <FIELD NAME="date_of_the_record" TYPE="int" LENGTH="10" DEFAULT="0" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="time_created" TYPE="datetime" NOTNULL="true" DEFAULT="CURRENT_TIMESTAMP" SEQUENCE="false"/>
                 <FIELD NAME="time_modified" TYPE="datetime" NOTNULL="true" DEFAULT="CURRENT_TIMESTAMP" SEQUENCE="false"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="assignmentid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="fileid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+                <KEY NAME="fileid" TYPE="foreign" FIELDS="fileid" REFTABLE="files" REFFIELDS="id"/>
+                <KEY NAME="assignmentid" TYPE="foreign" FIELDS="assignmentid" REFTABLE="archive" REFFIELDS="id"/>
             </KEYS>
         </TABLE>
     </TABLES>
