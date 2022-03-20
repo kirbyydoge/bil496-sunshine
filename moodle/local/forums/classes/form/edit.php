@@ -38,14 +38,6 @@ class edit extends moodleform {
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
 
-        $mform->addElement('text', 'user_name', get_string('user_name', 'local_forums')); // Add elements to your form
-        $mform->setType('user_name', PARAM_NOTAGS);                   //Set type of element
-        $mform->setDefault('user_name', get_string('user_name', 'local_forums'));        //Default value
-
-        $mform->addElement('text', 'user_lastname', get_string('user_lastname', 'local_forums')); // Add elements to your form
-        $mform->setType('user_lastname', PARAM_NOTAGS);                   //Set type of element
-        $mform->setDefault('user_lastname', get_string('user_lastname', 'local_forums'));        //Default value
-
         $mform->addElement('text', 'course_short_name', get_string('course_short_name', 'local_forums')); // Add elements to your form
         $mform->setType('course_short_name', PARAM_NOTAGS);           //Set type of element
         $mform->setDefault('course_short_name', get_string('course_short_name', 'local_forums'));        //Default value

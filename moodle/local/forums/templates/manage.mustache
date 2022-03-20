@@ -32,17 +32,18 @@
     {
     }
 }}
+<div style="margin: 20px auto auto auto; width: 65%;">
 <h1>Forums</h1>
 {{#records}}
     <div class="card mt-2 mb-2">
         <div class="card-body">
             <p>{{title_of_forum}}</p>
-            <input type="button" class="btn btn-primary" value="Edit Form" onclick="location.href='{{editurl}}?forumid={{id}}'">
-            <input type="button" class="local_forumid{{id}} btn btn-danger local_archive_delete_button" value="Delete Form">
+            <input type="button" class="btn btn-primary" value={{edit}} onclick="location.href='{{editurl}}?forumid={{id}}'">
+            <input type="button" class="local_messageid{{id}} btn btn-danger local_forums_delete_button" value={{delete}}>
         </div>
     </div>
 {{/records}}
 
-
 <hr>
-<input type="button" class="btn btn-primary" value="Create a new Forum" onclick="location.href='{{editurl}}'">
+<input type="button" class="btn btn-primary" value={{create}} onclick="location.href='{{editurl}}'">
+{{{form_html}}}</div>

@@ -8,17 +8,17 @@
         <TABLE NAME="local_forums" COMMENT="Each record leads to forums discussion">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="user_name" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="user_lastname" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="course_short_name" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="course_full_name" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="title_of_forum" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="time_created" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="time_modified" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="2" SEQUENCE="false"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
             </KEYS>
         </TABLE>
         <!--A table for whether a discussion is reached or not-->

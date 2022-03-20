@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
- * local_archive external file
+ * local_forums external file
  *
  * @package    component
  * @category   external
@@ -23,37 +23,39 @@
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->dirroot . '/local/archive/classes/manager.php');
+
+require_once($CFG->dirroot . '/local/forums/classes/manager.php');
 require_once($CFG->libdir . "/externallib.php");
 
-class local_archive_external extends external_api  {
+class local_forums_external extends external_api  {
     /**
      * Returns description of method parameters
      * @return external_function_parameters
      */
-    public static function delete_message_parameters() {
+    public static function delete_forums_parameters() {
         return new external_function_parameters(
-            ['messageid' => new external_value(PARAM_INT, 'id of message')],
+            ['messageid' => new external_value(PARAM_INT, 'id of forums')],
         );
     }
+
     /**
      * The function itself
-     * @return string welcome message
+     * @param $id
+     * @return string
      */
-    public static function delete_message($messageid): string {
+    public static function delete_forums($id): string {
 
-        $params = self::validate_parameters(self::delete_message_parameters(), array('messageid'=>$messageid));
-
-   //     require_capability('local/message:managemessages', context_system::instance());
+        $params = self::validate_parameters(self::delete_forums_parameters(), array('messageid'=>$id));
         $manager = new manager();
-        return $manager->delete_message($messageid);
+        return $manager->delete_forums($id);
     }
 
     /**
      * Returns description of method result value
      * @return external_description
      */
-    public static function delete_message_returns() {
+    public static function delete_forums_returns() {
         return new external_value(PARAM_BOOL, 'True if the message was successfully deleted.');
     }
 }
+

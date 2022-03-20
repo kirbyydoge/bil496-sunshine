@@ -23,8 +23,6 @@
  * @author     Elcin Duman
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['user_name'] = 'Kullanıcı Adı';
-$string['user_lastname'] = 'Kullanıcı Soyadı';
 $string['course_short_name'] = 'Dersin Kısa Adı';
 $string['course_full_name'] = 'Dersin Tam Adı';
 $string['record_type'] = 'Kaydın Tipi';
@@ -51,3 +49,4 @@ $string['list_of_records'] = 'Kayıtların Listesi';
 $string['create_record'] = 'Oluştur';
 $string['edit_record'] = 'Düzenle';
 $string['delete_record'] = 'Sil';
+$string['delete_message_failed'] = 'Silme işlemi başarısız oldu.';

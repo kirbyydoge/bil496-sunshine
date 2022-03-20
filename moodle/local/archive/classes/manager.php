@@ -36,6 +36,9 @@ class manager {
      * @param int    $date_of_the_record
      * @param string $time_created
      * @param string $time_modified
+     * @param int $draftid
+     * @param int $contextid
+     * @param int $userid
      * @return bool true if successful
      */
     public function create_record(string $course_short_name,
@@ -53,7 +56,6 @@ class manager {
         $insert_record->record_type = $record_type;
         $insert_record->userid = $userid;
         $insert_record->date_of_the_record = $date_of_the_record;
-        //$id_val = $DB->insert_record('local_archive', $insert_record, false);
 
         return $this->update_records($DB->insert_record('local_archive', $insert_record,  $returnid=true, $bulk=false), $course_short_name, $course_full_name, $record_type, $date_of_the_record,
                             $draftid, $contextid, $userid);
@@ -70,6 +72,9 @@ class manager {
      * @param string $course_full_name the new type for the course name.
      * @param string $record_type the new type for the record name.
      * @param int $date_of_the_record the new type for the record name.
+     * @param int $draftid
+     * @param int $contextid
+     * @param int $userid
      * @return bool message data or false if not found.
      */
     public function update_records(int $id, string $course_short_name,

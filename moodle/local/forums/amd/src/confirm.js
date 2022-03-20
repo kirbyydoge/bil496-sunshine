@@ -12,27 +12,25 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/messages/>.
-
 /**
  * Show a delete message modal instead of doing it on a separate page.
  *
- * @module     local_archive
+ * @module     local_forums
  */
 define(['jquery', 'core/modal_factory', 'core/str', 'core/modal_events', 'core/ajax', 'core/notification'], function($, ModalFactory, String, ModalEvents, Ajax, Notification) {
-    var trigger = $('.local_message_delete_button');
+    var trigger = $('.local_forums_delete_button');
     ModalFactory.create({
         type: ModalFactory.types.SAVE_CANCEL,
-        title: String.get_string('delete_message', 'local_archive'),
-        body: String.get_string('delete_message_confirm', 'local_archive'),
+        title: String.get_string('delete_forums', 'local_forums'),
+        body: String.get_string('delete_forums_confirm', 'local_forums'),
         preShowCallback: function(triggerElement, modal) {
             // Do something before we show the delete modal.
             triggerElement = $(triggerElement);
-            let classString = triggerElement[0].classList[0]; // local_messageid13
+            let classString = triggerElement[0].classList[0];
             let messageid = classString.substr(classString.lastIndexOf('local_messageid') + 'local_messageid'.length);
-            // let messageid = 1;
             // Set the message id in this modal.
             modal.params = {'messageid': messageid};
-            modal.setSaveButtonText(String.get_string('delete_message', 'local_archive'));
+            modal.setSaveButtonText(String.get_string('delete_forums', 'local_forums'));
         },
         large: true,
     }, trigger)
@@ -47,7 +45,7 @@ define(['jquery', 'core/modal_factory', 'core/str', 'core/modal_events', 'core/a
                 let spinner = M.util.add_spinner(Y, footer);
                 spinner.show();
                 let request = {
-                    methodname: 'local_message_delete_message',
+                    methodname: 'local_forums_delete_forums',
                     args: modal.params,
                 };
                 Ajax.call([request])[0].done(function(data) {
@@ -56,7 +54,7 @@ define(['jquery', 'core/modal_factory', 'core/str', 'core/modal_events', 'core/a
                         window.location.reload();
                     } else {
                         Notification.addNotification({
-                            message: String.get_string('delete_message_failed', 'local_archive'),
+                            message: String.get_string('delete_forums_failed', 'local_forums'),
                             type: 'error',
                         });
                     }

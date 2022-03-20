@@ -22,8 +22,6 @@
  * @author     Elcin Duman
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['user_name'] = 'User Name';
-$string['user_lastname'] = 'User Last Name';
 $string['course_short_name'] = 'Short Name of the Class';
 $string['course_full_name'] = 'Full Name of the Class';
 $string['record_type'] = 'Type of the Record';
@@ -50,3 +48,4 @@ $string['list_of_records'] = 'List of Records';
 $string['create_record'] = 'Create';
 $string['edit_record'] = 'Edit';
 $string['delete_record'] = 'Delete';
+$string['delete_message_failed'] = 'Deletion failed.';

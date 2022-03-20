@@ -30,28 +30,30 @@ use stdClass;
 class manager
 {
     /** Insert the data into our database table.
-     * @param string $message_text
-     * @param string $message_type
+     * @param string $course_short_name_
+     * @param string $course_full_name
+     * @param string $title_of_forum
+     * @param string $description
+     * @param string $time_created
+     * @param string $time_modified
      * @return bool true if successful
      */
-    public function create_record(string $user_name,
-                                  string $user_lastname,
-                                  string $course_short_name,
+    public function create_record(int $userid, string $course_short_name,
                                   string $course_full_name, string $title_of_forum,
-                                  string $description, string $time_created, string $time_modified): bool
+                                  string $description, string $time_created,
+                                  string $time_modified): bool
     {
         global $DB;
 
         $insert_record = new stdClass();
 
-        $insert_record->user_name = $user_name;
-        $insert_record->user_lastname = $user_lastname;
         $insert_record->course_short_name = $course_short_name;
         $insert_record->course_full_name = $course_full_name;
         $insert_record->title_of_forum = $title_of_forum;
         $insert_record->description = $description;
         $insert_record->time_created = $time_created;
         $insert_record->time_modified = $time_modified;
+        $insert_record->userid = $userid;
 
         return $DB->insert_record('local_forums', $insert_record, false);
 
@@ -60,11 +62,9 @@ class manager
     /** Update details for a single form record.
      * @return bool message data or false if not found.
      */
-    public function update_records(int $id, string $user_name,
-                                   string $user_lastname,
-                                   string $course_short_name,
-                                   string $course_full_name,
-                                   string $title_of_forum, string $description): bool
+    public function update_records(int $id, int $userid, string $course_short_name,
+                                   string $course_full_name, string $title_of_forum,
+                                   string $description): bool
     {
         global $DB;
 
@@ -75,8 +75,7 @@ class manager
         $object = new stdClass();
 
         $object->id = $id;
-        $object->user_name = $user_name;
-        $object->user_lastname = $user_lastname;
+        $object->$userid = $userid;
         $object->course_short_name = $course_short_name;
         $object->course_full_name = $course_full_name;
         $object->title_of_forum = $title_of_forum;
@@ -84,6 +83,22 @@ class manager
         $object->time_modified = $date;
 
         return $DB->update_record('local_forums', $object);
+    }
+
+    /** Delete a forum.
+     * @param $id
+     * @return bool
+     * @throws \dml_transaction_exception
+     * @throws dml_exception
+     */
+    public function delete_forums($id) {
+        global $DB;
+        $transaction = $DB->start_delegated_transaction();
+        $deletedForum = $DB->delete_records('local_forums', ['id' => $id]);
+        if ($deletedForum) {
+            $DB->commit_delegated_transaction($transaction);
+        }
+        return true;
     }
 
     /** Get a message given an id

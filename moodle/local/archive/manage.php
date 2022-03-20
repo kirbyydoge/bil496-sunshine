@@ -42,6 +42,7 @@ $PAGE->set_heading(get_string('manage_records', 'local_archive'));
 $PAGE->requires->js_call_amd('local_archive/confirm');
 
 $records = $DB->get_records('local_archive', null, 'id');
+
 echo $OUTPUT->header();
 
 $templatecontext = (object)[

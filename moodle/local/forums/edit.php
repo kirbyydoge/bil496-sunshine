@@ -24,9 +24,7 @@
  */
 
 $CFG = '';
-$PAGE = '';
-$OUTPUT = ''; //initialized the values.
-global $DB;
+global $DB, $OUTPUT, $PAGE, $USER;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/local/forums/classes/form/edit.php');
@@ -43,13 +41,16 @@ $mform = new edit();
 //Form processing is done here
 if ($mform->is_cancelled()) {
     redirect($CFG->wwwroot . '/local/forums/manage.php', 'Form Discussion is cancelled.');
+
 } else if ($fromform = $mform->get_data()) {
+
     $manager = new manager();
+    $userid = $USER->id;
+
     if ($fromform->id) {
         $manager->update_records(
             $fromform->id,
-            $fromform->user_name,
-            $fromform->user_lastname,
+            $userid,
             $fromform->course_short_name,
             $fromform->course_full_name,
             $fromform->title_of_forum,
@@ -58,8 +59,7 @@ if ($mform->is_cancelled()) {
         redirect($CFG->wwwroot . '/local/forums/manage.php', get_string('updated_record', 'local_forums'));
     }
     else {
-        $manager->create_record($fromform->user_name, $fromform->user_lastname,
-            $fromform->course_short_name, $fromform->course_full_name,
+        $manager->create_record($userid, $fromform->course_short_name, $fromform->course_full_name,
             $fromform->title_of_forum, $fromform->description,
             $fromform->time_created, $fromform->time_modified);
         redirect($CFG->wwwroot . '/local/forums/manage.php', 'Forum discussion has been submitted.');

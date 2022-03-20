@@ -22,22 +22,3 @@
  * @author     Elcin Duman
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['course_short_name'] = 'Dersin Kısa Adı';
-$string['course_full_name'] = 'Dersin Tam Adı';
-$string['record_type'] = 'Kaydın Tipi';
-$string['date_of_the_record'] = 'Kaydın Tarihi';
-$string['time_created'] = 'Oluşturulma Tarihi';
-$string['time_modified'] = 'Değiştirilme Tarihi';
-$string['title_of_forum'] = "Başlık";
-$string['description'] = 'Açıklama';
-$string['updated_record'] = 'Form güncellendi.';
-$string['pluginname'] = 'Forumlar';
-$string['edit_forums'] = 'Düzenle';
-$string['delete_forums']= 'Sil';
-$string['create_forums'] = 'Oluştur';
-$string['manage_forums'] = 'Forumları Yönet';
-$string['forums'] = 'Forumlar';
-$string['forums:manageforums'] = 'Manage Forums';
-$string['delete_forums'] = 'Forumu silin';
-$string['delete_forums_coniform'] = 'Forumu silmek istediğinize emin misiniz?';
-$string['delete_forums_failed'] = 'Silme işlemi başarısız oldu.';

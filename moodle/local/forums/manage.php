@@ -24,16 +24,17 @@
  */
 
 $CFG = '';
-$PAGE = '';
-$OUTPUT = '';
-
 require_once(__DIR__ . '/../../config.php');
 
-global $DB;
+global $DB, $OUTPUT, $PAGE;
+
+require_login();
 
 $PAGE->set_url(new moodle_url('/local/forums/manage.php'));
 $PAGE->set_context(\context_system::instance());
-$PAGE->set_title('Forums');
+$PAGE->set_title(get_string('forums', 'local_forums'));
+$PAGE->set_heading(get_string('manage_forums', 'local_forums'));
+$PAGE->requires->js_call_amd('local_forums/confirm');
 
 echo $OUTPUT->header();
 $records = $DB->get_records('local_forums');
@@ -41,6 +42,9 @@ $records = $DB->get_records('local_forums');
 $templatecontext = (object)[
     'records' => array_values($records),
     'editurl' => new moodle_url('/local/forums/edit.php'),
+    'edit' => get_string('edit_forums', 'local_forums'),
+    'delete' => get_string('delete_forums', 'local_forums'),
+    'create' => get_string('create_forums', 'local_forums'),
 ];
 
 echo $OUTPUT->render_from_template('local_forums/manage', $templatecontext);
