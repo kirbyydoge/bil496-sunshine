@@ -23,6 +23,8 @@
 
     }
 }}
+
+<div style="margin: 20px auto auto auto; width: 65%;">
 <h1>List of Records</h1>
 
 {{#records}}
@@ -36,4 +38,5 @@
 {{/records}}
 
 <hr>
-<input type="button" class="btn btn-primary" value={{create}} onclick="location.href='{{editurl}}">
+<input type="button" class="btn btn-primary" value={{create}} onclick="location.href='{{editurl}}'">
+{{{form_html}}}</div>

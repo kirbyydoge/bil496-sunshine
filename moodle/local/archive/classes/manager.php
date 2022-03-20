@@ -30,8 +30,6 @@ use stdClass;
 class manager {
 
     /** Insert the data into our database table.
-     * @param string $user_name
-     * @param string $user_lastname
      * @param string $course_short_name
      * @param string $course_full_name
      * @param string $record_type
@@ -40,60 +38,48 @@ class manager {
      * @param string $time_modified
      * @return bool true if successful
      */
-    public function create_record(string $user_name,
-                                  string $user_lastname,
-                                  string $course_short_name,
+    public function create_record(string $course_short_name,
                                   string $course_full_name, string $record_type, int $date_of_the_record,
                                   string $time_created, string $time_modified,
-                                  int $draftid, int $contextid, int $userid, int $assignmentid): bool
+                                  int $draftid, int $contextid, int $userid): bool
     {
         global $DB;
 
         $insert_record = new stdClass();
-        $itemid = $this->generate_itemid($userid, $assignmentid);
-
-        file_save_draft_area_files($draftid, $contextid, 'local_archive', 'attachment',
-            $itemid, array('subdirs' => 0, 'maxbytes' => 1048576, 'maxfiles' => 50));
-
-        $insert_record->user_name = $user_name;
-        $insert_record->user_lastname = $user_lastname;
         $insert_record->course_short_name = $course_short_name;
         $insert_record->course_full_name = $course_full_name;
-        $insert_record->record_type = $record_type;
-        $insert_record->date_of_the_record = $date_of_the_record;
         $insert_record->time_created = $time_created;
         $insert_record->time_modified = $time_modified;
+        $insert_record->record_type = $record_type;
         $insert_record->userid = $userid;
-        $insert_record->assignmentid = $assignmentid;
-        $insert_record->fileid = $itemid;
+        $insert_record->date_of_the_record = $date_of_the_record;
+        //$id_val = $DB->insert_record('local_archive', $insert_record, false);
 
-        return $DB->insert_record('local_archive', $insert_record, false);
+        return $this->update_records($DB->insert_record('local_archive', $insert_record,  $returnid=true, $bulk=false), $course_short_name, $course_full_name, $record_type, $date_of_the_record,
+                            $draftid, $contextid, $userid);
     }
 
 
-    public function generate_itemid(int $userid, int $assignmentid) {
-        return $userid * 10**10 + $assignmentid;
+    public function generate_itemid(int $userid, int $id) {
+        return $userid * 10**10 + $id;
     }
 
     /** Update details for a single record.
      * @param int $id the message we're trying to get.
-     * @param string $user_name the new text for the user name.
-     * @param string $user_lastname the new type for the user lastname.
      * @param string $course_short_name the new type for the course name.
      * @param string $course_full_name the new type for the course name.
      * @param string $record_type the new type for the record name.
      * @param int $date_of_the_record the new type for the record name.
      * @return bool message data or false if not found.
      */
-    public function update_records(int $id, string $user_name,
-                                   string $user_lastname,
-                                   string $course_short_name,
+    public function update_records(int $id, string $course_short_name,
                                    string $course_full_name,
                                    string $record_type,
                                    int $date_of_the_record,
-                                   int $draftid, int $contextid, int $userid, int $assignmentid): bool
+                                   int $draftid, int $contextid, int $userid): bool
     {
         global $DB;
+
         date_default_timezone_set('Europe/Istanbul');
         $date = new DateTime('NOW');
         $date = date_format($date, 'Y-m-d h:i:s');
@@ -101,21 +87,17 @@ class manager {
         $object = new stdClass();
         $itemid = $this->generate_itemid($userid, $id);
 
-        file_save_draft_area_files($draftid, $contextid, 'local_archive', 'attachment',
-            $itemid, array('subdirs' => 0, 'maxbytes' => 1048576, 'maxfiles' => 20));
-
         $object->id = $id;
-        $object->user_name = $user_name;
-        $object->user_lastname = $user_lastname;
         $object->course_short_name = $course_short_name;
         $object->course_full_name = $course_full_name;
         $object->record_type = $record_type;
         $object->date_of_the_record = $date_of_the_record;
         $object->time_modified = $date;
         $object->userid = $userid;
-        $object->assignmentid = $assignmentid;
         $object->fileid = $itemid;
 
+        file_save_draft_area_files($draftid, $contextid, 'local_archive', 'attachment',
+            $itemid, array('subdirs' => 0, 'maxbytes' => 1048576, 'maxfiles' => 20));
         return $DB->update_record('local_archive', $object);
     }
 

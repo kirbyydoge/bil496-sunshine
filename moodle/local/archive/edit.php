@@ -19,7 +19,7 @@
  * Version details
  *
  * @package    local_archive
- * @author     Elcin Duman
+ * @author     Elçin Duman
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -31,9 +31,6 @@ require_once($CFG->dirroot . '/local/archive/classes/form/edit.php');
 require_once($CFG->dirroot . '/local/archive/classes/manager.php');
 
 $id = optional_param('recordid',0, PARAM_INT);
-
-//$assignid = optional_param('recordid', 0, PARAM_INT);
-//$CFG->wwwroot . "/mod/autograder/upload.php?id=" . $assign->id;
 
 $PAGE->set_url(new moodle_url('/local/archive/edit.php'));
 $PAGE->set_context(\context_system::instance());
@@ -52,28 +49,21 @@ if ($mform->is_cancelled()) {
     $userid = $USER->id;
 
     if ($fromform->id) {
-        $assignmentid = $fromform->id;
         $manager->update_records(
             $fromform->id,
-            $fromform->user_name,
-            $fromform->user_lastname,
             $fromform->course_short_name,
             $fromform->course_full_name,
             $fromform->record_type,
             $fromform->date_of_the_record,
-            $draftid, $contextid, $userid, $assignmentid
+            $draftid, $contextid, $userid
         );
         redirect($CFG->wwwroot . '/local/archive/manage.php', get_string('updated_record', 'local_archive'));
     }
     else {
-        $assignmentid = $id;
-        //Zero for newly created ones: bug on retrieving files due to that.
-
-        $manager->create_record($fromform->user_name, $fromform->user_lastname,
-            $fromform->course_short_name, $fromform->course_full_name,
+        $manager->create_record($fromform->course_short_name, $fromform->course_full_name,
             $fromform->record_type, $fromform->date_of_the_record,
             $fromform->time_created, $fromform->time_modified,
-            $draftid, $contextid, $userid, $assignmentid);
+            $draftid, $contextid, $userid);
         redirect($CFG->wwwroot . '/local/archive/manage.php', 'Archive Record has been submitted.');
     }
 }
@@ -84,8 +74,7 @@ if($id) {
     $draftid = file_get_submitted_draft_itemid('attachments');
     $contextid = $PAGE->context->id;
     $userid = $USER->id;
-    $assignmentid = $id;
-    $itemid = $manager->generate_itemid($userid, $assignmentid);
+    $itemid = $manager->generate_itemid($userid, $id);
     $archive = $manager->get_record($id);
     if (!$archive) {
         throw new invalid_parameter_exception("Archive Not Found.");
