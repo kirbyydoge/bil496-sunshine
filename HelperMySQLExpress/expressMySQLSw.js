@@ -78,7 +78,24 @@ app.post("/kahootscore", async (req, res) => {
     res.send(resBody);
   });
 });
-
+app.post("/kahootid", async (req, res) => {
+  let kahootid = req.body["kahootid"];
+  let post = {};
+  let resBody = {};
+  let sql = `SELECT COUNT(B.id) FROM mdl_local_kahootquestions as B WHERE B.kahootid="${kahootid}"`;
+  db.query(sql, post, (error, results, fields) => {
+    if (error) throw error;
+    if (JSON.parse(JSON.stringify(results))[0]["COUNT(B.id)"] == 0)
+      resBody["status"] = "false";
+    else resBody["status"] = "true";
+    res.send(resBody);
+  });
+});
+app.post("/denekfunc", async (req, res) => {
+  let data = req.body["data"];
+  console.log(data);
+  res.status(200);
+});
 app.listen(process.env.PORT || "3000", () => {
   console.log("server is running..");
 });
