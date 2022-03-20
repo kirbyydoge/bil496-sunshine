@@ -1,0 +1,130 @@
+
+{{!
+    @template local_focusmode/manage
+
+
+    Example context (json):
+    {
+    
+    }
+}}
+  <body style="overflow: hidden; padding: 0px; margin: 0px">
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: cyan;
+        width: 100vw;
+        height: 100vh;
+        font-size: xx-large;
+        font-weight: bold;
+        color: white;
+      "
+    >
+      <label for="quantity" id="quantity">Minutes</label>
+      <input
+        id="number"
+        value="1"
+        type="number"
+        min="1"
+        max="60"
+        pattern="[0-9]+"
+        style="width: 70px; height: 50px"
+      />
+      <input
+        type="button"
+        name="button"
+        id="submitbutton"
+        onclick="getVal()"
+        value="Submit"
+        style="border-radius: 1rem; width: 90px; height: 50px; margin-top: 5px"
+      />
+      <p id="counter"></p>
+      <div
+        id="buttons"
+        style="visibility: hidden; width: 0px; height: 0px; overflow: hidden"
+      >
+        <input
+          type="button"
+          name="button"
+          id="submitbutton"
+          onclick="reset()"
+          value="Reset"
+          style="border-radius: 1rem; width: 90px; height: 50px"
+        />
+        <input
+          type="button"
+          name="button"
+          id="submitbutton"
+          onclick="getVal()"
+          value="Start"
+          style="border-radius: 1rem; width: 90px; height: 50px"
+        />
+        <input
+          type="button"
+          name="button"
+          id="submitbutton"
+          onclick="stop()"
+          value="Stop"
+          style="border-radius: 1rem; width: 90px; height: 50px"
+        />
+      </div>
+    </div>
+  </body>
+  <script>
+    let value;
+    let minutes;
+    let seconds;
+
+    function reset() {
+      minutes = value - 1;
+      seconds = 10;
+    }
+
+    function getVal() {
+      if (
+        parseInt(document.getElementById("number").value, 10) < 1 ||
+        parseInt(document.getElementById("number").value, 10) > 60
+      ) {
+        alert("Please enter a numbet between 1 - 60 !");
+      } else {
+        value = parseInt(document.getElementById("number").value, 10);
+        document.documentElement.requestFullscreen();
+        document.addEventListener("fullscreenchange", function () {
+          if (document.fullscreenElement) {
+            console.log(
+              `Element: ${document.fullscreenElement.id} entered fullscreen mode.`
+            );
+          } else {
+            console.log("Leaving fullscreen mode.");
+          }
+        });
+        minutes = value - 1;
+
+        document.getElementById("submitbutton").style =
+          "visibility:hidden; height: 0px; width:0px; overflow: hidden;";
+        document.getElementById("number").style =
+          "visibility:hidden; height: 0px; width:0px; overflow: hidden;";
+        document.getElementById("quantity").style =
+          "visibility:hidden; height: 0px; width:0px; overflow: hidden;";
+
+        document.getElementById("buttons").style =
+          "    display: flex;width: 300px; flex-direction: row; justify-content: space-evenly;";
+        seconds = 10;
+        let timersecond = setInterval(function () {
+          if (seconds > 0) seconds--;
+          document.getElementById("counter").innerHTML =
+            minutes + " " + "Minutes" + " " + seconds + " " + "Seconds";
+          if (seconds === 0) {
+            seconds = 10;
+            minutes--;
+            if (minutes < 0) {
+              clearInterval(timersecond);
+            }
+          }
+        }, 1000);
+      }
+    }
+  </script>
