@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="index.css" />
+
+    <title>Document</title>
+  </head>
+  <body style="overflow-y: scroll; padding: 0px; margin: 0px">
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: pink;
+        width: 100vw; 
+        height: 100%;
+        min-height: 100vh;
+      "
+    >
+    <div style="width: 100%;display: flex; flex-direction: row; justify-content: center; align-items: center;">
+        <button class="submitbutton" onclick="onAddPress()">
+            Add a new question
+          </button>
+          <button class="submitbutton"  onclick="checkVal()">
+              Submit
+          </button>
+    </div>
+      <form
+        id="questioncontainer"
+        style="
+          display: flex;
+          width: 100%;
+          flex-direction: column;
+          align-items: center;
+        "
+      >
+
+</form>
+
+    <script>
+      let container = document.getElementById("questioncontainer");
+      let param = location.search.split("?")[1];
+      let question = 1;
+      let json = {}
+
+
+      function checkVal() {
+  
+  if (question>1) {
+    for (let index = 1; index < question; index++) {
+       console.log(`qinput${index}`);
+     let questionValue = document.getElementById(`qinput${index}`).value;
+     let answerValueA= document.getElementById(`ainput${index}`).value;
+     let answerValueB= document.getElementById(`binput${index}`).value;
+     let answerValueC= document.getElementById(`cinput${index}`).value;
+     let answerValueD= document.getElementById(`dinput${index}`).value;
+     if (questionValue !== "" && answerValueA !== "" && answerValueB !== "" && answerValueC !== "" && answerValueD !== "") {
+         json[`question${index}`] = {question:questionValue, a : answerValueA, b:answerValueB,c:answerValueC,d:answerValueD}
+     } else {
+         alert("Please fill all the blanks!")
+     }
+ 
+   }
+
+   let xhr = new XMLHttpRequest();
+      xhr.open("POST", "http://127.0.0.1:3000/denekfunc");
+      xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      xhr.send(JSON.stringify({ data: json }));
+      xhr.onload = () => {
+        console.log(JSON.parse(xhr.response));
+      };
+  }
+}
+
+
+      function onAddPress() {
+        if (question <11) {
+            container.insertAdjacentHTML(
+          "afterbegin",
+          `     <div
+          style="
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            align-items: center;
+          "
+        >
+          <label>Soru ${question}</label>
+          <input
+            style="
+              width: 600px;
+              height: 50px;
+              background-color: aliceblue;
+              padding-left: 10px;
+              margin-bottom: 10px;
+            "
+            id="qinput${question}"
+          />
+          <div
+            style="
+              width: 600px;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 10px;
+            "
+          >
+            <span style="border: 1px; padding: 1rem">A</span>
+            <input
+              style="
+                width: 550px;
+                height: 50px;
+                background-color: aliceblue;
+                padding-left: 10px;
+              "
+              id="ainput${question}"
+            />
+          </div>
+          <div
+            style="
+              width: 600px;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 10px;
+            "
+          >
+            <span style="border: 1px; padding: 1rem">B</span>
+            <input
+              style="
+                width: 550px;
+                height: 50px;
+                background-color: aliceblue;
+                padding-left: 10px;
+              "
+              id="binput${question}"
+            />
+          </div>
+          <div
+            style="
+              width: 600px;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 10px;
+            "
+          >
+            <span style="border: 1px; padding: 1rem">C</span>
+            <input
+              style="
+                width: 550px;
+                height: 50px;
+                background-color: aliceblue;
+                padding-left: 10px;
+              "
+              id="cinput${question}"
+            />
+          </div>
+          <div
+            style="
+              width: 600px;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 10px;
+            "
+          >
+            <span style="border: 1px; padding: 1rem">D</span>
+            <input
+              style="
+                width: 550px;
+                height: 50px;
+                background-color: aliceblue;
+                padding-left: 10px;
+              "
+              id="dinput${question}"
+            />
+          </div>
+        </div>
+      </div>`
+        );
+        question++
+        } else {
+            alert("You reached the maximum question limit!")
+        }
+      } 
+    </script>
+  </body>
+</html>
