@@ -101,8 +101,10 @@ class manager {
         $object->userid = $userid;
         $object->fileid = $itemid;
 
+
         file_save_draft_area_files($draftid, $contextid, 'local_archive', 'attachment',
             $itemid, array('subdirs' => 0, 'maxbytes' => 1048576, 'maxfiles' => 20));
+
         return $DB->update_record('local_archive', $object);
     }
 

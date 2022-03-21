@@ -78,8 +78,8 @@ class edit extends moodleform {
 
         $mform->addElement("filemanager", "attachments",  get_string('attachment', 'local_archive'), null, array(
             "subdirs" => 0, "maxbytes" => 1048576, "areamaxbytes" => 1048576, "maxfiles" => 20,
-            "accepted_types" => "*", "return_types" => 2 | 1
-        ));
+            "accepted_types" => "*", "return_types" => 2 | 1));
+
         $this->add_action_buttons();
     }
 

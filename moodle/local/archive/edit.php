@@ -37,7 +37,6 @@ $PAGE->set_context(\context_system::instance());
 $PAGE->set_title('Add a new Archive Record');
 
 $mform = new edit();
-
 //Form processing is done here
 if ($mform->is_cancelled()) {
     redirect($CFG->wwwroot . '/local/archive/manage.php', 'Archive Form is cancelled.');
@@ -64,6 +63,7 @@ if ($mform->is_cancelled()) {
             $fromform->record_type, $fromform->date_of_the_record,
             $fromform->time_created, $fromform->time_modified,
             $draftid, $contextid, $userid);
+
         redirect($CFG->wwwroot . '/local/archive/manage.php', 'Archive Record has been submitted.');
     }
 }
@@ -81,12 +81,12 @@ if($id) {
     }
     file_prepare_draft_area($draftid, $contextid, 'local_archive', 'attachment', $itemid,
         array('subdirs' => 0, 'maxbytes' => 1048576, 'maxfiles' => 50));
+
     $archive->attachments = $draftid;
     $mform->set_data($archive);
 }
 
 echo $OUTPUT->header();
-
 $templatecontext = (object)[
 
 ];
