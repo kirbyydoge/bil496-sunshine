@@ -1,0 +1,10 @@
+.center {
+    border: 5px solid #00FF00;
+    text-align: center;
+}
+
+.m-mod-autograder-title {
+    margin: auto;
+    width: 600px;
+    text-align: center;
+}
