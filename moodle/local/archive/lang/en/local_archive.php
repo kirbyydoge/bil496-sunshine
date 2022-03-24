@@ -49,3 +49,6 @@ $string['create_record'] = 'Create';
 $string['edit_record'] = 'Edit';
 $string['delete_record'] = 'Delete';
 $string['delete_message_failed'] = 'Deletion failed.';
+$string['manage'] = 'Manage archive records.';
+$string['setting_enable'] = 'Enable';
+$string['setting_enable_desc'] = 'Disable to stop any records from this plugin being displayed.';

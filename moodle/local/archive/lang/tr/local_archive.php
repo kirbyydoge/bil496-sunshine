@@ -50,3 +50,5 @@ $string['create_record'] = 'Oluştur';
 $string['edit_record'] = 'Düzenle';
 $string['delete_record'] = 'Sil';
 $string['delete_message_failed'] = 'Silme işlemi başarısız oldu.';
+$string['setting_enable'] = 'Arşiv sayfanın görünmesi için izin verin.';
+$string['setting_enable_desc'] = 'Bu eklentiden herhangi bir kaydın görüntülenmesini durdurmak için devre dışı bırakın.';
