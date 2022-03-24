@@ -17,6 +17,7 @@ Record Type can be consisting of:
 5) Practice Questions
 6) Slides
 7) Solution of exams/quiz/questions and etc...
+8) Other type of record
 
 Record Date is the date of the previous exams year. (Ex: if a midterm is made in 2016, then it should be labeled as 2016.
 it can also be recorded as the full date.)

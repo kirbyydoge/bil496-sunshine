@@ -29,19 +29,46 @@ class block_archiveblock extends block_base {
     }
 
     function get_content() {
-        global $DB;
+        global $DB, $PAGE;
 
         if ($this->content !== NULL) {
             return $this->content;
         }
 
-        $courses = $DB->get_records('course');
+        $courses = $DB->get_records('local_archive');
+        $counter = 0;
+        $content = "";
+
         foreach($courses as $cs) {
-            $content .= $cs->fullname . '<br>';
+
+            $content .= $cs->course_short_name;
+
+            if($cs->record_type==0) {
+                $content .= get_string('quiz', 'block_archiveblock');
+            } else if($cs->record_type==1) {
+                $content .= get_string('midterm_exam', 'block_archiveblock');
+            } else if($cs->record_type==2) {
+                $content .= get_string('final_exam', 'block_archiveblock');
+            } else if($cs->record_type==3) {
+                $content .= get_string('homework', 'block_archiveblock');
+            } else if($cs->record_type==4) {
+                $content .= get_string('practice_questions', 'block_archiveblock');
+            } else if($cs->record_type==5) {
+                $content .= get_string('slides', 'block_archiveblock');
+            } else if($cs->record_type==6) {
+                $content .= get_string('solutions', 'block_archiveblock');
+            } else if($cs->record_type==7) {
+                $content .= get_string('other', 'block_archiveblock');
+            }
+            $content .= get_string('added', 'block_archiveblock') . '<br>';
+            $arr[$counter] = $content;
+            $counter +=1;
+            $content = "";
         }
 
+        //latest three records will be shown. If wanted, you can show more.
         $this->content = new stdClass;
-        $this->content->text = $content;
+        $this->content->text = $arr[$counter-1] . $arr[$counter-2] . $arr[$counter-3] ;
 
         $url = new \moodle_url('/local/archive/manage.php');
         $this->content->footer = html_writer::div(

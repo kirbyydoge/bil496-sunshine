@@ -57,7 +57,7 @@ foreach($records as $r) {
 echo $OUTPUT->header();
 
 $templatecontext = (object)[
-    'records' => array_values($records),
+    'records' => array_reverse(array_values($records)),
     'editurl' => new moodle_url('/local/archive/edit.php'),
     'edit_record' => (get_string('edit_record', 'local_archive')),
     'delete_record' => (get_string('delete_record', 'local_archive')),
