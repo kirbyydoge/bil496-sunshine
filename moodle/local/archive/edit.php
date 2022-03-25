@@ -29,7 +29,7 @@ global $DB, $USER, $OUTPUT, $PAGE;
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/local/archive/classes/form/edit.php');
 require_once($CFG->dirroot . '/local/archive/classes/manager.php');
-
+require_login();
 $id = optional_param('recordid',0, PARAM_INT);
 
 $PAGE->set_url(new moodle_url('/local/archive/edit.php'));

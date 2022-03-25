@@ -25,6 +25,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/local/archive/classes/manager.php');
 require_once($CFG->libdir . "/externallib.php");
+require_once(__DIR__ . '/../../config.php');
 
 class local_archive_external extends external_api  {
     /**
@@ -32,6 +33,7 @@ class local_archive_external extends external_api  {
      * @return external_function_parameters
      */
     public static function delete_message_parameters() {
+
         return new external_function_parameters(
             ['messageid' => new external_value(PARAM_INT, 'id of message')],
         );
@@ -42,10 +44,22 @@ class local_archive_external extends external_api  {
      */
     public static function delete_message($messageid): string {
 
+        global $PAGE, $USER;
+        $PAGE->set_context(\context_system::instance());
+
+        require_login();
+
+        $contextid = $PAGE->context->id;
+        $userid = $USER->id;
+        $manager = new manager();
+        $itemid = $manager->generate_itemid($userid, $messageid);
+
         $params = self::validate_parameters(self::delete_message_parameters(), array('messageid'=>$messageid));
 
-   //     require_capability('local/message:managemessages', context_system::instance());
         $manager = new manager();
+        //when a record is deleted, files should also be deleted in regards.
+        $manager->delete_files($contextid, $itemid);
+
         return $manager->delete_message($messageid);
     }
 
@@ -54,6 +68,7 @@ class local_archive_external extends external_api  {
      * @return external_description
      */
     public static function delete_message_returns() {
+
         return new external_value(PARAM_BOOL, 'True if the message was successfully deleted.');
     }
 }

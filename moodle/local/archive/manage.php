@@ -48,6 +48,7 @@ foreach($local_archive_rs as $lars) {
     $records = $manager->join_tables($lars->fileid);
     foreach($records as $r) {
         $urls = $r->url;
+        $filenames = $r->filename;
     }
 }
 echo $OUTPUT->header();
@@ -55,6 +56,7 @@ echo $OUTPUT->header();
 $templatecontext = (object)[
     'records' => array_reverse(array_values($records)),
     'url' => ($urls),
+    'filenames' => $filenames,
     'editurl' => new moodle_url('/local/archive/edit.php'),
     'edit_record' => (get_string('edit_record', 'local_archive')),
     'delete_record' => (get_string('delete_record', 'local_archive')),

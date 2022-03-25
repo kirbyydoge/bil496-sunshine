@@ -30,9 +30,13 @@
     <div class="card mt-2 mb-2">
         <div class="card-body">
             <p>{{course_short_name}}</p>
-            {{#url}}
-            <a href= {{.}}>FILENAME</a>
-            {{/url}}
+            <p>
+                <{{#url}}a href= {{.}}
+                {{/url}}>
+                    {{#filenames}}
+                        {{.}}
+                    {{/filenames}}</a>
+            </p>
             <input type="button" class="btn btn-primary" value={{edit_record}} onclick="location.href='{{editurl}}?recordid={{id}}'">
             <input type="button" class="local_messageid{{id}} btn btn-danger local_message_delete_button" value={{delete_record}}>
             </div>

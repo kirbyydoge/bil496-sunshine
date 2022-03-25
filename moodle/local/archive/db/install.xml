@@ -14,6 +14,7 @@
                 <FIELD NAME="time_created" TYPE="datetime" NOTNULL="true" DEFAULT="CURRENT_TIMESTAMP" SEQUENCE="false"/>
                 <FIELD NAME="time_modified" TYPE="datetime" NOTNULL="true" DEFAULT="CURRENT_TIMESTAMP" SEQUENCE="false"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="2" SEQUENCE="false"/>
+                <FIELD NAME="filename" TYPE="text" LENGTH="25" NOTNULL="true" DEFAULT="NULL" SEQUENCE="false"/>
                 <FIELD NAME="fileid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
                 <FIELD NAME="url" TYPE="text" NOTNULL="true" DEFAULT="NULL" SEQUENCE="false"/>
             </FIELDS>
@@ -26,6 +27,7 @@
         <TABLE NAME="local_urls_table" COMMENT="For reaching urls of files">
             <FIELDS>
                 <FIELD NAME="id" SEQUENCE="true" LENGTH="10" TYPE="int" NOTNULL="true"/>
+                <FIELD NAME="filename" SEQUENCE="false" TYPE="text" LENGTH="25" NOTNULL="true"/>
                 <FIELD NAME="fileid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
                 <FIELD NAME="url" TYPE="text" NOTNULL="true" DEFAULT="NULL" SEQUENCE="false"/>
             </FIELDS>

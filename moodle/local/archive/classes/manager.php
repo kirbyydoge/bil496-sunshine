@@ -57,6 +57,7 @@ class manager {
         $insert_record->userid = $userid;
         $insert_record->date_of_the_record = $date_of_the_record;
         $insert_record->url = "NULL";
+        $insert_record->filename="NULL";
 
         return $this->update_records($DB->insert_record('local_archive', $insert_record,  $returnid=true, $bulk=false), $course_short_name, $course_full_name, $record_type, $date_of_the_record,
                             $draftid, $contextid, $userid);
@@ -84,6 +85,8 @@ class manager {
                                    int $draftid, int $contextid, int $userid): bool
     {
         global $DB;
+        $url = "";
+        $filenames = ""; //initializing
 
         date_default_timezone_set('Europe/Istanbul');
         $date = new DateTime('NOW');
@@ -112,57 +115,97 @@ class manager {
         foreach ($files as $file) {
 
             $filename = $file->get_filename();
-
             if ($filename != '.') {
+
                 $url .= moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(),
                         $file->get_itemid(), $file->get_filepath(), $file->get_filename(), false);
 
+                $filenames .= $filename;
+
                 if($counter<$counting-1) {
                     $url .= " ";
+                    $filenames .= " ";
                 }
                 $object->url = $url;
+                $object->filename = $filenames;
             }
             $counter++;
         }
 
         $t = $DB->update_record('local_archive', $object);
-        $this->insert_url_table($itemid);
+        $this->insert_url_table($contextid, $itemid);
         return $t;
     }
 
     public function get_urls(int $itemid) {
         global $DB;
-        $sql = " SELECT id, course_short_name, fileid, url FROM {local_archive} 
+        $sql = " SELECT id, course_short_name, fileid, filename, url FROM {local_archive} 
                 WHERE fileid = :fileid";
         $params =  ["fileid" => $itemid];
         $entry = $DB->get_records_sql($sql, $params);
         return $entry;
     }
 
-    public function insert_url_table($itemid) {
+    public function insert_url_table(int $contextid, int $itemid) {
 
         global $DB;
         $insert_record = new stdClass();
+        $update_record = new stdClass();
         $entry = $this->get_urls($itemid);
+        //if we are dealing with the same itemids, we should delete and re-insert it since updating records is ambigous.
+        $recs = $this->get_URL_table($itemid);
+
+        $update = false;
+
+        //updating the URL table is the crucial point.
+        foreach($recs as $r) {
+            if($r->fileid) { //fileid does existis
+                $update=true;
+            }
+        }
+
+        if($update) {
+           foreach($recs as $r) {
+               $update_record->id = $r->id;
+               $update_record->filename=".";
+               $update_record->url = "NULL";
+               $update_record->fileid="-1";
+               $DB->update_record('local_urls_table', $update_record);
+           }
+        }
 
         foreach($entry as $e) {
            $arr = explode(" ", $e->url);
+           $names = explode(" ", $e->filename);
             for($i=0; $i<count($arr); $i++) {
                 $insert_record->fileid = $itemid;
                 $insert_record->url = $arr[$i];
+                $insert_record->filename = $names[$i];
                 $DB->insert_record('local_urls_table', $insert_record, $returnid=true, $bulk=false);
             }
         }
+        //invalid itemids are deleted.
+        if($update)
+            $this->delete_urls_unnecessary("-1");
     }
 
     public function join_tables(int $itemid) {
         global $DB;
-        $sql = "SELECT la.id, la.course_short_name, la.fileid, la.url
+        $sql = "SELECT la.id, la.course_short_name, la.fileid, la.filename, la.url
                 FROM {local_archive} la
                 LEFT OUTER JOIN {local_urls_table} lut ON 
                 la.fileid=lut.fileid";
         $params = ['fileid'=>$itemid];
         return $DB->get_records_sql($sql, $params);
+    }
+
+    public function get_URL_table(int $itemid) {
+        global $DB;
+        $sql = " SELECT id, filename, fileid, url FROM {local_urls_table} 
+                WHERE fileid = :fileid";
+        $params =  ["fileid" => $itemid];
+        $entry = $DB->get_records_sql($sql, $params);
+        return $entry;
     }
 
     /** Delete a record.
@@ -175,11 +218,64 @@ class manager {
         global $DB;
         $transaction = $DB->start_delegated_transaction();
         $deletedMessage = $DB->delete_records('local_archive', ['id' => $messageid]);
+
         if ($deletedMessage) {
             $DB->commit_delegated_transaction($transaction);
         }
 
         return true;
+    }
+
+    /** Delete files in attachments.
+     * @param int $contextid
+     * @param int $itemid
+     * @return void
+     * @throws \dml_transaction_exception
+     * @throws dml_exception
+     */
+    public function delete_files(int $contextid, int $itemid):void {
+        global $DB;
+        $fs = get_file_storage();
+
+        $files = $fs->get_area_files($contextid, 'local_archive', 'attachment', $itemid);
+        foreach($files as $file) {
+            if($file) {
+                $file->delete();
+            }
+        }
+        $this->delete_urlstable_records($itemid);
+        return;
+    }
+
+    /** Delete from urls table.
+     * @param int $contextid
+     * @param int $itemid
+     * @return void
+     * @throws \dml_transaction_exception
+     * @throws dml_exception
+     */
+    public function delete_urlstable_records(int $itemid): void {
+
+        global $DB;
+        //deleting also from the URL Table.
+        //we should get the DB table, from their fileids.
+       // $transaction = $DB->start_delegated_transaction();
+        $url_records = $this->get_URL_table($itemid);
+
+        foreach($url_records as $recs) {
+            $deletedUrls = $DB->delete_records('local_urls_table', ['id' => $recs->id]);
+            if ($deletedUrls) {
+         //       $DB->commit_delegated_transaction($transaction);
+            }
+        }
+        return;
+    }
+
+    public function delete_urls_unnecessary(int $itemid):void {
+        global $DB;
+        $sql =  "fileid = :fileid";
+        $params = ["fileid" => $itemid];
+        $DB->delete_records_select('local_urls_table', $sql, $params);
     }
 
     /** Get an archive record given an id
