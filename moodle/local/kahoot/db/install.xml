@@ -1,14 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/kahoot/db" VERSION="20220315" COMMENT="XMLDB file for Moodle local/kahoot"
+<XMLDB PATH="local/kahoot/db" VERSION="20220326" COMMENT="XMLDB file for Moodle local/kahoot"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="local_kahoot" COMMENT="Default comment for local_kahoot, please edit me">
+    <TABLE NAME="local_kahootquestions" COMMENT="Default comment for the table, please edit me">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="messagetext" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="messagetype" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="kahootid" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="question" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="questionid" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="a" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="b" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="c" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="d" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="answer" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="date" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="local_kahootanswers" COMMENT="Default comment for the table, please edit me">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="kahootid" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="date" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="answer" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="email" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="questionid" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
