@@ -27,6 +27,7 @@ $CFG = '';
 $PAGE = '';
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/local/archive/classes/form/edit.php');
+require_once($CFG->dirroot . '/local/archive/classes/manager.php');
 
 require_login();
 
@@ -38,26 +39,22 @@ $PAGE->set_title(get_string('archives', 'local_archive'));
 $PAGE->set_heading(get_string('manage_records', 'local_archive'));
 $PAGE->requires->js_call_amd('local_archive/confirm');
 
+$local_archive_rs = $DB->get_records('local_archive', null, 'id');
+$counter =0;
+$manager = new manager();
+$insert_record = new stdClass();
 
-$records = $DB->get_records('local_archive', null, 'id');
-
-foreach($records as $r) {
-    $fs = get_file_storage();
-    $files = $fs->get_area_files($PAGE->context->id, 'local_archive', 'attachment', $r->fileid);
-    foreach ($files as $file) {
-        $filename = $file->get_filename();
-        $url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(),
-            $file->get_itemid(), $file->get_filepath(), $file->get_filename(), false);
-        $urls[] = $url;
-        $file_names[] = $filename;
-        $out[] = html_writer::link($url, $filename);
+foreach($local_archive_rs as $lars) {
+    $records = $manager->join_tables($lars->fileid);
+    foreach($records as $r) {
+        $urls = $r->url;
     }
 }
-
 echo $OUTPUT->header();
 
 $templatecontext = (object)[
     'records' => array_reverse(array_values($records)),
+    'url' => ($urls),
     'editurl' => new moodle_url('/local/archive/edit.php'),
     'edit_record' => (get_string('edit_record', 'local_archive')),
     'delete_record' => (get_string('delete_record', 'local_archive')),
@@ -66,4 +63,5 @@ $templatecontext = (object)[
 ];
 
 echo $OUTPUT->render_from_template('local_archive/manage', $templatecontext);
+
 echo $OUTPUT->footer();

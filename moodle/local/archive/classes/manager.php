@@ -56,11 +56,11 @@ class manager {
         $insert_record->record_type = $record_type;
         $insert_record->userid = $userid;
         $insert_record->date_of_the_record = $date_of_the_record;
+        $insert_record->url = "NULL";
 
         return $this->update_records($DB->insert_record('local_archive', $insert_record,  $returnid=true, $bulk=false), $course_short_name, $course_full_name, $record_type, $date_of_the_record,
                             $draftid, $contextid, $userid);
     }
-
 
     public function generate_itemid(int $userid, int $id) {
         return $userid * 10**10 + $id;
@@ -101,11 +101,68 @@ class manager {
         $object->userid = $userid;
         $object->fileid = $itemid;
 
-
         file_save_draft_area_files($draftid, $contextid, 'local_archive', 'attachment',
             $itemid, array('subdirs' => 0, 'maxbytes' => 1048576, 'maxfiles' => 20));
 
-        return $DB->update_record('local_archive', $object);
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($contextid, 'local_archive', 'attachment', $itemid);
+        $counter=0;
+        $counting = count($files);
+
+        foreach ($files as $file) {
+
+            $filename = $file->get_filename();
+
+            if ($filename != '.') {
+                $url .= moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(),
+                        $file->get_itemid(), $file->get_filepath(), $file->get_filename(), false);
+
+                if($counter<$counting-1) {
+                    $url .= " ";
+                }
+                $object->url = $url;
+            }
+            $counter++;
+        }
+
+        $t = $DB->update_record('local_archive', $object);
+        $this->insert_url_table($itemid);
+        return $t;
+    }
+
+    public function get_urls(int $itemid) {
+        global $DB;
+        $sql = " SELECT id, course_short_name, fileid, url FROM {local_archive} 
+                WHERE fileid = :fileid";
+        $params =  ["fileid" => $itemid];
+        $entry = $DB->get_records_sql($sql, $params);
+        return $entry;
+    }
+
+    public function insert_url_table($itemid) {
+
+        global $DB;
+        $insert_record = new stdClass();
+        $entry = $this->get_urls($itemid);
+
+        foreach($entry as $e) {
+           $arr = explode(" ", $e->url);
+            for($i=0; $i<count($arr); $i++) {
+                $insert_record->fileid = $itemid;
+                $insert_record->url = $arr[$i];
+                $DB->insert_record('local_urls_table', $insert_record, $returnid=true, $bulk=false);
+            }
+        }
+    }
+
+    public function join_tables(int $itemid) {
+        global $DB;
+        $sql = "SELECT la.id, la.course_short_name, la.fileid, la.url
+                FROM {local_archive} la
+                LEFT OUTER JOIN {local_urls_table} lut ON 
+                la.fileid=lut.fileid";
+        $params = ['fileid'=>$itemid];
+        return $DB->get_records_sql($sql, $params);
     }
 
     /** Delete a record.
@@ -114,14 +171,14 @@ class manager {
      * @throws \dml_transaction_exception
      * @throws dml_exception
      */
-    public function delete_message($messageid)
-    {
+    public function delete_message($messageid) {
         global $DB;
         $transaction = $DB->start_delegated_transaction();
         $deletedMessage = $DB->delete_records('local_archive', ['id' => $messageid]);
         if ($deletedMessage) {
             $DB->commit_delegated_transaction($transaction);
         }
+
         return true;
     }
 
