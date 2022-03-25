@@ -24,12 +24,57 @@
 
 class plagiarism_checker {
 
-    private const SRC_PATH = __DIR__ . "/../cache/src";
+    private const SRC_PATH = __DIR__ . "/../cache/moss";
     private const BIN_PATH = __DIR__ . "/../cache/bin";
 
     public function check_plagiarism(int $assignmentid) {
-        //TODO: Move files to a cache directory and use MOSS to check plagiarism.
-        return $out_buffer;
+        global $DB;
+        $fm = new file_manager();
+        $file_map = $fm->get_assignment_files($assignmentid);
+        $this->cache_files($file_map, plagiarism_checker::SRC_PATH);
+        $this->cleanup(plagiarism_checker::SRC_PATH);
+        return null;
+    }
+
+    private function call_moss($args) {
+        //TODO:
+        //Register moss
+        //Store moss.pl somewhere inside plugin (!!USER'S MOSS ID SHOULD BE ENCRYPTED)
+        //Call moss function from here and return the link to user
+    }
+
+    private function cache_files($file_map, $path) {
+        global $DB;
+        foreach ($file_map as $key => $value) {
+            $user_entry = $DB->get_record("user", ["id" => $key]);
+            $username = $user_entry->firstname . " " . $user_entry->lastname;
+            $user_path = $path . "/" . $username . "_" . $key;
+            mkdir($user_path, 0777, true);
+            $this->write_files($user_path, $value);
+        }
+    }
+
+    private function write_files($path, $files) {
+        foreach ($files as $file) {
+            $cur_file = fopen($path . "/" . $file->get_filename(), "w");
+            fwrite($cur_file, $file->get_content());
+            fclose($cur_file);
+        }
+    }
+
+    private function cleanup($path) {
+        $files = glob($path . "/");
+        foreach ($files as $file) {
+           is_dir($file) ? $this->cleanup_recursive($file) : unlink($file);
+        }
+    }
+
+    private function cleanup_recursive($path) {
+        $files = glob($path . "/");
+        foreach ($files as $file) {
+            is_dir($file) ? $this->cleanup($file) : unlink($file);
+        }
+        rmdir($path);
     }
 
 }
