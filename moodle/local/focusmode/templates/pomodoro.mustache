@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pomodoro Timer</title>
+  </head>
+  <body style="overflow: hidden; padding: 0px; margin: 0px">
+    <div
+      style="
+        position: fixed;
+        width: 500px;
+        left: 50%;
+        transform: translate(-50%, 0);
+        overflow-y: auto;
+        max-height: 220px;
+        border: 1px;
+        border-radius: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      "
+      id="log"
+    ></div>
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: cyan;
+        width: 100vw;
+        height: 100vh;
+        font-size: xx-large;
+        font-weight: bold;
+        color: white;
+      "
+      id="container"
+    >
+      <p id="counter"></p>
+      <div
+        id="buttons"
+        style="
+          display: flex;
+          width: 300px;
+          flex-direction: row;
+          justify-content: space-evenly;
+        "
+      >
+        <input
+          type="button"
+          name="button"
+          id="submitbutton"
+          onclick="reset()"
+          value="Reset"
+          style="border-radius: 1rem; width: 90px; height: 50px"
+        />
+        <input
+          type="button"
+          name="button"
+          id="submitbutton"
+          onclick="start()"
+          value="Start"
+          style="border-radius: 1rem; width: 90px; height: 50px"
+        />
+        <input
+          type="button"
+          name="button"
+          id="submitbutton"
+          onclick="stop()"
+          value="Stop"
+          style="border-radius: 1rem; width: 90px; height: 50px"
+        />
+      </div>
+    </div>
+  </body>
+  <script>
+    let value = location.search.split("?")[1];
+    let minutes = value - 1;
+    let seconds = 59;
+    let started = false;
+    let totalMinute = 0;
+    let startDate;
+    let timersecond;
+    let ended = false;
+
+    function xhrfirst() {
+      let xhr = new XMLHttpRequest();
+      xhr.open("POST", "http://127.0.0.1:3000/lasttime");
+      xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      xhr.send(JSON.stringify({ email: "{{#myarr}}{{.}}{{/myarr}}" }));
+      xhr.onload = () => {
+        let arr = JSON.parse(xhr.response).data;
+        document.getElementById("log").insertAdjacentHTML(
+          "afterbegin",
+          `<span
+              style="
+                border: 2px;
+                border-style: solid;
+                border-radius: 0.3rem;
+                border-color: black;
+                width: 90%;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 5px;
+                text-align: center;
+                margin-top: 10px;
+                font-size: xx-large;
+                font-weight: bold;
+                color:white;
+              "
+            >
+              30 days total minute: ${arr[0]}
+            </span>`
+        );
+        document.getElementById("log").insertAdjacentHTML(
+          "afterbegin",
+          `<span
+              style="
+                border: 2px;
+                border-style: solid;
+                border-radius: 0.3rem;
+                border-color: black;
+                width: 90%;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 5px;
+                text-align: center;
+                margin-top: 10px;
+                font-size: xx-large;
+                font-weight: bold;
+                color:white;
+              "
+            >
+             Last session minute: ${arr[1]}
+            </span>`
+        );
+      };
+    }
+
+    xhrfirst();
+
+    function log() {
+      document.getElementById("log").insertAdjacentHTML(
+        "afterbegin",
+        `<span
+            style="
+              border: 3px;
+              border-style: solid;
+              border-radius: 0.3rem;
+              border-color: black;
+              width: 90%;
+              height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              padding: 5px;
+              text-align: center;
+              margin-top: 10px;
+              color:black;
+            "
+          >
+            Studied ${totalMinute.toFixed(2)} minute
+          </span>`
+      );
+    }
+
+    function fullscreen() {
+      document.documentElement.requestFullscreen();
+      document.addEventListener("fullscreenchange", function () {
+        if (!document.fullscreenElement) {
+          ended = true;
+          let xhr = new XMLHttpRequest();
+          xhr.open("POST", "http://127.0.0.1:3000/savetime");
+          xhr.setRequestHeader(
+            "Content-Type",
+            "application/json;charset=UTF-8"
+          );
+          {{#myarr}}console.log("{{.}}"){{/myarr}}
+          xhr.send(
+            JSON.stringify({
+              totalMinute: totalMinute.toFixed(2),
+              email: "{{#myarr}}{{.}}{{/myarr}}",
+            })
+          );
+          xhr.onload = () => {
+            log();
+          };
+        }
+      });
+    }
+    document.getElementById("counter").innerHTML = value + " " + "Minutes";
+
+    function reset() {
+      if (ended) {
+        alert("Your session has ended choose time to start again!");
+        location.href = "./timer.php";
+      } else {
+        if (document.fullscreenElement && started) {
+          totalMinute = totalMinute + (Date.now() - startDate) / 60000;
+        }
+        minutes = value - 1;
+        seconds = 60;
+      }
+    }
+
+    function start() {
+      if (ended) {
+        alert("Your session has ended choose time to start again!");
+        location.href = "./timer.php";
+      } else {
+        if (document.fullscreenElement) {
+          startDate = Date.now();
+          started = true;
+        } else {
+          document.getElementById("log").innerHTML = "";
+          fullscreen();
+          startDate = Date.now();
+          started = true;
+        }
+        clearInterval(timersecond);
+        timersecond = setInterval(function () {
+          if (seconds > 0) seconds--;
+          document.getElementById("counter").innerHTML =
+            minutes + " " + "Minutes" + " " + seconds + " " + "Seconds";
+          if (seconds === 0) {
+            seconds = 60;
+            minutes--;
+            if (minutes < 0) {
+              clearInterval(timersecond);
+            }
+          }
+        }, 1000);
+      }
+    }
+    function stop() {
+      if (ended) {
+        alert("Your session has ended choose time to start again!");
+        location.href = "./timer.php";
+      } else {
+        if (document.fullscreenElement && started) {
+          totalMinute = totalMinute + (Date.now() - startDate) / 60000;
+          started = false;
+        }
+        clearInterval(timersecond);
+      }
+    }
+  </script>
+</html>

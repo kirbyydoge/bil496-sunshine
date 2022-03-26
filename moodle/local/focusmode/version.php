@@ -2,6 +2,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2021051700.00;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2021051700.00;        // Requires this Moodle version.
+$plugin->version   = 2021010800;
+$plugin->requires  = 2016112900;
 $plugin->component = 'local_focusmode';  // Full name of the plugin (used for diagnostics)
