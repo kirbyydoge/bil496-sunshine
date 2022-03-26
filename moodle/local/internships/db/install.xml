@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/internships/db" VERSION="20130407" COMMENT="XMLDB file for local internships plugin"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+    <TABLES>
+        <TABLE NAME="local_internships_companies" COMMENT="Each record is a company information.">
+            <FIELDS>
+                <FIELD NAME="id" LENGTH="10" SEQUENCE="true" TYPE="int" NOTNULL="true"/>
+                <FIELD NAME="company_name" SEQUENCE="false" TYPE="text" DEFAULT="NULL" NOTNULL="true"/>
+                <FIELD NAME="company_url" SEQUENCE="false" TYPE="text" DEFAULT="NULL" NOTNULL="false"/>
+                <FIELD NAME="userid" TYPE="int" NOTNULL="true" LENGTH="10" DEFAULT="2" SEQUENCE="false"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="id" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+            </KEYS>
+        </TABLE>
+    </TABLES>
+</XMLDB>
