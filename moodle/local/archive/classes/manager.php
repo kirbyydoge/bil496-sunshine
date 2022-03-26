@@ -133,7 +133,7 @@ class manager {
         }
 
         $t = $DB->update_record('local_archive', $object);
-        $this->insert_url_table($itemid);
+        $this->insert_url_table($contextid, $itemid);
         return $t;
     }
 
@@ -147,7 +147,7 @@ class manager {
         return $entry;
     }
 
-    public function insert_url_table(int $itemid) {
+    public function insert_url_table(int $contextid, int $itemid) {
 
         global $DB;
         $insert_record = new stdClass();
@@ -187,7 +187,7 @@ class manager {
         }
         //invalid itemids are deleted.
         if($update)
-            $this->delete_urls_unnecessary("-1");
+            $this->delete_urls_unnecessary($contextid,"-1");
     }
 
     public function join_tables(int $itemid) {
@@ -268,15 +268,17 @@ class manager {
     }
 
     /** Delete from urls table.
+     * @param int $contextid
      * @param int $itemid
      * @return void
      * @throws \dml_transaction_exception
      * @throws dml_exception
      */
-    public function delete_urls_unnecessary(int $itemid):void {
+    public function delete_urls_unnecessary(int $contextid, int $itemid):void {
         global $DB;
         $sql =  "fileid = :fileid";
         $params = ["fileid" => $itemid];
+        $this->delete_files($contextid, $itemid); //when a file is unused, delete those files.
         $DB->delete_records_select('local_urls_table', $sql, $params);
     }
 
