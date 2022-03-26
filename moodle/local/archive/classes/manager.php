@@ -133,9 +133,10 @@ class manager {
         }
 
         $t = $DB->update_record('local_archive', $object);
-        $this->insert_url_table($contextid, $itemid);
+        $this->insert_url_table($itemid);
         return $t;
     }
+
 
     public function get_urls(int $itemid) {
         global $DB;
@@ -146,7 +147,7 @@ class manager {
         return $entry;
     }
 
-    public function insert_url_table(int $contextid, int $itemid) {
+    public function insert_url_table(int $itemid) {
 
         global $DB;
         $insert_record = new stdClass();
@@ -214,7 +215,7 @@ class manager {
      * @throws \dml_transaction_exception
      * @throws dml_exception
      */
-    public function delete_message($messageid) {
+    public function delete_message($messageid):bool {
         global $DB;
         $transaction = $DB->start_delegated_transaction();
         $deletedMessage = $DB->delete_records('local_archive', ['id' => $messageid]);
@@ -259,18 +260,19 @@ class manager {
         global $DB;
         //deleting also from the URL Table.
         //we should get the DB table, from their fileids.
-       // $transaction = $DB->start_delegated_transaction();
         $url_records = $this->get_URL_table($itemid);
 
         foreach($url_records as $recs) {
-            $deletedUrls = $DB->delete_records('local_urls_table', ['id' => $recs->id]);
-            if ($deletedUrls) {
-         //       $DB->commit_delegated_transaction($transaction);
-            }
+            $DB->delete_records('local_urls_table', ['id' => $recs->id]);
         }
-        return;
     }
 
+    /** Delete from urls table.
+     * @param int $itemid
+     * @return void
+     * @throws \dml_transaction_exception
+     * @throws dml_exception
+     */
     public function delete_urls_unnecessary(int $itemid):void {
         global $DB;
         $sql =  "fileid = :fileid";

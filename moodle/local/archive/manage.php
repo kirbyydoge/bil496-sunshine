@@ -47,10 +47,12 @@ $insert_record = new stdClass();
 foreach($local_archive_rs as $lars) {
     $records = $manager->join_tables($lars->fileid);
     foreach($records as $r) {
-        $urls = $r->url;
         $filenames = $r->filename;
+        $urls = $r->url;
+        ///Minor error on filenames: latest filenames are shown.
     }
 }
+
 echo $OUTPUT->header();
 
 $templatecontext = (object)[
@@ -65,5 +67,4 @@ $templatecontext = (object)[
 ];
 
 echo $OUTPUT->render_from_template('local_archive/manage', $templatecontext);
-
 echo $OUTPUT->footer();
