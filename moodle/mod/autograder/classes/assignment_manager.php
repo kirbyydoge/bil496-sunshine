@@ -87,9 +87,10 @@ class assignment_manager {
         $pairs = $DB->get_records("mod_autograder_testcases", ["commandid" => $commandid]);
         $testcases = array();
         foreach ($pairs as $pair) {
+            $formatted = preg_split("/\r\n|\n|\r/", $pair->output);
             $testcases[] = [
                 "args" => $pair->argument,
-                "outs" => [$pair->output]
+                "outs" => $formatted
             ];
         }
         return $testcases;

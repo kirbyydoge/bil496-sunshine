@@ -31,6 +31,8 @@ class autograder {
 
     public function autograde_assignment(int $assignmentid, string $main, array $test_cases) {
         global $DB;
+        $this->cleanup(self::SRC_PATH);
+        $this->cleanup(self::BIN_PATH);
         $fm = new file_manager();
         $file_map = $fm->get_assignment_files($assignmentid);
         $out_buffer = array();

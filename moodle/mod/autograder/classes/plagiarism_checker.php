@@ -22,25 +22,33 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+require_once(__DIR__ . "/moss.php");
+require_once(__DIR__ . "/file_manager.php");
+
 class plagiarism_checker {
 
     private const SRC_PATH = __DIR__ . "/../cache/moss";
     private const BIN_PATH = __DIR__ . "/../cache/bin";
+    private const USER_ID = 437334535;  //THROW-AWAY USER-ID. Needs to be encrypted and stored in DB for a few users.
 
     public function check_plagiarism(int $assignmentid) {
         global $DB;
         $fm = new file_manager();
+        $this->cleanup(plagiarism_checker::SRC_PATH);
         $file_map = $fm->get_assignment_files($assignmentid);
         $this->cache_files($file_map, plagiarism_checker::SRC_PATH);
+        $result = $this->call_moss(plagiarism_checker::SRC_PATH,plagiarism_checker::USER_ID, "java",
+                                    "Test");
         $this->cleanup(plagiarism_checker::SRC_PATH);
-        return null;
+        return $result;
     }
 
-    private function call_moss($args) {
-        //TODO:
-        //Register moss
-        //Store moss.pl somewhere inside plugin (!!USER'S MOSS ID SHOULD BE ENCRYPTED)
-        //Call moss function from here and return the link to user
+    private function call_moss($path, $moss_userid, $language, $comment) {
+        $moss = new moss($moss_userid);
+        $moss->setLanguage($language);
+        $moss->addByWildcard($path . "/*/*");
+        $moss->setCommentString($comment);
+        return $moss->send();
     }
 
     private function cache_files($file_map, $path) {
@@ -63,16 +71,16 @@ class plagiarism_checker {
     }
 
     private function cleanup($path) {
-        $files = glob($path . "/");
+        $files = glob($path . "/*");
         foreach ($files as $file) {
            is_dir($file) ? $this->cleanup_recursive($file) : unlink($file);
         }
     }
 
     private function cleanup_recursive($path) {
-        $files = glob($path . "/");
+        $files = glob($path . "/*");
         foreach ($files as $file) {
-            is_dir($file) ? $this->cleanup($file) : unlink($file);
+            is_dir($file) ? $this->cleanup_recursive($file) : unlink($file);
         }
         rmdir($path);
     }
