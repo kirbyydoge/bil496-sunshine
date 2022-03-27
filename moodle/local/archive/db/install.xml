@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/archive/db" VERSION="20130407" COMMENT="XMLDB file for local archives plugin"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+    <TABLES>
+        <TABLE NAME="local_archive" COMMENT="Each record leads to an archive record">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="course_short_name" TYPE="text" NOTNULL="true" DEFAULT="NULL" SEQUENCE="false"/>
+                <FIELD NAME="course_full_name" TYPE="text" NOTNULL="true" DEFAULT="NULL" SEQUENCE="false"/>
+                <FIELD NAME="record_type" TYPE="text" NOTNULL="true" DEFAULT="7" SEQUENCE="false"/>
+                <FIELD NAME="date_of_the_record" TYPE="int" LENGTH="10" DEFAULT="0" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="time_created" TYPE="datetime" NOTNULL="true" DEFAULT="CURRENT_TIMESTAMP" SEQUENCE="false"/>
+                <FIELD NAME="time_modified" TYPE="datetime" NOTNULL="true" DEFAULT="CURRENT_TIMESTAMP" SEQUENCE="false"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="2" SEQUENCE="false"/>
+                <FIELD NAME="filename" TYPE="text" LENGTH="25" NOTNULL="true" DEFAULT="NULL" SEQUENCE="false"/>
+                <FIELD NAME="fileid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="url" TYPE="text" NOTNULL="true" DEFAULT="NULL" SEQUENCE="false"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+                <KEY NAME="fileid" TYPE="foreign" FIELDS="fileid" REFTABLE="files" REFFIELDS="id"/>
+            </KEYS>
+        </TABLE>
+        <TABLE NAME="local_urls_table" COMMENT="For reaching urls of files">
+            <FIELDS>
+                <FIELD NAME="id" SEQUENCE="true" LENGTH="10" TYPE="int" NOTNULL="true"/>
+                <FIELD NAME="filename" SEQUENCE="false" TYPE="text" LENGTH="25" NOTNULL="true"/>
+                <FIELD NAME="fileid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="url" TYPE="text" NOTNULL="true" DEFAULT="NULL" SEQUENCE="false"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="fileid" TYPE="foreign" FIELDS="fileid" REFTABLE="archive" REFFIELDS="id"/>
+            </KEYS>
+        </TABLE>
+    </TABLES>
+</XMLDB>
