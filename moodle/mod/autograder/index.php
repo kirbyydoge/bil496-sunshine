@@ -34,6 +34,8 @@ $PAGE->set_url(new moodle_url('/mod/autograder/index.php'));
 $PAGE->set_context(\context_system::instance());
 $PAGE->set_title(get_string("title_view", "mod_autograder"));
 
+redirect(new moodle_url("/mod/autograder/deadlines.php"));
+
 $assignment_manager = new assignment_manager();
 $user_assignments = $assignment_manager->get_all_user_autograder_assignments($USER->id);
 

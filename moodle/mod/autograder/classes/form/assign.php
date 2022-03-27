@@ -45,8 +45,8 @@ class assign extends moodleform {
         $mform->setDefault("course_select", $courses[0]->id);
         $mform->addElement("text", "assignment_name", get_string("assignment_name", "mod_autograder"));
         $mform->addElement("text", "assignment_run", get_string("assignment_run", "mod_autograder"));
-        $mform->addElement("text", "assignment_args", get_string("assignment_args", "mod_autograder"));
-        $mform->addElement("text", "assignment_outs", get_string("assignment_outs", "mod_autograder"));
+        $mform->addElement("textarea", "assignment_args", get_string("assignment_args", "mod_autograder"));
+        $mform->addElement("textarea", "assignment_outs", get_string("assignment_outs", "mod_autograder"));
         $mform->addElement('date_time_selector', 'due_date', get_string("due_date", "mod_autograder"));
         $this->add_action_buttons();
     }
