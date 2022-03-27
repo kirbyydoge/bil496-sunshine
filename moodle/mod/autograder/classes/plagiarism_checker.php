@@ -28,7 +28,6 @@ require_once(__DIR__ . "/file_manager.php");
 class plagiarism_checker {
 
     private const SRC_PATH = __DIR__ . "/../cache/moss";
-    private const BIN_PATH = __DIR__ . "/../cache/bin";
     private const USER_ID = 437334535;  //THROW-AWAY USER-ID. Needs to be encrypted and stored in DB for a few users.
 
     public function check_plagiarism(int $assignmentid) {
@@ -37,10 +36,12 @@ class plagiarism_checker {
         $this->cleanup(plagiarism_checker::SRC_PATH);
         $file_map = $fm->get_assignment_files($assignmentid);
         $this->cache_files($file_map, plagiarism_checker::SRC_PATH);
-        $result = $this->call_moss(plagiarism_checker::SRC_PATH,plagiarism_checker::USER_ID, "java",
-                                    "Test");
+        $result = trim($this->call_moss(plagiarism_checker::SRC_PATH,plagiarism_checker::USER_ID, "java",
+                                    "Test"));
         $this->cleanup(plagiarism_checker::SRC_PATH);
-        return $result;
+        $rows = $this->post_process_rows($result);
+        $data = $this->post_process_names($rows);
+        return $data;
     }
 
     private function call_moss($path, $moss_userid, $language, $comment) {
@@ -83,6 +84,61 @@ class plagiarism_checker {
             is_dir($file) ? $this->cleanup_recursive($file) : unlink($file);
         }
         rmdir($path);
+    }
+
+    private function post_process_rows($url) {
+        $curl = curl_init($url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/5.0");
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+        $html = curl_exec($curl);
+        curl_close($curl);
+        $dom = new domDocument;
+        @$dom->loadHTML($html);
+        $tables = $dom->getElementsByTagName("table");
+        $tbl_rows = $tables->item(0)->getElementsByTagName("tr");
+        $rows = [];
+        foreach ($tbl_rows as $row) {
+            $cols = $row->getElementsByTagName("td");
+            if (count($cols) == 0) {
+                continue;
+            }
+            $rows[] = [
+                "first" => $cols[0]->textContent,
+                "second" => $cols[1]->textContent,
+                "lines" => $cols[2]->textContent,
+                "match_url" => $cols[0]->getElementsByTagName("a")[0]->getAttribute("href")
+            ];
+        }
+        return $rows;
+    }
+
+    private function post_process_names($rows) {
+        global $CFG;
+        $data = [];
+        $matches = [];
+        $pattern = '/cache\/moss\/(.*?)_([0-9]+)\/(.*?) \(([0-9]+)%\)/';
+        foreach ($rows as $row) {
+            $cur_data = [];
+            $first_file = $row["first"];
+            $second_file = $row["second"];
+            preg_match($pattern, $first_file, $matches);
+            $cur_data["first_name"] = str_replace("_", " ", $matches[1]);
+            $cur_data["first_id"] = $matches[2];
+            $cur_data["first_moodle_url"] = $CFG->wwwroot . "/user/profile.php?id=" . $matches[2];
+            $cur_data["first_file"] = $matches[3];
+            $cur_data["first_percent"] = $matches[4];
+            preg_match($pattern, $second_file, $matches);
+            $cur_data["second_name"] = str_replace("_", " ", $matches[1]);
+            $cur_data["second_id"] = $matches[2];
+            $cur_data["second_moodle_url"] = $CFG->wwwroot . "/user/profile.php?id=" . $matches[2];
+            $cur_data["second_file"] = $matches[3];
+            $cur_data["second_percent"] = $matches[4];
+            $cur_data["lines"] = $row["lines"];
+            $cur_data["match_url"] = $row["match_url"];
+            $data[] = $cur_data;
+        }
+        return $data;
     }
 
 }

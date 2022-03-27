@@ -197,7 +197,9 @@ class moss {
      */
     public function addByWildcard($path){
         foreach(glob($path) as $file){
-            $this->addFile($file);
+            if (is_file($file)) {
+                $this->addFile($file);
+            }
         }
     }
 

@@ -15,7 +15,34 @@
 }}
 <h1 class="m-mod-autograder-title">{{body_title}}</h1>
 
-<div style="margin: 20px auto auto 25%; width: 65%;">{{{form_html}}}</div>
+<div style="margin: 20px auto auto 17.5%; width: 65%;">
+    <table style="width: 100%">
+        <tr>
+            {{#col_names}}
+                <th>{{.}}</th>
+            {{/col_names}}
+        </tr>
+        {{#rows}}
+            <tr>
+                <td>
+                    <a href="{{first_moodle_url}}">{{first_name}}</a>
+                </td>
+                <td>
+                    <a href="{{match_url}}">{{first_file}}</a>
+                </td>
+                <td>{{first_percent}}</td>
+                <td>
+                    <a href="{{second_moodle_url}}">{{second_name}}</a>
+                </td>
+                <td>
+                    <a href="{{match_url}}">{{second_file}}</a>
+                </td>
+                <td>{{second_percent}}</td>
+                <td>{{lines}}</td>
+            </tr>
+        {{/rows}}
+    </table>
+</div>
 
 <script>
 
