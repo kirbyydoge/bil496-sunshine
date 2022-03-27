@@ -29,7 +29,7 @@ require_once($CFG->dirroot . '/local/internships/classes/form/add_companies.php'
 require_once($CFG->dirroot . '/local/internships/classes/company_manager.php');
 
 require_login();
-$id = optional_param('company_id',0, PARAM_INT);
+$id = optional_param('companyid',0, PARAM_INT);
 
 $PAGE->set_url(new moodle_url('/local/archive/add_companies.php'));
 $PAGE->set_context(\context_system::instance());
