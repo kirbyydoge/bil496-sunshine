@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="index.css" />
+
+    <title>Document</title>
+  </head>
+  <body style="overflow-y: scroll; padding: 0px; margin: 0px">
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: pink;
+        width: 100vw; 
+        height: 100%;
+        min-height: 100vh;
+      "
+    >
+    <div style="width: 100%;display: flex; flex-direction: row; justify-content: center; align-items: center;">
+        <button class="submitbutton" onclick="onAddPress()">
+            Add a new question
+          </button>
+          <button class="submitbutton"  onclick="checkVal()">
+              Submit
+          </button>
+    </div>
+      <form
+        id="questioncontainer"
+        style="
+          display: flex;
+          width: 100%;
+          flex-direction: column;
+          align-items: center;
+        "
+      >
+
+
+
+</form>
+
+    <script>
+      let container = document.getElementById("questioncontainer");
+      let param = location.search.split("?")[1];
+      let question = 1;
+      let json = {} 
+
+      function unCheckAll() {
+      if (document.getElementById(`correctA${question -1}`).checked ) {
+        document.getElementById(`correctB${question -1}`).checked = false
+        document.getElementById(`correctC${question -1}`).checked = false
+        document.getElementById(`correctD${question -1}`).checked = false
+      } else  if (document.getElementById(`correctB${question -1}`).checked ) {
+        document.getElementById(`correctA${question -1}`).checked = false
+        document.getElementById(`correctC${question -1}`).checked = false
+        document.getElementById(`correctD${question -1}`).checked = false
+      } else  if (document.getElementById(`correctC${question -1}`).checked ) {
+        document.getElementById(`correctA${question -1}`).checked = false
+        document.getElementById(`correctB${question -1}`).checked = false
+        document.getElementById(`correctD${question -1}`).checked = false
+      } else  if (document.getElementById(`correctD${question -1}`).checked ) {
+        document.getElementById(`correctA${question -1}`).checked = false
+        document.getElementById(`correctC${question -1}`).checked = false
+        document.getElementById(`correctB${question -1}`).checked = false
+      }
+
+      }
+ 
+
+
+      function checkVal() {
+  
+  if (question>1) {
+    for (let index = 1; index < question; index++) {
+  
+
+      let correctValue = document.getElementById(`correctA${index}`).checked ? document.getElementById(`correctA${index}`).value : document.getElementById(`correctB${index}`).checked ? document.getElementById(`correctB${index}`).value : document.getElementById(`correctC${index}`).checked ? document.getElementById(`correctC${index}`).value : document.getElementById(`correctD${index}`).checked ? document.getElementById(`correctD${index}`).value : false
+
+
+     let questionValue = document.getElementById(`qinput${index}`).value;
+     let answerValueA= document.getElementById(`ainput${index}`).value;
+     let answerValueB= document.getElementById(`binput${index}`).value;
+     let answerValueC= document.getElementById(`cinput${index}`).value;
+     let answerValueD= document.getElementById(`dinput${index}`).value;
+     let kahootid=param
+     console.log(kahootid);
+     if (questionValue !== "" && answerValueA !== "" && answerValueB !== "" && answerValueC !== "" && answerValueD !== "" && correctValue) {
+         json[`question${index}`] = {question:questionValue, a : answerValueA, b:answerValueB,c:answerValueC,d:answerValueD, kahootid:kahootid, answer:  correctValue}
+     } else {
+         alert("Please fill all the blanks!")
+     }
+
+    
+ 
+   }
+  if (Object.keys(json).length === question -1 && question > 1) {
+    let xhr = new XMLHttpRequest();
+      xhr.open("POST", "http://127.0.0.1:3000/createquestions");
+      xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      xhr.send(JSON.stringify({ data: json }));
+      xhr.onload = () => {
+      location.href = "./enterkahoot.php"
+      alert("Game is created, enter the ID and play")
+      console.log(JSON.parse(xhr.response));
+      };
+  }
+  
+  }
+}
+
+
+      function onAddPress() {
+        if (question <11) {
+            container.insertAdjacentHTML(
+          "afterbegin",
+          `     <div
+          style="
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            align-items: center;
+          "
+        >
+          <label>Soru ${question}</label>
+          <input
+            style="
+              width: 600px;
+              height: 50px;
+              background-color: aliceblue;
+              padding-left: 10px;
+              margin-bottom: 10px;
+            "
+            id="qinput${question}"
+          />
+          <div
+            style="
+              width: 600px;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 10px;
+            "
+          >
+          <input type="checkbox" id="correctA${question}" value="A" onchange="unCheckAll()" /> 
+            <span style="border: 1px; padding: 1rem">A</span>
+            <input
+              style="
+                width: 550px;
+                height: 50px;
+                background-color: aliceblue;
+                padding-left: 10px;
+              "
+              id="ainput${question}"
+            />
+          </div>
+          <div
+            style="
+              width: 600px;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 10px;
+            "
+          >
+          <input type="checkbox" id="correctB${question}" value="B"  onchange="unCheckAll()" /> 
+            <span style="border: 1px; padding: 1rem">B</span>
+            <input
+              style="
+                width: 550px;
+                height: 50px;
+                background-color: aliceblue;
+                padding-left: 10px;
+              "
+              id="binput${question}"
+            />
+          </div>
+          <div
+            style="
+              width: 600px;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 10px;
+            "
+          >
+          <input type="checkbox" id="correctC${question}" value="C"  onchange="unCheckAll()"  /> 
+            <span style="border: 1px; padding: 1rem">C</span>
+            <input
+              style="
+                width: 550px;
+                height: 50px;
+                background-color: aliceblue;
+                padding-left: 10px;
+              "
+              id="cinput${question}"
+            />
+          </div>
+          <div
+            style="
+              width: 600px;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 10px;
+            "
+          >
+          <input type="checkbox" id="correctD${question}" value="D"  onchange="unCheckAll()" /> 
+            <span style="border: 1px; padding: 1rem">D</span>
+            <input
+              style="
+                width: 550px;
+                height: 50px;
+                background-color: aliceblue;
+                padding-left: 10px;
+              "
+              id="dinput${question}"
+            />
+          </div>
+        </div>
+      </div>`
+        );
+        question++
+        } else {
+            alert("You reached the maximum question limit!")
+        }
+      } 
+    </script>
+  </body>
+</html>

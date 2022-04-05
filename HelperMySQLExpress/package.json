@@ -1,0 +1,17 @@
+{
+  "name": "obs-twitch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.26.0",
+    "express": "^4.17.3",
+    "mysql": "^2.18.1",
+    "obs-websocket-js": "^4.0.3"
+  }
+}

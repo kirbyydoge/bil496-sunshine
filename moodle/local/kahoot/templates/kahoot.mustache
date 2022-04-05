@@ -1,0 +1,305 @@
+
+{{!
+    @template local_kahoot/manage
+
+
+    Example context (json):
+    {
+    
+    }
+}}
+  <body style="overflow: hidden; padding: 0px; margin: 0px">
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: pink;
+        width: 100vw;
+        height: 100vh;
+      "
+    >
+      <div
+        id="purplecontainer"
+        style="
+          width: 1000px;
+          height: 500px;
+          background-image: linear-gradient(rgb(1, 4, 53), rgb(72, 53, 155));
+          border-radius: 1rem;
+          flex-direction: column;
+          display: flex;
+          align-items: center;
+        "
+      >
+        <div
+          style="
+            height: 40%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            color: aliceblue;
+            border-bottom: 1px;
+            border-style: solid;
+            border-top: 0px;
+            border-right: 0px;
+            border-left: 0px;
+            border-color: aliceblue;
+            font-size: x-large;
+          "
+        >
+          <p id="question" style="padding: 5px; text-align: center"></p>
+
+          <div
+            style="
+              width: 60px;
+              height: 60px;
+              border: 1px;
+              border-style: solid;
+              border-radius: 1rem;
+              position: absolute;
+              right: 5px;
+              top: 5px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              font-size: x-large;
+            "
+          >
+            <span id="countdown"></span>
+          </div>
+        </div>
+        <div
+          id="answerbox"
+          style="
+            height: 60%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            color: white;
+            font-size: x-large;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              flex-direction: row;
+              width: 100%;
+              justify-content: space-around;
+              align-items: center;
+            "
+          >
+            <button
+              id="answera"
+              style="
+                width: 200px;
+                height: 100px;
+                border: 1px;
+                border-style: solid;
+                border-color: black;
+                border-radius: 10px;
+                background-color: blue;
+                color: white;
+                font-size: x-large;
+              "
+              onclick="answera()"
+            ></button>
+            <button
+              id="answerb"
+              onclick="answerb()"
+              style="
+                width: 200px;
+                height: 100px;
+                border: 1px;
+                border-style: solid;
+                border-color: black;
+                border-radius: 10px;
+                background-color: red;
+                color: white;
+                font-size: x-large;
+              "
+            ></button>
+          </div>
+          <div
+            style="
+              display: flex;
+              flex-direction: row;
+              width: 100%;
+              justify-content: space-around;
+              align-items: center;
+            "
+          >
+            <button
+              id="answerc"
+              onclick="answerc()"
+              style="
+                width: 200px;
+                height: 100px;
+                border: 1px;
+                border-style: solid;
+                border-color: black;
+                border-radius: 10px;
+                background-color: green;
+                color: white;
+                font-size: x-large;
+              "
+            ></button>
+            <button
+              id="answerd"
+              onclick="answerd()"
+              style="
+                width: 200px;
+                height: 100px;
+                border: 1px;
+                border-style: solid;
+                border-color: black;
+                border-radius: 10px;
+                background-color: purple;
+                color: white;
+                font-size: x-large;
+              "
+            ></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    let isGameStarted = true;
+
+    if (!isGameStarted) {
+      document.getElementById("purplecontainer").innerHTML =
+        "Game is not started yet! Don't forget to reload when its started.";
+      document.getElementById("purplecontainer").style =
+        " width: 1000px;height: 500px;background-image: linear-gradient(rgb(1, 4, 53), rgb(72, 53, 155));border-radius: 1rem;flex-direction: column;display:  flex; justify-content: center; align-items: center; color: white; font-size: x-large;";
+    } else {
+      let question = 1;
+      let selectedanswer = "";
+
+      const questionArr = ["aaa", "bbb", "ccc"];
+      const answerArr = [
+        { a: "Java", b: "Python", c: "Dart", d: "Go" },
+        { a: "Java", b: "Python", c: "Dart", d: "Go" },
+        { a: "Java", b: "Python", c: "Dart", d: "Go" },
+      ];
+
+      function resetanswer() {
+        selectedanswer = "";
+        document.getElementById("answera").style =
+          "width: 200px; height: 100px; border: 1px; border-style: solid; border-color: black; border-radius: 10px; background-color: blue;   color: white;font-size: x-large; ";
+        document.getElementById("answerb").style =
+          "width: 200px; height: 100px; border: 1px; border-style: solid; border-color: black; border-radius: 10px; background-color: red;  color: white;font-size: x-large;";
+        document.getElementById("answerc").style =
+          "width: 200px; height: 100px; border: 1px; border-style: solid; border-color: black; border-radius: 10px; background-color: green;  color: white;font-size: x-large;";
+        document.getElementById("answerd").style =
+          "width: 200px; height: 100px; border: 1px; border-style: solid; border-color: black; border-radius: 10px; background-color: purple;  color: white;font-size: x-large;";
+      }
+
+      let incomeTicker = 3;
+
+      let timer = setInterval(function () {
+        if (incomeTicker > 0) incomeTicker--;
+        document.getElementById("countdown").innerHTML = incomeTicker;
+        document.getElementById("question").innerHTML =
+          questionArr[question - 1];
+        document.getElementById("answera").innerHTML = answerArr[0]["a"];
+        document.getElementById("answerb").innerHTML = answerArr[0]["b"];
+        document.getElementById("answerc").innerHTML = answerArr[0]["c"];
+        document.getElementById("answerd").innerHTML = answerArr[0]["d"];
+        if (incomeTicker === 0) {
+          if (question === questionArr.length) {
+            clearInterval(timer);
+            document.getElementById("answerbox").innerHTML = "Your Score: 5";
+            document.getElementById("question").innerHTML = "";
+          } else {
+            console.log(selectedanswer);
+            resetanswer();
+            incomeTicker = 3;
+            question++;
+          }
+        }
+      }, 1000);
+
+      function answera() {
+        resetanswer();
+        selectedanswer = "a";
+        document.getElementById("answera").style =
+          "width: 200px; height: 100px; border: 3px; border-style: solid; border-color: white; border-radius: 10px; background-color: blue;  color: white;font-size: x-large;";
+      }
+      function answerb() {
+        resetanswer();
+        selectedanswer = "b";
+        document.getElementById("answerb").style =
+          "width: 200px; height: 100px; border: 3px; border-style: solid; border-color: white; border-radius: 10px; background-color: red;  color: white;font-size: x-large;";
+      }
+      function answerc() {
+        resetanswer();
+        selectedanswer = "c";
+        document.getElementById("answerc").style =
+          "width: 200px; height: 100px; border: 3px; border-style: solid; border-color: white; border-radius: 10px; background-color: green;  color: white;font-size: x-large;";
+      }
+      function answerd() {
+        resetanswer();
+        selectedanswer = "d";
+        document.getElementById("answerd").style =
+          "width: 200px; height: 100px; border: 3px; border-style: solid; border-color: white; border-radius: 10px; background-color: purple;  color: white;font-size: x-large;";
+      }
+    }
+    function savequestions() {
+      let xhr = new XMLHttpRequest();
+      xhr.open("POST", "http://127.0.0.1:3000/kahootquestions");
+      xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      xhr.send(
+        JSON.stringify({
+          question: "aliatabak",
+          date: Date.now(),
+          kahootid: "2",
+          answer: "a",
+          questionid: "1",
+        })
+      );
+      xhr.onload = () => {
+        console.log(JSON.parse(xhr.response));
+      };
+    }
+    function saveanswers() {
+      let xhr = new XMLHttpRequest();
+      xhr.open("POST", "http://127.0.0.1:3000/kahootanswer");
+      xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      xhr.send(
+        JSON.stringify({
+          questionid: "1",
+          question: "aliatabak",
+          date: Date.now(),
+          kahootid: "2",
+          answer: "b",
+          email: "abc.com",
+        })
+      );
+      xhr.onload = () => {
+        console.log(JSON.parse(xhr.response));
+      };
+    }
+    function calculatescore() {
+      let xhr = new XMLHttpRequest();
+      xhr.open("POST", "http://127.0.0.1:3000/kahootscore");
+      xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      xhr.send(
+        JSON.stringify({
+          date: Date.now(),
+          kahootid: "2",
+          email: "abc.com",
+        })
+      );
+      xhr.onload = () => {
+        console.log(JSON.parse(xhr.response)["count"]);
+      };
+    }
+    calculatescore();
+    //savequestions();
+    //saveanswers();
+  </script>
