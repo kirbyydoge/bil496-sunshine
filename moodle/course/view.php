@@ -18,8 +18,13 @@
     $marker      = optional_param('marker',-1 , PARAM_INT);
     $switchrole  = optional_param('switchrole',-1, PARAM_INT); // Deprecated, use course/switchrole.php instead.
     $return      = optional_param('return', 0, PARAM_LOCALURL);
-
     $params = array();
+   
+    
+    $PAGE->requires->data_for_js('userdetail', array('email' => $USER->email,'courseID' => $id));
+    
+    $PAGE->requires->js(new moodle_url($CFG->wwwroot . '/course/obsCoreHandler.js'));
+   
     if (!empty($name)) {
         $params = array('shortname' => $name);
     } else if (!empty($idnumber)) {
@@ -56,7 +61,7 @@
     }
 
     require_login($course);
-
+    
     // Switchrole - sanity check in cost-order...
     $reset_user_allowed_editing = false;
     if ($switchrole > 0 && confirm_sesskey() &&
