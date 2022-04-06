@@ -35,32 +35,3 @@ $PAGE->set_context(\context_system::instance());
 $PAGE->set_title(get_string("title_view", "mod_autograder"));
 
 redirect(new moodle_url("/mod/autograder/deadlines.php"));
-
-$assignment_manager = new assignment_manager();
-$user_assignments = $assignment_manager->get_all_user_autograder_assignments($USER->id);
-
-$autograder = new autograder();
-
-$mform = new \form\index(null, array("assignments" => $user_assignments));
-$data = $mform->get_data();
-
-if ($mform->is_cancelled()) {
-    redirect($CFG->wwwroot . '/mod/autograder/index.php');
-}
-
-$template_context = [
-    "body_title" => get_string("title_autograde", "mod_autograder"),
-    "form_html" => $mform->render()
-];
-
-echo $OUTPUT->header();
-
-echo $OUTPUT->render_from_template("mod_autograder/index", $template_context);
-
-if($data) {
-    $assignmentid = $data->autograde_select;
-    $runobject = $assignment_manager->get_run_command($assignmentid);
-    $testcases = $assignment_manager->get_testcases($runobject->id);
-    $autograder->autograde_assignment($assignmentid, $runobject->runcommand, $testcases);
-}
-echo $OUTPUT->footer();

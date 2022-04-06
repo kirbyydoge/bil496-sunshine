@@ -34,6 +34,8 @@ $PAGE->set_url(new moodle_url('/mod/autograder/deadlines.php'));
 $PAGE->set_context(\context_system::instance());
 $PAGE->set_title(get_string("title_view", "mod_autograder"));
 
+require_login();
+
 $assignment_manager = new assignment_manager();
 $user_assignments = $assignment_manager->get_all_user_autograder_assignments($USER->id);
 
@@ -45,6 +47,8 @@ for($i = 0; $i < count($user_assignments); $i++) {
     $user_assignments[$i]->course_url = $CFG->wwwroot . "/course/view.php?id=" . $course->id;
     $user_assignments[$i]->autograde_url = $CFG->wwwroot . "/mod/autograder/autograde.php?id=" . $assign->id;
     $user_assignments[$i]->assign_url = $CFG->wwwroot . "/mod/autograder/upload.php?id=" . $assign->id;
+    $user_assignments[$i]->plagiarism_url = $CFG->wwwroot . "/mod/autograder/plagiarism.php?id=" . $assign->id;
+    $user_assignments[$i]->plagiarism_name = "Check Plagiarism For Submissions";
     $user_assignments[$i]->autograde_name = "Autograde Submission";
     $user_assignments[$i]->submit_name = "Add Submission";
 }

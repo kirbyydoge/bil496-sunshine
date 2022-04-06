@@ -33,6 +33,8 @@ $PAGE->set_url(new moodle_url('/mod/autograder/upload.php'));
 $PAGE->set_context(\context_system::instance());
 $PAGE->set_title(get_string("title_upload", "mod_autograder"));
 
+require_login();
+
 $assignid = optional_param('id', null, PARAM_INT);
 
 $assignment_manager = new assignment_manager();

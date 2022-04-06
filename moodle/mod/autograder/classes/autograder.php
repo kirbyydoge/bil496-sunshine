@@ -49,6 +49,24 @@ class autograder {
         return $out_buffer;
     }
 
+    public function autograde_single_user(int $userid, int $assignmentid, string $main, array $test_cases) {
+        global $DB;
+        $this->cleanup(self::SRC_PATH);
+        $this->cleanup(self::BIN_PATH);
+        $fm = new file_manager();
+        $files = $fm->get_user_assignment_files($userid, $assignmentid);
+        $out_buffer = array();
+        $user_entry = $DB->get_record("user", ["id" => $userid]);
+        $username = $user_entry->firstname . " " . $user_entry->lastname;
+        $user_buffer = array();
+        $this->autograde_single_assignment($username, $files, $main, $test_cases, $user_buffer);
+        $out_buffer[] = [
+            "username" => $username,
+            "result" => $user_buffer
+        ];
+        return $out_buffer;
+    }
+
     private function autograde_single_assignment(string $username, array $files, string $main,
                                                     array $test_cases, array &$out_buffer) {
         $this->write_files(self::SRC_PATH, $files);

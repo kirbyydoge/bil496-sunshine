@@ -25,34 +25,43 @@
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/classes/autograder.php');
 require_once(__DIR__ . '/classes/assignment_manager.php');
+require_once(__DIR__ . '/classes/course_manager.php');
 require_once(__DIR__ . '/classes/file_manager.php');
 
 global $CFG, $USER, $PAGE, $OUTPUT;
-
 $PAGE->set_url(new moodle_url('/mod/autograder/autograde.php'));
 $PAGE->set_context(\context_system::instance());
 $PAGE->set_title(get_string("title_upload", "mod_autograder"));
 
+require_login();
 $assignid = required_param('id', PARAM_INT);
 
 $assignment_manager = new assignment_manager();
 $autograder = new autograder();
+$course_manager = new course_manager();
+$file_manager = new file_manager();
 
+$teaching_courses = $course_manager->user_get_courses_teaching($USER->id);
 $assignment = $assignment_manager->get_assignment($assignid);
 
-$file_manager = new file_manager();
+$is_student = count(array_filter($teaching_courses, function ($course) {
+    global $assignment;
+    return $course->id == $assignment->courseid;
+})) == 0;
 
 $runobject = $assignment_manager->get_run_command($assignid);
 $testcases = $assignment_manager->get_testcases($runobject->id);
-$out_buffer = $autograder->autograde_assignment($assignid, $runobject->runcommand, $testcases);
+if($is_student) {
+    $out_buffer = $autograder->autograde_single_user($USER->id, $assignid, $runobject->runcommand, $testcases);
+}
+else {
+    $out_buffer = $autograder->autograde_assignment($assignid, $runobject->runcommand, $testcases);
+}
 
 $template_context = [
     "body_title" => $assignment->name,
     "out_buffer" => $out_buffer
 ];
-
 echo $OUTPUT->header();
-
 echo $OUTPUT->render_from_template("mod_autograder/autograde", $template_context);
-
 echo $OUTPUT->footer();

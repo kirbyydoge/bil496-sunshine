@@ -28,49 +28,22 @@ class course_manager {
         global $DB;
         // Get all contexts for this user, either admin (roleid 3) or teacher (roleid 5)
         $sql = "
-            SELECT contextid
-            FROM mdl_role_assignments
-            WHERE (roleid = 3 OR roleid = 5) AND userid = :userid
+            SELECT *
+            FROM mdl_role_assignments AS ra
+            LEFT JOIN mdl_context AS ctx ON ctx.id = ra.contextid
+            LEFT JOIN mdl_course AS crs ON crs.id = ctx.instanceid
+            WHERE   (ra.roleid = 3 OR ra.roleid = 5)
+            AND     ctx.contextlevel = 50
+            AND     ra.userid = :userid;
         ";
         $params = [
             "userid" => $userid
         ];
         try {
-            $context_objs = $DB->get_records_sql($sql, $params);
+            $courses = $DB->get_records_sql($sql, $params);
         } catch (dml_exception $e) {
             // Log error here.
             return [];
-        }
-        $courses = array();
-        // Foreach context, get instance id of course (countextlevel 50) and retrieve related courses.
-        foreach ($context_objs as $entry) {
-            $sql = "
-                SELECT instanceid
-                FROM mdl_context
-                WHERE id = :contextid AND contextlevel = 50;
-            ";
-            $params = [
-                "contextid" => $entry->contextid
-            ];
-            try {
-                $instance_id = $DB->get_record_sql($sql, $params)->instanceid;
-            } catch (dml_exception $e) {
-                // Log error here.
-                continue;
-            }
-            $sql = "
-                SELECT id, shortname, fullname
-                FROM mdl_course
-                WHERE id = :instanceid;
-            ";
-            $params = [
-                "instanceid" => $instance_id
-            ];
-            try {
-                $courses[] = $DB->get_record_sql($sql, $params);
-            } catch (dml_exception $e) {
-                // Log error here.
-            }
         }
         return $courses;
     }
