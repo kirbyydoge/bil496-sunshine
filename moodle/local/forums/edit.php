@@ -23,8 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$CFG = '';
-global $DB, $OUTPUT, $PAGE, $USER;
+global $DB, $OUTPUT, $PAGE, $USER, $CFG;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/local/forums/classes/form/edit.php');
@@ -41,12 +40,9 @@ $mform = new edit();
 //Form processing is done here
 if ($mform->is_cancelled()) {
     redirect($CFG->wwwroot . '/local/forums/manage.php', 'Form Discussion is cancelled.');
-
 } else if ($fromform = $mform->get_data()) {
-
     $manager = new manager();
     $userid = $USER->id;
-
     if ($fromform->id) {
         $manager->update_records(
             $fromform->id,
@@ -75,8 +71,12 @@ if($id) {
     $mform->set_data($forum);
 }
 
+$template_context = [
+    "body_title" => get_string("title_edit", "local_forums"),
+    "form_html" => $mform->render()
+];
+
 
 echo $OUTPUT->header();
-$mform->display();
-
+echo $OUTPUT->render_from_template('local_forums/edit', $template_context);
 echo $OUTPUT->footer();

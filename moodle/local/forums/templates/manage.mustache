@@ -14,36 +14,116 @@
     You should have received a copy of the GNU General Public License
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
-{{!
-    @template local_archives/manage
 
-    Template purpose and description.
-
-    Classes required for JS:
-    * none
-
-    Data attributes required for JS:
-    * none
-
-    Context variables required for this template:
-    * none
-
-    Example context (json):
-    {
+<style>
+    .sunshine_title {
+        margin: auto;
+        width: 600px;
+        text-align: center;
     }
-}}
-<div style="margin: 20px auto auto auto; width: 65%;">
-<h1>Forums</h1>
-{{#records}}
-    <div class="card mt-2 mb-2">
-        <div class="card-body">
-            <p>{{title_of_forum}}</p>
-            <input type="button" class="btn btn-primary" value={{edit}} onclick="location.href='{{editurl}}?forumid={{id}}'">
-            <input type="button" class="local_messageid{{id}} btn btn-danger local_forums_delete_button" value={{delete}}>
-        </div>
-    </div>
-{{/records}}
 
-<hr>
-<input type="button" class="btn btn-primary" value={{create}} onclick="location.href='{{editurl}}'">
-{{{form_html}}}</div>
+    .left_bar {
+        direction: ltr;
+        overflow: auto;
+        width: 300px;
+    }
+
+    #feed_list {
+        float: left;
+        overflow-x: clip;
+    }
+
+    #feed_list ul {
+        margin-top: 5px;
+        margin-right: 5px;
+        margin-left: -15px;
+        list-style-type: none;
+    }
+
+    #main_content {
+        width: 80%;
+        float: left;
+        overflow: clip;
+    }
+
+    #feed_records {
+        position: fixed;
+        height: 100%;
+        overflow-y: scroll;
+    }
+
+    #feed_records li:hover {
+        background-color: #0c0c0c;
+    }
+
+    #thread_head {
+
+    }
+</style>
+
+<div id="main_container" style="width: 100%">
+    <div id="feed_list" class="left_bar">
+        <div id="feed_search_bar" style="display: flex">
+            <input type="button" class="btn btn-primary" value={{create}} onclick="location.href='{{editurl}}'">
+            <div id="search_bar">
+                <input id="search_box" style="margin-top: 5px; margin-left: 8px">
+            </div>
+        </div>
+        <nav id="feed_records">
+            <ul id="records_list">
+                {{#records}}
+                    <li id="{{id}}">
+                        <div class="card" style="width: 260px; margin-bottom: 10px">
+                            <div class="title">
+                                <span class="bold">{{title_of_forum}}</span>
+                            </div>
+                            <div class="snippet">
+                                {{description}}
+                            </div>
+                        </div>
+                    </li>
+                {{/records}}
+        </ul>
+        </nav>
+    </div>
+    <div id="main_content" class="card" hidden>
+        <div id="thread_head"></div>
+        <ul id="thread_list"></ul>
+    </div>
+</div>
+
+<script>
+    function set_thread_head(node) {
+        document.getElementById("main_content").hidden = false;
+        let elem = document.getElementById("thread_head");
+        elem.innerHTML = `
+            <p class="bold">${node["title_of_forum"]}</p>
+            <p>${node["description"]}</p>
+        `;
+    }
+
+    function handle_click(target) {
+        if (target.nodeName === "UL") {
+            return;
+        }
+        let counter = 5;
+        while(target.nodeName !== "LI" && counter > 0) {
+            target = target.parentElement;
+            counter++;
+        }
+        if(counter === 0) {
+            return;
+        }
+        let split_idx = window.location.href.lastIndexOf("/");
+        let url = window.location.href.substring(0, split_idx) + "/threaddata.php?id=" + target.id;
+        $.getJSON(url, function (data) {
+            set_thread_head(data[target.id]);
+        });
+
+    }
+
+    var records_list = document.getElementById("records_list");
+    records_list.onclick = function(event) {
+        handle_click(event.target);
+    };
+</script>
