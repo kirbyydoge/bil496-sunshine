@@ -32,7 +32,7 @@ class course_manager {
             FROM mdl_role_assignments AS ra
             LEFT JOIN mdl_context AS ctx ON ctx.id = ra.contextid
             LEFT JOIN mdl_course AS crs ON crs.id = ctx.instanceid
-            WHERE   (ra.roleid = 3 OR ra.roleid = 5)
+            WHERE   ra.roleid < 5
             AND     ctx.contextlevel = 50
             AND     ra.userid = :userid;
         ";

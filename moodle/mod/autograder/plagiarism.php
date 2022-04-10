@@ -41,10 +41,8 @@ $assignid = required_param('id', PARAM_INT);
 $assignment_manager = new assignment_manager();
 $plagiarism_checker = new plagiarism_checker();
 
-echo $OUTPUT->header();
-
-$result = $plagiarism_checker->check_plagiarism($assignid);
-//$result = $plagiarism_checker->check_plagarism_mock($assignid);
+//$result = $plagiarism_checker->check_plagiarism($assignid);
+$result = $plagiarism_checker->check_plagarism_mock($assignid);
 $assignment = $assignment_manager->get_assignment($assignid);
 
 $column_names = [
@@ -62,6 +60,8 @@ $template_context = [
     "col_names" => $column_names,
     "rows" => $result
 ];
+
+echo $OUTPUT->header();
 
 echo $OUTPUT->render_from_template("mod_autograder/plagiarism", $template_context);
 
