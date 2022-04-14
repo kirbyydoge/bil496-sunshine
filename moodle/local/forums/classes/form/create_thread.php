@@ -19,13 +19,15 @@
  * Version details
  *
  * @package    local_forums
- * @author     Elcin Duman
+ * @author     Elçin Duman, Oğuzhan Canpolat
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+global $CFG;
+
 require_once("$CFG->libdir/formslib.php");
 
-class edit extends moodleform {
+class create_thread extends moodleform {
 
     //Add elements to form
 
@@ -38,17 +40,18 @@ class edit extends moodleform {
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
 
-        $mform->addElement('text', 'course_short_name', get_string('course_short_name', 'local_forums')); // Add elements to your form
-        $mform->setType('course_short_name', PARAM_NOTAGS);           //Set type of element
-        $mform->setDefault('course_short_name', get_string('course_short_name', 'local_forums'));        //Default value
+        $mform->addElement('hidden', 'forumid');
+        $mform->setType('forumid', PARAM_INT);
+        $mform->setDefault("forumid", $this->_customdata["forumid"]);
 
-        $mform->addElement('text', 'course_full_name', get_string('course_full_name', 'local_forums')); // Add elements to your form
+        $mform->addElement('hidden', 'course_short_name', get_string('course_short_name', 'local_forums')); // Add elements to your form
+        $mform->setType('course_short_name', PARAM_NOTAGS);           //Set type of element
+
+        $mform->addElement('hidden', 'course_full_name', get_string('course_full_name', 'local_forums')); // Add elements to your form
         $mform->setType('course_full_name', PARAM_NOTAGS);          //Set type of element
-        $mform->setDefault('course_full_name', get_string('course_full_name', 'local_forums'));        //Default value
 
         $mform->addElement('text', 'title_of_forum', get_string('title_of_forum', 'local_forums')); // Add elements to your form
         $mform->setType('title_of_forum', PARAM_NOTAGS);          //Set type of element
-        $mform->setDefault('title_of_forum', get_string('title_of_forum', 'local_forums'));        //Default value
 
         $mform->addElement('textarea', 'description', get_string('description', "local_forums"), 'wrap="virtual" rows="20" cols="50"');
 

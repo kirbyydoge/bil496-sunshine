@@ -89,17 +89,46 @@
     <div id="main_content" class="card" hidden>
         <div id="thread_head"></div>
         <ul id="thread_list"></ul>
+        <input id="comment" type="text">
+        <input type="button" class="btn btn-primary" value={{create}} onclick="comment()">
     </div>
 </div>
 
 <script>
+    function cleanup() {
+        document.getElementById("thread_list").innerHTML = "";
+    }
+
     function set_thread_head(node) {
         document.getElementById("main_content").hidden = false;
         let elem = document.getElementById("thread_head");
         elem.innerHTML = `
-            <p class="bold">${node["title_of_forum"]}</p>
+            <p class="bold">${node["title"]}</p>
             <p>${node["description"]}</p>
         `;
+    }
+
+    function add_reply(node) {
+        let list = document.getElementById("thread_list");
+        let item = document.createElement("li");
+        item.innerHTML = `
+            <p>${node["reply"]}</p>
+        `;
+        console.log(item);
+        list.appendChild(item);
+    }
+
+    function comment() {
+        let url_string = window.location.href;
+        let url = new URL(url_string);
+        let thread_id = url.searchParams.get("id");
+        let split_idx = window.location.href.lastIndexOf("/");
+        let post_url =window.location.href.substring(0, split_idx) + "/addreply.php";
+        let comment = document.getElementById("comment").value;
+        $.post(post_url, {"reply": comment, "threadid": thread_id}, function (data, status) {
+            add_reply({"reply": comment});
+            document.getElementById("comment").value = "";
+        }, "json");
     }
 
     function handle_click(target) {
@@ -117,9 +146,14 @@
         let split_idx = window.location.href.lastIndexOf("/");
         let url = window.location.href.substring(0, split_idx) + "/threaddata.php?id=" + target.id;
         $.getJSON(url, function (data) {
-            set_thread_head(data[target.id]);
+            cleanup();
+            set_thread_head(data["main"]);
+            for(let entry in data["replies"]) {
+                if(data["replies"].hasOwnProperty(entry)) {
+                    add_reply(data["replies"][entry]);
+                }
+            }
         });
-
     }
 
     var records_list = document.getElementById("records_list");

@@ -26,49 +26,29 @@
 global $DB, $OUTPUT, $PAGE, $USER, $CFG;
 
 require_once(__DIR__ . '/../../config.php');
-require_once($CFG->dirroot . '/local/forums/classes/form/edit.php');
-require_once($CFG->dirroot . '/local/forums/classes/manager.php');
+require_once($CFG->dirroot . '/local/forums/classes/form/create_thread.php');
+require_once($CFG->dirroot . '/local/forums/classes/forum_manager.php');
 
-$id = optional_param('forumid',0, PARAM_INT);
+$id = optional_param("id", 0, PARAM_INT);
+if(!empty($_POST['forumid'])) {
+    $forumid = (int) $_POST['forumid'];
+} else {
+    $forumid = required_param('forumid', PARAM_INT);
+}
 
 $PAGE->set_url(new moodle_url('/local/forums/edit.php'));
 $PAGE->set_context(\context_system::instance());
 $PAGE->set_title('Add a new Forum Discussion');
 
-$mform = new edit();
+$mform = new create_thread(null, ["forumid" => $forumid]);
 
 //Form processing is done here
 if ($mform->is_cancelled()) {
-    redirect($CFG->wwwroot . '/local/forums/manage.php', 'Form Discussion is cancelled.');
+    redirect($CFG->wwwroot . '/local/forums/manage.php?id='.$forumid, 'Thread cancelled.');
 } else if ($fromform = $mform->get_data()) {
-    $manager = new manager();
-    $userid = $USER->id;
-    if ($fromform->id) {
-        $manager->update_records(
-            $fromform->id,
-            $userid,
-            $fromform->course_short_name,
-            $fromform->course_full_name,
-            $fromform->title_of_forum,
-            $fromform->description
-        );
-        redirect($CFG->wwwroot . '/local/forums/manage.php', get_string('updated_record', 'local_forums'));
-    }
-    else {
-        $manager->create_record($userid, $fromform->course_short_name, $fromform->course_full_name,
-            $fromform->title_of_forum, $fromform->description,
-            $fromform->time_created, $fromform->time_modified);
-        redirect($CFG->wwwroot . '/local/forums/manage.php', 'Forum discussion has been submitted.');
-    }
-}
-
-if($id) {
-    $manager = new manager();
-    $forum = $manager->get_form($id);
-    if (!$forum) {
-        throw new invalid_parameter_exception("Form Not Found.");
-    }
-    $mform->set_data($forum);
+    $forum_manager = new forum_manager();
+    $forum_manager->create_thread($USER->id, $forumid, $fromform->title_of_forum, $fromform->description);
+    redirect($CFG->wwwroot . '/local/forums/manage.php?id='.$forumid, 'Thread Submitted.');
 }
 
 $template_context = [

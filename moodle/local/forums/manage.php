@@ -35,11 +35,14 @@ $PAGE->set_title(get_string('forums', 'local_forums'));
 $PAGE->set_heading(get_string('manage_forums', 'local_forums'));
 $PAGE->requires->js_call_amd('local_forums/confirm');
 
+$forumid = required_param('id', PARAM_INT);
+
 echo $OUTPUT->header();
-$records = $DB->get_records('local_forums');
+$forum = $DB->get_record('local_forums', ["id" => $forumid]);
+$threads = $DB->get_records("local_forums_threads", ["forumid" => $forumid]);
 $templatecontext = (object)[
-    'records' => array_values($records),
-    'editurl' => new moodle_url('/local/forums/edit.php'),
+    'records' => array_values($threads),
+    'editurl' => new moodle_url('/local/forums/edit.php', ["forumid" => $forumid]),
     'edit' => get_string('edit_forums', 'local_forums'),
     'delete' => get_string('delete_forums', 'local_forums'),
     'create' => get_string('create_forums', 'local_forums'),

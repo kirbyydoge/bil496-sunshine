@@ -19,22 +19,25 @@
  * Version details
  *
  * @package    local_forums
- * @author     Oğuzhan Canpolat
+ * @author     Elcin Duman
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+global $DB, $OUTPUT, $PAGE, $USER, $CFG;
+
 require_once(__DIR__ . '/../../config.php');
+require_once($CFG->dirroot . '/local/forums/classes/forum_manager.php');
 
-global $DB, $OUTPUT, $PAGE, $CFG;
-
-require_login();
-
-$PAGE->set_url(new moodle_url('/local/forums/threaddata.php'));
+$PAGE->set_url(new moodle_url('/local/forums/addreply.php'));
 $PAGE->set_context(\context_system::instance());
+$PAGE->set_title('Add a new Forum Discussion');
 
-$thread_id = required_param("id", PARAM_INT);
-
-$thread_info = $DB->get_record("local_forums_threads", ["id" => $thread_id]);
-$replies = $DB->get_records("local_forums_replies", ["threadid" => $thread_id]);
-
-echo json_encode(["main" => $thread_info, "replies" => $replies]);
+if(!empty($_POST["threadid"])) {
+    $forum_manager = new forum_manager();
+    $replyid = empty($_POST["replyid"]) ? 0 : (int) $_POST["replyid"];
+    $id = $forum_manager->add_reply($USER->id, $_POST["threadid"], $_POST["reply"], );
+    echo json_encode(["replyid" => $id, "status" => "success"]);
+}
+else {
+    echo json_encode(["status" => "THREAD_ID_CAN_NOT_BE_NULL"]);
+}
