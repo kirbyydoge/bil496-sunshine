@@ -32,9 +32,31 @@ require_login();
 $PAGE->set_url(new moodle_url('/local/forums/threaddata.php'));
 $PAGE->set_context(\context_system::instance());
 
-$thread_id = required_param("id", PARAM_INT);
+function format_replies($replies) {
+    $formatted = [];
+    $index_table = [];
+    foreach ($replies as $reply) {
+        if($reply->replyid == 0) {
+            $reply->replies = [];
+            $index_table[$reply->id] = count($formatted);
+            $formatted[] = $reply;
+        }
+    }
+    foreach ($replies as $reply) {
+        if($reply->replyid != 0) {
+            $formatted[$index_table[$reply->replyid]]->replies[] = $reply;
+        }
+    }
+    return $formatted;
+}
 
-$thread_info = $DB->get_record("local_forums_threads", ["id" => $thread_id]);
-$replies = $DB->get_records("local_forums_replies", ["threadid" => $thread_id]);
-
-echo json_encode(["main" => $thread_info, "replies" => $replies]);
+if(!empty($_POST["threadid"])) {
+    $thread_id = $_POST["threadid"];
+    $thread_info = $DB->get_record("local_forums_threads", ["id" => $thread_id]);
+    $replies = $DB->get_records("local_forums_replies", ["threadid" => $thread_id]);
+    $replies = format_replies($replies);
+    echo json_encode(["main" => $thread_info, "replies" => $replies, "result" => "success"]);
+}
+else {
+    echo json_encode(["result" => "THREADID_CAN_NOT_BE_NULL"]);
+}

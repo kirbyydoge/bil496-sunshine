@@ -35,9 +35,9 @@ $PAGE->set_title('Add a new Forum Discussion');
 if(!empty($_POST["threadid"])) {
     $forum_manager = new forum_manager();
     $replyid = empty($_POST["replyid"]) ? 0 : (int) $_POST["replyid"];
-    $id = $forum_manager->add_reply($USER->id, $_POST["threadid"], $_POST["reply"], );
+    $id = $forum_manager->add_reply($USER->id, $_POST["threadid"], $_POST["reply"], $replyid);
     echo json_encode(["replyid" => $id, "status" => "success"]);
 }
 else {
-    echo json_encode(["status" => "THREAD_ID_CAN_NOT_BE_NULL"]);
+    echo json_encode(["status" => "THREADID_CAN_NOT_BE_NULL"]);
 }

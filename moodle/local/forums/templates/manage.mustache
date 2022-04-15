@@ -88,15 +88,15 @@
     </div>
     <div id="main_content" class="card" hidden>
         <div id="thread_head"></div>
-        <ul id="thread_list"></ul>
-        <input id="comment" type="text">
-        <input type="button" class="btn btn-primary" value={{create}} onclick="comment()">
+        <ul id="0_replies"></ul>
+        <input id="0_comment" type="text">
+        <input id="0" type="button" class="btn btn-primary" value={{create}} onclick="comment(this)">
     </div>
 </div>
 
 <script>
     function cleanup() {
-        document.getElementById("thread_list").innerHTML = "";
+        document.getElementById("0_replies").innerHTML = "";
     }
 
     function set_thread_head(node) {
@@ -108,26 +108,45 @@
         `;
     }
 
-    function add_reply(node) {
-        let list = document.getElementById("thread_list");
+    function add_reply(node, target, commentable) {
+        let list = document.getElementById(target);
         let item = document.createElement("li");
-        item.innerHTML = `
-            <p>${node["reply"]}</p>
-        `;
-        console.log(item);
+        if(commentable) {
+            item.innerHTML = `
+                <div class="card">
+                    <p>${node['reply']}</p>
+                    <ul id="${node['id']}_replies"></ul>
+                    <input id="${node['id']}_comment" type="text">
+                    <input id="${node['id']}" type="button" class="btn btn-primary" value={{create}} onclick="comment(this)">
+                </div>
+            `;
+        }
+        else {
+            item.innerHTML = `
+                <div class="card">
+                    <p>${node['reply']}</p>
+                    <ul id="${node['id']}_replies"></ul>
+                </div>
+            `;
+        }
         list.appendChild(item);
+        if(node.hasOwnProperty("replies")) {
+            for(let i = 0; i < node["replies"].length; i++) {
+                add_reply(node["replies"][i], `${node["id"]}_replies`, false);
+            }
+        }
     }
 
-    function comment() {
+    function comment(elem) {
         let url_string = window.location.href;
         let url = new URL(url_string);
         let thread_id = url.searchParams.get("id");
         let split_idx = window.location.href.lastIndexOf("/");
         let post_url =window.location.href.substring(0, split_idx) + "/addreply.php";
-        let comment = document.getElementById("comment").value;
-        $.post(post_url, {"reply": comment, "threadid": thread_id}, function (data, status) {
+        let comment = document.getElementById(elem.id + "_comment").value;
+        $.post(post_url, {"replyid": elem.id, "reply": comment, "threadid": thread_id}, function (data, status) {
             add_reply({"reply": comment});
-            document.getElementById("comment").value = "";
+            document.getElementById(`${elem.id}_comment`).value = "";
         }, "json");
     }
 
@@ -144,16 +163,18 @@
             return;
         }
         let split_idx = window.location.href.lastIndexOf("/");
-        let url = window.location.href.substring(0, split_idx) + "/threaddata.php?id=" + target.id;
-        $.getJSON(url, function (data) {
+        let url = window.location.href.substring(0, split_idx) + "/threaddata.php";
+        $.post(url, {"threadid": target.id}, function (data, status) {
+            if(data["result"] !== "success") {
+                console.log(data["result"]);
+                return;
+            }
             cleanup();
             set_thread_head(data["main"]);
-            for(let entry in data["replies"]) {
-                if(data["replies"].hasOwnProperty(entry)) {
-                    add_reply(data["replies"][entry]);
-                }
+            for(let i = 0; i < data["replies"].length; i++) {
+                add_reply(data["replies"][i], "0_replies", true);
             }
-        });
+        }, "json");
     }
 
     var records_list = document.getElementById("records_list");
