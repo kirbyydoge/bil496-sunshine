@@ -22,3 +22,8 @@
  * @author     Elcin Duman
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string['pluginname'] = "Kahoot";
+$string['kahoot:addinstance'] = 'Yeni bir Kahoot bloğu ekleyin.';
+$string['kahoot:myaddinstance'] = 'Kontrol paneline yeni bir Kahoot bloğu ekleyin.';
+$string['creategame'] = 'Bir Kahoot oyunu oluşturmak için tıklayın!';
+$string['entergame'] = 'Kahoot oyununa girmek için tıklayın!';
