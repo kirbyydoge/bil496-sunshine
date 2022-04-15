@@ -26,6 +26,7 @@ require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/lib.php');
 require_once(__DIR__ . '/classes/form/index.php');
 require_once(__DIR__ . '/classes/assignment_manager.php');
+require_once(__DIR__ . '/classes/course_manager.php');
 require_once(__DIR__ . '/classes/autograder.php');
 
 global $CFG, $USER, $PAGE, $OUTPUT, $SESSION;
@@ -45,18 +46,20 @@ $user_assignments = $assignment_manager->get_all_user_autograder_assignments($US
 echo $OUTPUT->header();
 
 for($i = 0; $i < count($user_assignments); $i++) {
-    $assign = $user_assignments[$i];
-    $course = get_course($assign->courseid);
+    $assignid = $user_assignments[$i]->id;
+    $courseid = $user_assignments[$i]->course;
+    $deadline = $user_assignments[$i]->deadline;
+    $course = get_course($courseid);
     $is_teacher = count(array_filter($teaching_courses, function ($course) {
-        global $assign;
-        return $course->id == $assign->courseid;
+        global $courseid;
+        return $course->id == $courseid;
     })) != 0;
-    $user_assignments[$i]->date = gmdate("d-m-Y", $assign->deadline);
+    $user_assignments[$i]->date = gmdate("d-m-Y", $deadline);
     $user_assignments[$i]->course_name = $course->fullname;
     $user_assignments[$i]->course_url = $CFG->wwwroot . "/course/view.php?id=" . $course->id;
-    $user_assignments[$i]->autograde_url = $CFG->wwwroot . "/mod/autograder/autograde.php?id=" . $assign->id;
-    $user_assignments[$i]->assign_url = $CFG->wwwroot . "/mod/autograder/upload.php?id=" . $assign->id;
-    $user_assignments[$i]->plagiarism_url = $CFG->wwwroot . "/mod/autograder/plagiarism.php?id=" . $assign->id;
+    $user_assignments[$i]->autograde_url = $CFG->wwwroot . "/mod/autograder/autograde.php?id=" . $assignid;
+    $user_assignments[$i]->assign_url = $CFG->wwwroot . "/mod/autograder/upload.php?id=" . $assignid;
+    $user_assignments[$i]->plagiarism_url = $CFG->wwwroot . "/mod/autograder/plagiarism.php?id=" . $assignid;
     $user_assignments[$i]->plagiarism_name = get_string("plagiarism_name", "mod_autograder");
     $user_assignments[$i]->autograde_name = get_string("autograde_name", "mod_autograder");
     $user_assignments[$i]->submit_name = get_string("submit_name", "mod_autograder");

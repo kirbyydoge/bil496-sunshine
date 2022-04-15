@@ -55,6 +55,8 @@ if($is_student) {
     $out_buffer = $autograder->autograde_single_user($USER->id, $assignid, $runobject->runcommand, $testcases);
 }
 else {
+    $student_cases = array();
+    $student_cases[] = $testcases[0];
     $out_buffer = $autograder->autograde_assignment($assignid, $runobject->runcommand, $testcases);
 }
 

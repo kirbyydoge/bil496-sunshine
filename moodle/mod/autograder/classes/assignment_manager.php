@@ -41,19 +41,20 @@ class assignment_manager {
 
     public function get_autograder_assignments_by_courseid($courseid) {
         global $DB;
-        return $DB->get_records("mod_autograder_assignments", ["courseid" => $courseid]);
+        return $DB->get_records("autograder", ["course" => $courseid]);
     }
 
     public function create_assignment(string $name, string $run_command, array $assignment_args,
                                       array $assignment_outs, int $userid, int $courseid,
                                       int $deadline) {
-        global $DB;
+        global $DB, $CFG;
+        require_once($CFG->dirroot.'/calendar/lib.php');
         $assignment = new stdClass();
         $assignment->name = $name;
         $assignment->userid = $userid;
-        $assignment->courseid = $courseid;
+        $assignment->course = $courseid;
         $assignment->deadline = $deadline;
-        $assignid = $DB->insert_record("mod_autograder_assignments", $assignment);
+        $assignid = $DB->insert_record("autograder", $assignment);
         $runcommand = new stdClass();
         $runcommand->assignid = $assignid;
         $runcommand->runcommand = $run_command;
@@ -69,12 +70,61 @@ class assignment_manager {
             $testcases[] = $testcase;
         }
         $DB->insert_records("mod_autograder_testcases", $testcases);
+
+        $event = new stdClass();
+        $event->eventtype = "assignment"; // Constant defined somewhere in your code - this can be any string value you want. It is a way to identify the event.
+        $event->type = CALENDAR_EVENT_TYPE_ACTION; // This is used for events we only want to display on the calendar, and are not needed on the block_myoverview.
+        $event->name = $name . " is due";
+        $event->description = "Homework is due";
+        $event->format = FORMAT_HTML;
+        $event->courseid = $courseid;
+        $event->groupid = 0;
+        $event->userid = 0;
+        $event->modulename = 0;
+        //$event->modulename = "mod_autograder"; // Setting modulename makes these events invisible for some reason.
+        $event->instance = $assignid;
+        $event->timestart = $deadline;
+        $event->timesort = $deadline;
+        $event->visible = true;
+        $event->timeduration = 0;
+
+        $db_entry = calendar_event::create($event);
         return $assignid;
+    }
+
+    public function delete_assignment(int $assignid) {
+        global $DB, $CFG;
+        require_once($CFG->dirroot.'/calendar/lib.php');
+        $runcommands = $DB->get_records("mod_autograder_runcommands", ["assignid" => $assignid]);
+        try {
+            $transaction = $DB->start_delegated_transaction();
+            foreach ($runcommands as $command) {
+                $DB->delete_records("mod_autograder_testcases", ["commandid" => $command->id]);
+            }
+            $DB->delete_records("mod_autograder_runcommands", ["assignid" => $assignid]);
+            $DB->delete_records("mod_autograder_submissions", ["assignmentid" => $assignid]);
+            $transaction->allow_commit();
+        }
+        catch(Exception $e) {
+            echo $e->getMessage();
+        }
+        $calendars = $DB->get_records("event", ["instance" => $assignid]);
+        foreach ($calendars as $calendar) {
+            try {
+                $event = calendar_event::load($calendar->id);
+                $event->delete(true);
+            }
+            catch(dml_missing_record_exception $e) {
+                // Another entity (user/admin/another plugin) has removed this event. No longer valid.
+                continue;
+            }
+        }
+        return true;
     }
 
     public function get_assignment(int $assignid) {
         global $DB;
-        return $DB->get_record("mod_autograder_assignments", ["id" => $assignid]);
+        return $DB->get_record("autograder", ["id" => $assignid]);
     }
 
     public function get_run_command(int $assignid) {

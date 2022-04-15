@@ -23,7 +23,7 @@
  */
 
 $string["modulename"] = "mod_autograder";
-$string["pluginname"] = "Moodle Autograder";
+$string["pluginname"] = "Autograder";
 $string["course_select"] = "Ödev için Ders Seçiniz";
 $string["due_date"] = "Ödev için Son Teslim Tarihi Seçiniz";
 $string["title_view"] = "Görüntüle";
