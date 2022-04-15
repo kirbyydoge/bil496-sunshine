@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -17,35 +18,26 @@
 /**
  * Version details
  *
- * @package    block_kahoot
+ * @package    block_focusmode
  * @author     Elcin Duman
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_kahoot extends block_base {
+class block_focusmode extends block_base{
     function init() {
-        $this->title = get_string('pluginname', 'block_kahoot');
+        $this->title = get_string('pluginname', 'block_focusmode');
     }
-
     function get_content() {
         global $DB, $PAGE;
 
         if ($this->content !== NULL) {
             return $this->content;
         }
-
+        //url.
         $this->content = new stdClass;
-        $url = new \moodle_url('/local/kahoot/enterkahoot.php');
-
-        $this->content->text = html_writer::div(
-            html_writer::link($url, get_string('entergame', 'block_kahoot')),
-        );
-
-        $url = new \moodle_url('/local/kahoot/creategame.php');
-
+        $url = new \moodle_url('/local/focusmode/timer.php');
         $this->content->footer = html_writer::div(
-            html_writer::link($url, get_string('creategame', 'block_kahoot')),
+            html_writer::link($url, get_string('gotofocusmode', 'block_focusmode')),
         );
-
         return $this->content;
     }
 }

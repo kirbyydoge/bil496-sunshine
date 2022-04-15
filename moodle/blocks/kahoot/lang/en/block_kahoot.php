@@ -23,6 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['pluginname'] = "Kahoot";
-$string['kahoot:myaddinstance'] = 'Add a new Kahoot Block';
+$string['kahoot:addinstance'] = 'Add a new Kahoot Block';
 $string['kahoot:myaddinstance'] = 'Add a new Kahoot Block to Dashboard';
-$string['gotokahoot'] = 'Click here to reach Kahoot...';
+$string['creategame'] = 'Click here to create a Kahoot Game!';
+$string['entergame'] = 'Click here to enter a Kahoot Game!';

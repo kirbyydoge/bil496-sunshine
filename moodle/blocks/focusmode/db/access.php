@@ -1,8 +1,7 @@
 <?php
-
 $capabilities = array(
 
-    'block/kahoot:myaddinstance' => array(
+    'block/focusmode:myaddinstance' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
@@ -12,7 +11,7 @@ $capabilities = array(
         'clonepermissionsfrom' => 'moodle/my:manageblocks'
     ),
 
-    'block/kahoot:addinstance' => array(
+    'block/focusmode:addinstance' => array(
         'riskbitmask' => RISK_SPAM | RISK_XSS,
 
         'captype' => 'write',
