@@ -8,6 +8,8 @@
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="name" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="description" TYPE="char" LENGTH="500" NOTNULL="false" SEQUENCE="false"/>
+                <FIELD NAME="fileid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="deadline" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -16,9 +18,10 @@
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
                 <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
                 <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+                <KEY NAME="fileid" TYPE="foreign" FIELDS="fileid" REFTABLE="files" REFFIELDS="id"/>
             </KEYS>
         </TABLE>
-        <TABLE NAME="mod_autograder_submissions" COMMENT="Keeps track of student submissions to assignments.">
+        <TABLE NAME="autograder_submissions" COMMENT="Keeps track of student submissions to assignments.">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -31,7 +34,7 @@
                 <KEY NAME="fileid" TYPE="foreign" FIELDS="fileid" REFTABLE="files" REFFIELDS="id"/>
             </KEYS>
         </TABLE>
-        <TABLE NAME="mod_autograder_runcommands" COMMENT="Keeps track of run arguments for assignemnts.">
+        <TABLE NAME="autograder_runcommands" COMMENT="Keeps track of run arguments for assignemnts.">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="assignid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -42,12 +45,13 @@
                 <KEY NAME="assignid" TYPE="foreign" FIELDS="assignid" REFTABLE="autograder_assignments" REFFIELDS="id"/>
             </KEYS>
         </TABLE>
-        <TABLE NAME="mod_autograder_testcases" COMMENT="Keeps track of test cases for run arguments.">
+        <TABLE NAME="autograder_testcases" COMMENT="Keeps track of test cases for run arguments.">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="commandid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="argument" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="output" TYPE="char" LENGTH="500" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="points" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

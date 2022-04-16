@@ -41,8 +41,8 @@ $assignid = required_param('id', PARAM_INT);
 $assignment_manager = new assignment_manager();
 $plagiarism_checker = new plagiarism_checker();
 
-//$result = $plagiarism_checker->check_plagiarism($assignid);
-$result = $plagiarism_checker->check_plagarism_mock($assignid);
+$result = $plagiarism_checker->check_plagiarism($assignid);
+//$result = $plagiarism_checker->check_plagarism_mock($assignid);
 $assignment = $assignment_manager->get_assignment($assignid);
 
 $column_names = [

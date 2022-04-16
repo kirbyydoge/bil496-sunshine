@@ -36,10 +36,16 @@ class mod_autograder_mod_form extends moodleform_mod {
         global $CFG, $COURSE, $DB, $PAGE, $USER;
         $mform = $this->_form;
         $mform->addElement("text", "assignment_name", get_string("assignment_name", "mod_autograder"));
-        $mform->addElement("text", "assignment_run", get_string("assignment_run", "mod_autograder"));
+        $mform->addElement("textarea", "assignment_desc", get_string("assignment_desc", "mod_autograder"));
+        $mform->addElement("textarea", "assignment_run", get_string("assignment_run", "mod_autograder"));
         $mform->addElement("textarea", "assignment_args", get_string("assignment_args", "mod_autograder"));
         $mform->addElement("textarea", "assignment_outs", get_string("assignment_outs", "mod_autograder"));
+        $mform->addElement("text", "assignment_points", get_string("assignment_points", "mod_autograder"));
         $mform->addElement('date_time_selector', 'due_date', get_string("due_date", "mod_autograder"));
+        $mform->addElement("filemanager", "attachments", "Attachments", null, array(
+            "subdirs" => 0, "maxbytes" => 1048576, "areamaxbytes" => 1048576, "maxfiles" => 20,
+            "accepted_types" => "*", "return_types" => 2 | 1
+        ));
         $this->standard_coursemodule_elements();
         $this->apply_admin_defaults();
         $this->add_action_buttons();

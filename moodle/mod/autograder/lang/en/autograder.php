@@ -22,7 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string["modulename"] = "mod_autograder";
+$string["modulename"] = "Autograder";
+$string["modulenameplural"] = "Autograders";
 $string["pluginname"] = "Autograder";
 $string["course_select"] = "Select Course for Assignment";
 $string["due_date"] = "Select Due Date for Assignment";
@@ -32,9 +33,11 @@ $string["title_upload"] = "Make Submission";
 $string["title_autograde"] = "Autograde Assignment";
 $string["title_plagiarism"] = "Check Plagiarism";
 $string["assignment_name"] = "Assignment Name";
+$string["assignment_desc"] = "Assignment Description";
 $string["assignment_run"] = "Assignment Run Command";
-$string["assignment_args"] = "Assignment Arguments (Provide as Comma Seperated String)";
-$string["assignment_outs"] = "Assignment Outputs (Provide as Comma Seperated String)";
+$string["assignment_args"] = "Testcase Arguments (Provide as Comma Seperated String)";
+$string["assignment_outs"] = "Testcase Outputs (Provide as Comma Seperated String)";
+$string["assignment_points"] = "Testcase Points (Provide as Comma Seperated String)";
 $string["assignment_select"] = "Select Assignment";
 $string["autograde_select"] = "Select Assignment to Autograde";
 $string["autograde"] = "Autograde";

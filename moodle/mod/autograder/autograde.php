@@ -52,7 +52,8 @@ $is_student = count(array_filter($teaching_courses, function ($course) {
 $runobject = $assignment_manager->get_run_command($assignid);
 $testcases = $assignment_manager->get_testcases($runobject->id);
 if($is_student) {
-    $out_buffer = $autograder->autograde_single_user($USER->id, $assignid, $runobject->runcommand, $testcases);
+    $student_cases = [$testcases[0]];
+    $out_buffer = $autograder->autograde_single_user($USER->id, $assignid, $runobject->runcommand, $student_cases);
 }
 else {
     $student_cases = array();
@@ -64,6 +65,7 @@ $template_context = [
     "body_title" => $assignment->name,
     "out_buffer" => $out_buffer
 ];
+
 echo $OUTPUT->header();
 echo $OUTPUT->render_from_template("mod_autograder/autograde", $template_context);
 echo $OUTPUT->footer();

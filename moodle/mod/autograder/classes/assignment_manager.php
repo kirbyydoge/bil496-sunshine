@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+global $CFG;
+
 class assignment_manager {
 
     public function get_all_user_autograder_assignments($userid) {
@@ -44,33 +46,41 @@ class assignment_manager {
         return $DB->get_records("autograder", ["course" => $courseid]);
     }
 
-    public function create_assignment(string $name, string $run_command, array $assignment_args,
-                                      array $assignment_outs, int $userid, int $courseid,
-                                      int $deadline) {
+    public function create_assignment(string $name, string $description, string $run_command, array $assignment_args,
+                                      array $assignment_outs, array $assignment_points, int $userid, int $courseid,
+                                      int $deadline, int $contextid, int $draftid) {
         global $DB, $CFG;
-        require_once($CFG->dirroot.'/calendar/lib.php');
+        require_once($CFG->dirroot . "/calendar/lib.php");
+        require_once($CFG->dirroot . "/mod/autograder/classes/file_manager.php");
+        $file_manager = new file_manager();
+
+        //Add Instance
         $assignment = new stdClass();
         $assignment->name = $name;
+        $assignment->description = $description;
         $assignment->userid = $userid;
         $assignment->course = $courseid;
         $assignment->deadline = $deadline;
+        $assignment->fileid = 0;
         $assignid = $DB->insert_record("autograder", $assignment);
         $runcommand = new stdClass();
         $runcommand->assignid = $assignid;
         $runcommand->runcommand = $run_command;
-        $commandid = $DB->insert_record("mod_autograder_runcommands", $runcommand);
+        $commandid = $DB->insert_record("autograder_runcommands", $runcommand);
         $testcases = array();
         for($i = 0; $i < count($assignment_args); $i++) {
             $arg = $assignment_args[$i];
             $out = $assignment_outs[$i];
+            $points = $assignment_points[$i];
             $testcase = new stdClass();
             $testcase->commandid = $commandid;
             $testcase->argument = $arg;
             $testcase->output = $out;
+            $testcase->points = $points;
             $testcases[] = $testcase;
         }
-        $DB->insert_records("mod_autograder_testcases", $testcases);
-
+        $DB->insert_records("autograder_testcases", $testcases);
+        //Handle Calendar Event
         $event = new stdClass();
         $event->eventtype = "assignment"; // Constant defined somewhere in your code - this can be any string value you want. It is a way to identify the event.
         $event->type = CALENDAR_EVENT_TYPE_ACTION; // This is used for events we only want to display on the calendar, and are not needed on the block_myoverview.
@@ -87,22 +97,24 @@ class assignment_manager {
         $event->timesort = $deadline;
         $event->visible = true;
         $event->timeduration = 0;
-
         $db_entry = calendar_event::create($event);
+
+        //Handle Draft Files
+        $file_manager->save_draft_area($draftid, $contextid, $userid, $assignid, false);
         return $assignid;
     }
 
     public function delete_assignment(int $assignid) {
         global $DB, $CFG;
         require_once($CFG->dirroot.'/calendar/lib.php');
-        $runcommands = $DB->get_records("mod_autograder_runcommands", ["assignid" => $assignid]);
+        $runcommands = $DB->get_records("autograder_runcommands", ["assignid" => $assignid]);
         try {
             $transaction = $DB->start_delegated_transaction();
             foreach ($runcommands as $command) {
-                $DB->delete_records("mod_autograder_testcases", ["commandid" => $command->id]);
+                $DB->delete_records("autograder_testcases", ["commandid" => $command->id]);
             }
-            $DB->delete_records("mod_autograder_runcommands", ["assignid" => $assignid]);
-            $DB->delete_records("mod_autograder_submissions", ["assignmentid" => $assignid]);
+            $DB->delete_records("autograder_runcommands", ["assignid" => $assignid]);
+            $DB->delete_records("autograder_submissions", ["assignmentid" => $assignid]);
             $transaction->allow_commit();
         }
         catch(Exception $e) {
@@ -129,18 +141,19 @@ class assignment_manager {
 
     public function get_run_command(int $assignid) {
         global $DB;
-        return $DB->get_record("mod_autograder_runcommands", ["assignid" => $assignid]);
+        return $DB->get_record("autograder_runcommands", ["assignid" => $assignid]);
     }
 
     public function get_testcases(int $commandid) {
         global $DB;
-        $pairs = $DB->get_records("mod_autograder_testcases", ["commandid" => $commandid]);
+        $tuples = $DB->get_records("autograder_testcases", ["commandid" => $commandid]);
         $testcases = array();
-        foreach ($pairs as $pair) {
-            $formatted = preg_split("/\r\n|\n|\r/", $pair->output);
+        foreach ($tuples as $tuple) {
+            $formatted = preg_split("/\r\n|\n|\r/", $tuple->output);
             $testcases[] = [
-                "args" => $pair->argument,
-                "outs" => $formatted
+                "args" => $tuple->argument,
+                "outs" => $formatted,
+                "points" => $tuple->points
             ];
         }
         return $testcases;
