@@ -32,6 +32,8 @@ require_once($CFG->dirroot . "/local/forums/locallib.php");
 $PAGE->set_url(new moodle_url('/local/forums/forumdata.php'));
 $PAGE->set_context(\context_system::instance());
 
+$_POST = json_decode(file_get_contents("php://input"), true);
+
 if (empty($_POST["forumid"])) {
     echo json_encode(["result" => "FORUMID_CAN_NOT_BE_NULL"]);
     return;

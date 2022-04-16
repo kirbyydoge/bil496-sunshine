@@ -33,6 +33,8 @@ require_login();
 $PAGE->set_url(new moodle_url('/local/forums/threaddata.php'));
 $PAGE->set_context(\context_system::instance());
 
+$_POST = json_decode(file_get_contents("php://input"), true);
+
 function format_replies($replies) {
     $formatted = [];
     $index_table = [];

@@ -31,6 +31,8 @@ require_once($CFG->dirroot . '/local/forums/classes/forum_manager.php');
 $PAGE->set_url(new moodle_url('/local/forums/addforum.php'));
 $PAGE->set_context(\context_system::instance());
 
+$_POST = json_decode(file_get_contents("php://input"), true);
+
 if (empty($_POST["courseid"])) {
     echo json_encode(["result" => "COURSEID_CAN_NOT_BE_NULL"]);
     return;
