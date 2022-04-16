@@ -16,17 +16,17 @@
         justify-content: center;
         align-items: center;
         background-color: pink;
-        width: 100vw; 
+        width: 100vw;
         height: 100%;
         min-height: 100vh;
       "
     >
     <div style="width: 100%;display: flex; flex-direction: row; justify-content: center; align-items: center;">
         <button class="submitbutton" onclick="onAddPress()">
-            Add a new question
+            {{addquestion}}
           </button>
           <button class="submitbutton"  onclick="checkVal()">
-              Submit
+             {{submit}}
           </button>
     </div>
       <form
@@ -47,7 +47,7 @@
       let container = document.getElementById("questioncontainer");
       let param = location.search.split("?")[1];
       let question = 1;
-      let json = {} 
+      let json = {}
 
       function unCheckAll() {
       if (document.getElementById(`correctA${question -1}`).checked ) {
@@ -69,14 +69,14 @@
       }
 
       }
- 
+
 
 
       function checkVal() {
-  
+
   if (question>1) {
     for (let index = 1; index < question; index++) {
-  
+
 
       let correctValue = document.getElementById(`correctA${index}`).checked ? document.getElementById(`correctA${index}`).value : document.getElementById(`correctB${index}`).checked ? document.getElementById(`correctB${index}`).value : document.getElementById(`correctC${index}`).checked ? document.getElementById(`correctC${index}`).value : document.getElementById(`correctD${index}`).checked ? document.getElementById(`correctD${index}`).value : false
 
@@ -94,8 +94,8 @@
          alert("Please fill all the blanks!")
      }
 
-    
- 
+
+
    }
   if (Object.keys(json).length === question -1 && question > 1) {
     let xhr = new XMLHttpRequest();
@@ -108,7 +108,7 @@
       console.log(JSON.parse(xhr.response));
       };
   }
-  
+
   }
 }
 
@@ -146,7 +146,7 @@
               margin-bottom: 10px;
             "
           >
-          <input type="checkbox" id="correctA${question}" value="A" onchange="unCheckAll()" /> 
+          <input type="checkbox" id="correctA${question}" value="A" onchange="unCheckAll()" />
             <span style="border: 1px; padding: 1rem">A</span>
             <input
               style="
@@ -168,7 +168,7 @@
               margin-bottom: 10px;
             "
           >
-          <input type="checkbox" id="correctB${question}" value="B"  onchange="unCheckAll()" /> 
+          <input type="checkbox" id="correctB${question}" value="B"  onchange="unCheckAll()" />
             <span style="border: 1px; padding: 1rem">B</span>
             <input
               style="
@@ -190,7 +190,7 @@
               margin-bottom: 10px;
             "
           >
-          <input type="checkbox" id="correctC${question}" value="C"  onchange="unCheckAll()"  /> 
+          <input type="checkbox" id="correctC${question}" value="C"  onchange="unCheckAll()"  />
             <span style="border: 1px; padding: 1rem">C</span>
             <input
               style="
@@ -212,7 +212,7 @@
               margin-bottom: 10px;
             "
           >
-          <input type="checkbox" id="correctD${question}" value="D"  onchange="unCheckAll()" /> 
+          <input type="checkbox" id="correctD${question}" value="D"  onchange="unCheckAll()" />
             <span style="border: 1px; padding: 1rem">D</span>
             <input
               style="
@@ -231,7 +231,7 @@
         } else {
             alert("You reached the maximum question limit!")
         }
-      } 
+      }
     </script>
   </body>
 </html>

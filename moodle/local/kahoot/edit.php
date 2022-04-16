@@ -5,7 +5,7 @@ require_once($CFG->dirroot . '/local/kahoot/classes/form/edit.php');
 require_once($CFG->dirroot . '/local/kahoot/classes/form/submit.php');
 $PAGE->set_url(new moodle_url('/local/kahoot/edit.php'));
 $PAGE->set_context(\context_system::instance());
-$PAGE->set_title('kahoot game edit');
+$PAGE->set_title(get_string('edit_game', 'local_kahoot'));
 global $DB;
 $PAGE->requires->single;
 // $mfrom=new kahootedit();
@@ -15,13 +15,13 @@ $PAGE->requires->single;
 // $mform->display();
 // echo $OUTPUT->footer();
 
-//Instantiate simplehtml_form 
+//Instantiate simplehtml_form
 $mform = new kahootedit();
 $mformButton= new kahooteditbutton();
 
 //Form processing and displaying is done here
 if ($mform->is_cancelled()) {
-    redirect($CFG->wwwroot."/local/kahoot/manage.php","You cancelled the form.");
+    redirect($CFG->wwwroot."/local/kahoot/manage.php", get_string('cancelled_form', 'local_kahoot'));
 } else if ($fromform = $mform->get_data()) {
 //   var_dump($fromform);
 //   die;
@@ -32,7 +32,7 @@ if ($mform->is_cancelled()) {
     $recordtoinsert->messagetype=$fromform->messagetype;
 
     $DB->insert_record('local_kahoot',$recordtoinsert);
-} 
+}
 
 
 $mform->set_data($toform);

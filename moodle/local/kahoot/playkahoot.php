@@ -4,7 +4,7 @@ require_once(__DIR__."/../../config.php");
 global $USER;
 $PAGE->set_url(new moodle_url('/local/kahoot/playkahoot.php'));
 $PAGE->set_context(\context_system::instance());
-$PAGE->set_title('Kahoot Game');
+$PAGE->set_title(get_string('title', 'local_kahoot'));
 
 $PAGE->set_pagelayout('embedded');
 echo $OUTPUT->header();
