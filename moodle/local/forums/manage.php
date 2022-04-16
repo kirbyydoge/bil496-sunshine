@@ -23,10 +23,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$CFG = '';
 require_once(__DIR__ . '/../../config.php');
 
-global $DB, $OUTPUT, $PAGE;
+global $DB, $OUTPUT, $PAGE, $CFG;
 
 require_login();
 
@@ -36,17 +35,17 @@ $PAGE->set_title(get_string('forums', 'local_forums'));
 $PAGE->set_heading(get_string('manage_forums', 'local_forums'));
 $PAGE->requires->js_call_amd('local_forums/confirm');
 
-echo $OUTPUT->header();
-$records = $DB->get_records('local_forums');
+$forumid = required_param('id', PARAM_INT);
 
+echo $OUTPUT->header();
+$forum = $DB->get_record('local_forums', ["id" => $forumid]);
+$threads = $DB->get_records("local_forums_threads", ["forumid" => $forumid]);
 $templatecontext = (object)[
-    'records' => array_values($records),
-    'editurl' => new moodle_url('/local/forums/edit.php'),
+    'records' => array_values($threads),
+    'editurl' => new moodle_url('/local/forums/edit.php', ["forumid" => $forumid]),
     'edit' => get_string('edit_forums', 'local_forums'),
     'delete' => get_string('delete_forums', 'local_forums'),
     'create' => get_string('create_forums', 'local_forums'),
 ];
-
 echo $OUTPUT->render_from_template('local_forums/manage', $templatecontext);
-
 echo $OUTPUT->footer();

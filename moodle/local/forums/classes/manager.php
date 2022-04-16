@@ -25,7 +25,6 @@
  */
 
 use dml_exception;
-use stdClass;
 
 class manager
 {

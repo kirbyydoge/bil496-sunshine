@@ -8,43 +8,48 @@
         <TABLE NAME="local_forums" COMMENT="Each record leads to forums discussion">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="course_short_name" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="course_full_name" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="title_of_forum" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="time_created" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="time_modified" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="2" SEQUENCE="false"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="title" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="timecreate" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
                 <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+                <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
             </KEYS>
         </TABLE>
-        <!--A table for whether a discussion is reached or not-->
-        <TABLE NAME="local_forums_reached" COMMENT="Each record is a user record of reaching a forum discussion">
+        <!--A table to keep track of existing threads of forums-->
+        <TABLE NAME="local_forums_threads" COMMENT="Each record is a thread for a forum">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="course_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="forumid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="timeread" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="title" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="timecreate" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+                <KEY NAME="forumid" TYPE="foreign" FIELDS="forumid" REFTABLE="local_forums" REFFIELDS="id"/>
             </KEYS>
         </TABLE>
-        <!--A new table for answers on forums-->
-        <TABLE NAME="local_forums_answers" COMMENT="Each record is a users answer/interaction in the forum discussion">
+        <!--A table to keep track of existing replies to threads-->
+        <TABLE NAME="local_forums_replies" COMMENT="Each record is a reply to a thread">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="course_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="threadid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="answer" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="time_created" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="time_modified" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="replyid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="reply" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="timecreate" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="threadid" TYPE="foreign" FIELDS="threadid" REFTABLE="local_forums_threads" REFFIELDS="id"/>
+                <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+                <KEY NAME="replyid" TYPE="foreign" FIELDS="replyid" REFTABLE="local_forums_replies" REFFIELDS="id"/>
             </KEYS>
         </TABLE>
     </TABLES>

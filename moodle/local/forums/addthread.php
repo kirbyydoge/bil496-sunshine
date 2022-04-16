@@ -26,37 +26,29 @@
 global $DB, $OUTPUT, $PAGE, $USER, $CFG;
 
 require_once(__DIR__ . '/../../config.php');
-require_once($CFG->dirroot . '/local/forums/classes/form/create_thread.php');
 require_once($CFG->dirroot . '/local/forums/classes/forum_manager.php');
 
-$id = optional_param("id", 0, PARAM_INT);
-if(!empty($_POST['forumid'])) {
-    $forumid = (int) $_POST['forumid'];
-} else {
-    $forumid = required_param('forumid', PARAM_INT);
-}
-
-$PAGE->set_url(new moodle_url('/local/forums/edit.php'));
+$PAGE->set_url(new moodle_url('/local/forums/addthread.php'));
 $PAGE->set_context(\context_system::instance());
-$PAGE->set_title('Add a new Forum Discussion');
 
-$mform = new create_thread(null, ["forumid" => $forumid]);
-
-//Form processing is done here
-if ($mform->is_cancelled()) {
-    redirect($CFG->wwwroot . '/local/forums/manage.php?id='.$forumid, 'Thread cancelled.');
-} else if ($fromform = $mform->get_data()) {
-    $forum_manager = new forum_manager();
-    $forum_manager->create_thread($USER->id, $forumid, $fromform->title_of_forum, $fromform->description);
-    redirect($CFG->wwwroot . '/local/forums/manage.php?id='.$forumid, 'Thread Submitted.');
+if (!empty($_POST["forumid"])) {
+    echo json_encode(["result" => "FORUMID_CAN_NOT_BE_NULL"]);
+    return;
 }
 
-$template_context = [
-    "body_title" => get_string("title_edit", "local_forums"),
-    "form_html" => $mform->render()
-];
+if (!empty($_POST["title"])) {
+    echo json_encode(["result" => "FORUMID_CAN_NOT_BE_NULL"]);
+    return;
+}
 
+if (!empty($_POST["description"])) {
+    echo json_encode(["result" => "DESCRIPTION_CAN_NOT_BE_NULL"]);
+    return;
+}
 
-echo $OUTPUT->header();
-echo $OUTPUT->render_from_template('local_forums/edit', $template_context);
-echo $OUTPUT->footer();
+$forum_manager = new forum_manager();
+$forumid = $_POST["forumid"];
+$title = $_POST["title"];
+$description = $_POST["description"];
+$id = $forum_manager->create_thread($USER->id, $forumid, $title, $description);
+echo json_encode(["id" => $id, "result" => "success"]);
