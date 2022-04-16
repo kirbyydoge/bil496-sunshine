@@ -23,21 +23,15 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__ . '/../../config.php');
-
 global $DB, $OUTPUT, $PAGE, $CFG;
+
+require_once(__DIR__ . '/../../config.php');
+require_once($CFG->dirroot . "/local/forums/locallib.php");
 
 require_login();
 
 $PAGE->set_url(new moodle_url('/local/forums/threaddata.php'));
 $PAGE->set_context(\context_system::instance());
-
-function get_user_name_by_id(int $userid) {
-    global $DB;
-    $user_entry = $DB->get_record("user", ["id" => $userid]);
-    $username = $user_entry->firstname . " " . $user_entry->lastname;
-    return $username;
-}
 
 function format_replies($replies) {
     $formatted = [];

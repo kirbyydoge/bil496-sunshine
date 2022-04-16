@@ -16,6 +16,13 @@
 
 /**
  * @package     local_forums
- * @author      Elcin Duman, Oguzhan Canpolat
+ * @author      Oguzhan Canpolat
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+function get_user_name_by_id(int $userid) {
+    global $DB;
+    $user_entry = $DB->get_record("user", ["id" => $userid]);
+    $username = $user_entry->firstname . " " . $user_entry->lastname;
+    return $username;
+}
