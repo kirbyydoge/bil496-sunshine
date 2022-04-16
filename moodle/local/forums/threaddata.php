@@ -32,6 +32,13 @@ require_login();
 $PAGE->set_url(new moodle_url('/local/forums/threaddata.php'));
 $PAGE->set_context(\context_system::instance());
 
+function get_user_name_by_id(int $userid) {
+    global $DB;
+    $user_entry = $DB->get_record("user", ["id" => $userid]);
+    $username = $user_entry->firstname . " " . $user_entry->lastname;
+    return $username;
+}
+
 function format_replies($replies) {
     $formatted = [];
     $index_table = [];
@@ -47,12 +54,19 @@ function format_replies($replies) {
             $formatted[$index_table[$reply->replyid]]->replies[] = $reply;
         }
     }
+    foreach ($replies as $reply) {
+        $reply->username = get_user_name_by_id($reply->userid);
+        unset($reply->userid);
+        unset($reply->replyid);
+    }
     return $formatted;
 }
 
 if(!empty($_POST["threadid"])) {
     $thread_id = $_POST["threadid"];
     $thread_info = $DB->get_record("local_forums_threads", ["id" => $thread_id]);
+    $thread_info->username = get_user_name_by_id($thread_info->userid);
+    unset($thread_info->userid);
     $replies = $DB->get_records("local_forums_replies", ["threadid" => $thread_id]);
     $replies = format_replies($replies);
     echo json_encode(["main" => $thread_info, "replies" => $replies, "result" => "success"]);
