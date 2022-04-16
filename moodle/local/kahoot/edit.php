@@ -3,6 +3,7 @@
 require_once(__DIR__."/../../config.php");
 require_once($CFG->dirroot . '/local/kahoot/classes/form/edit.php');
 require_once($CFG->dirroot . '/local/kahoot/classes/form/submit.php');
+require_login();
 $PAGE->set_url(new moodle_url('/local/kahoot/edit.php'));
 $PAGE->set_context(\context_system::instance());
 $PAGE->set_title(get_string('edit_game', 'local_kahoot'));
