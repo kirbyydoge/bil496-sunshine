@@ -36,16 +36,40 @@ class autograder {
         $fm = new file_manager();
         $file_map = $fm->get_assignment_files($assignmentid);
         $out_buffer = array();
+        $max_points = 0;
+        foreach ($test_cases as $test_case) {
+            $max_points += $test_case["points"];
+        }
         foreach ($file_map as $key => $value) {
             $user_entry = $DB->get_record("user", ["id" => $key]);
             $username = $user_entry->firstname . " " . $user_entry->lastname;
             $user_buffer = array();
-            $this->autograde_single_assignment($username, $value, $main, $test_cases, $user_buffer);
+            $points = $this->autograde_single_assignment($username, $value, $main, $test_cases, $max_points, $user_buffer);
             $out_buffer[] = [
                 "username" => $username,
-                "result" => $user_buffer
+                "result" => $user_buffer,
+                "points" => $points
             ];
         }
+        return $out_buffer;
+    }
+
+    public function autograde_single_user(int $userid, int $assignmentid, string $main, array $test_cases) {
+        global $DB;
+        $this->cleanup(self::SRC_PATH);
+        $this->cleanup(self::BIN_PATH);
+        $fm = new file_manager();
+        $files = $fm->get_user_assignment_files($userid, $assignmentid);
+        $out_buffer = array();
+        $user_entry = $DB->get_record("user", ["id" => $userid]);
+        $username = $user_entry->firstname . " " . $user_entry->lastname;
+        $user_buffer = array();
+        $points = $this->autograde_single_assignment($username, $files, $main, $test_cases, $user_buffer);
+        $out_buffer[] = [
+            "username" => $username,
+            "result" => $user_buffer,
+            "points" => $points
+        ];
         return $out_buffer;
     }
 
@@ -54,9 +78,10 @@ class autograder {
         $this->write_files(self::SRC_PATH, $files);
         $this->compile_files(self::SRC_PATH, self::BIN_PATH, $out_buffer);
         $out_buffer[] = "Autograding user: " . $username;
-        $this->run_program(self::BIN_PATH, $main, $test_cases, $out_buffer);
+        $points = $this->run_program(self::BIN_PATH, $main, $test_cases, $out_buffer);
         $this->cleanup(self::SRC_PATH);
         $this->cleanup(self::BIN_PATH);
+        return $points;
     }
 
     private function write_files($path, $files) {
@@ -75,11 +100,17 @@ class autograder {
     }
 
     private function run_program($class_path, $main, $test_cases, array &$out_buffer) {
+        $total_points = 0;
         foreach ($test_cases as $test_case) {
             $args = $test_case["args"];
             $outs = $test_case["outs"];
-            $test_result = $this->run_test($class_path, $main, $args, $outs, $out_buffer);
+            $points = $test_case["points"];
+            $result = $this->run_test($class_path, $main, $args, $outs, $out_buffer);
+            if($result) {
+                $total_points += $points;
+            }
         }
+        return $total_points;
     }
 
     private function run_test($class_path, $main, $args, $outs, array &$out_buffer) {
@@ -104,6 +135,9 @@ class autograder {
     }
 
     private function cleanup($folder_path) {
+        if (!file_exists($folder_path)) {
+            mkdir($folder_path, 0777, true);
+        }
         $files = glob($folder_path . "/*"); // get all file names
         foreach($files as $file){ // iterate files
             if(is_file($file)) {

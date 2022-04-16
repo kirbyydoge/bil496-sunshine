@@ -28,6 +28,14 @@
         <div class="description card-body">
             <div class="row">
                 <div class="col-1">
+                    <i class="icon fa fa-envelope-open-o fa-fw" title="When" role="img" aria-label="When"></i>
+                </div>
+                <div class="col-11">
+                    <a>{{description}}</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-1">
                     <i class="icon fa fa-clock-o fa-fw" title="When" role="img" aria-label="When"></i>
                 </div>
                 <div class="col-11">
@@ -50,11 +58,27 @@
                     <a href="{{course_url}}">{{course_name}}</a>
                 </div>
             </div>
+            {{#file_url}}
+                <div class="row mt-1">
+                    <div class="col-1">
+                        <i class="icon fa fa-folder-open-o fa-fw" title="Course" role="img" aria-label="Course"></i>
+                    </div>
+                    <div class="col-11">
+                        <a href="{{file_url}}">{{file_name}}</a>
+                    </div>
+                </div>
+            {{/file_url}}
         </div>
         <div class="card-footer text-right bg-transparent">
+            {{#is_teacher}}
+                <a href="{{plagiarism_url}}" class="card-link">{{plagiarism_name}}</a>
+                <a style="color: #D0D0D0">|</a>
+            {{/is_teacher}}
             <a href="{{autograde_url}}" class="card-link">{{autograde_name}}</a>
-            <a style="color: #D0D0D0">|</a>
-            <a href="{{assign_url}}" class="card-link">{{submit_name}}</a>
+            {{^is_teacher}}
+                    <a style="color: #D0D0D0">|</a>
+                    <a href="{{assign_url}}" class="card-link">{{submit_name}}</a>
+            {{/is_teacher}}
         </div>
     </div>
     {{/assignments}}

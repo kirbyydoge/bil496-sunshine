@@ -28,7 +28,27 @@ require_once(__DIR__ . "/file_manager.php");
 class plagiarism_checker {
 
     private const SRC_PATH = __DIR__ . "/../cache/moss";
-    private const USER_ID = 437334535;  //THROW-AWAY USER-ID. Needs to be encrypted and stored in DB for a few users.
+    private const USER_ID = 437334535;  //THROW-AWAY USER-ID. Needs to be encrypted and stored in DB for the actual user.
+
+    public function check_plagarism_mock(int $assignmentid) {
+        global $CFG;
+        return [
+            [
+                "first_name" => "Nikola Tesla",
+                "first_id" => 5,
+                "first_moodle_url" => $CFG->wwwroot . "/user/profile.php?id=5",
+                "first_file" => "Main.java",
+                "first_percent" => 95,
+                "second_name" => "Thomas Edison",
+                "second_id" => 6,
+                "second_moodle_url" => $CFG->wwwroot . "/user/profile.php?id=6",
+                "second_file" => "Main.java",
+                "second_percent" => 95,
+                "lines" => 8,
+                "match_url" => "http://moss.stanford.edu/results/6/6271149796407/match0.html"
+            ]
+        ];
+    }
 
     public function check_plagiarism(int $assignmentid) {
         global $DB;
@@ -36,12 +56,18 @@ class plagiarism_checker {
         $this->cleanup(plagiarism_checker::SRC_PATH);
         $file_map = $fm->get_assignment_files($assignmentid);
         $this->cache_files($file_map, plagiarism_checker::SRC_PATH);
-        $result = trim($this->call_moss(plagiarism_checker::SRC_PATH,plagiarism_checker::USER_ID, "java",
-                                    "Test"));
-        $this->cleanup(plagiarism_checker::SRC_PATH);
-        $rows = $this->post_process_rows($result);
-        $data = $this->post_process_names($rows);
-        return $data;
+        try {
+            $result = trim($this->call_moss(plagiarism_checker::SRC_PATH,plagiarism_checker::USER_ID, "java",
+                                    "Sprint2 Demo Video"));
+            $this->cleanup(plagiarism_checker::SRC_PATH);
+            $rows = $this->post_process_rows($result);
+            $data = $this->post_process_names($rows);
+            return $data;
+        }
+        catch(Exception $e) {
+            echo $e->getMessage();
+        }
+        return null;
     }
 
     private function call_moss($path, $moss_userid, $language, $comment) {

@@ -27,24 +27,31 @@ require_once(__DIR__ . '/classes/form/upload.php');
 require_once(__DIR__ . '/classes/assignment_manager.php');
 require_once(__DIR__ . '/classes/file_manager.php');
 
-global $CFG, $USER, $PAGE, $OUTPUT;
+global $CFG, $USER, $PAGE, $OUTPUT, $DB;
 
 $PAGE->set_url(new moodle_url('/mod/autograder/upload.php'));
 $PAGE->set_context(\context_system::instance());
 $PAGE->set_title(get_string("title_upload", "mod_autograder"));
 
-$assignid = optional_param('id', null, PARAM_INT);
+require_login();
 
+if(!empty($_POST["assignid"])) {
+    $assignid = $_POST["assignid"];
+}
+else {
+    $assignid = required_param('id', PARAM_INT);
+}
+
+$autograder = $DB->get_record("autograder", ["id" => $assignid]);
 $assignment_manager = new assignment_manager();
 $user_assignments = $assignment_manager->get_all_user_autograder_assignments($USER->id);
 
 $file_manager = new file_manager();
-
 $mform = new \form\upload();
 $data = $mform->get_data();
 
 if ($mform->is_cancelled()) {
-    redirect(new moodle_url("/mod/autograder/index.php"));
+    redirect(new moodle_url("/course/view.php", ["id" => $autograder->course]));
 }
 else if($data->assignid){
     $draftid = $data->attachments;
@@ -52,7 +59,7 @@ else if($data->assignid){
     $userid = $USER->id;
     $assignmentid = $data->assignid;
     $file_manager->save_draft_area($draftid, $contextid, $userid, $assignmentid);
-    redirect(new moodle_url("/mod/autograder/index.php"));
+    redirect(new moodle_url("/course/view.php", ["id" => $autograder->course]));
 }
 
 if($assignid) {

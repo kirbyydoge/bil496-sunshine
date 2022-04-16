@@ -24,16 +24,18 @@
 
 class file_manager {
 
-    public function save_draft_area(int $draftid, int $contextid, int $userid, int $assignmentid) {
+    public function save_draft_area(int $draftid, int $contextid, int $userid, int $assignmentid, bool $savedb = true) {
         global $DB;
         $itemid = $this->generate_itemid($userid, $assignmentid);
         file_save_draft_area_files($draftid, $contextid, 'mod_autograder', 'autograde',
             $itemid, array('subdirs' => 0, 'maxbytes' => 1048576, 'maxfiles' => 50));
-        $submission = new stdClass();
-        $submission->userid = $userid;
-        $submission->assignmentid = $assignmentid;
-        $submission->fileid = $itemid;
-        $DB->insert_record("mod_autograder_submissions", $submission);
+        if($savedb) {
+            $submission = new stdClass();
+            $submission->userid = $userid;
+            $submission->assignmentid = $assignmentid;
+            $submission->fileid = $itemid;
+            $DB->insert_record("autograder_submissions", $submission);
+        }
     }
 
     public function generate_itemid(int $userid, int $assignmentid) {
@@ -64,7 +66,7 @@ class file_manager {
 
     public function get_assignment_files(int $assignmentid) {
         global $DB;
-        $submissions = $DB->get_records("mod_autograder_submissions", ["assignmentid" => $assignmentid]);
+        $submissions = $DB->get_records("autograder_submissions", ["assignmentid" => $assignmentid]);
         $all_files = array();
         foreach ($submissions as $submission) {
             $files = $this->get_user_assignment_files($submission->userid, $submission->assignmentid);

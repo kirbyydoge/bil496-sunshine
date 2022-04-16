@@ -34,15 +34,17 @@ $PAGE->set_url(new moodle_url('/mod/autograder/plagiarism.php'));
 $PAGE->set_context(\context_system::instance());
 $PAGE->set_title(get_string("title_plagiarism", "mod_autograder"));
 
+require_login();
+
 $assignid = required_param('id', PARAM_INT);
 
 $assignment_manager = new assignment_manager();
 $plagiarism_checker = new plagiarism_checker();
 
-echo $OUTPUT->header();
-
 $result = $plagiarism_checker->check_plagiarism($assignid);
+//$result = $plagiarism_checker->check_plagarism_mock($assignid);
 $assignment = $assignment_manager->get_assignment($assignid);
+
 $column_names = [
     "Name",
     "File",
@@ -58,6 +60,8 @@ $template_context = [
     "col_names" => $column_names,
     "rows" => $result
 ];
+
+echo $OUTPUT->header();
 
 echo $OUTPUT->render_from_template("mod_autograder/plagiarism", $template_context);
 

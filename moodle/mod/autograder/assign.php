@@ -34,6 +34,8 @@ $PAGE->set_url(new moodle_url('/mod/autograder/index.php'));
 $PAGE->set_context(\context_system::instance());
 $PAGE->set_title(get_string("title_view", "mod_autograder"));
 
+require_login();
+
 $course_manager = new \course_manager();
 $assignment_manager = new assignment_manager();
 
@@ -62,7 +64,5 @@ $template_context = [
 ];
 
 echo $OUTPUT->header();
-
 echo $OUTPUT->render_from_template("mod_autograder/assign", $template_context);
-
 echo $OUTPUT->footer();

@@ -24,14 +24,12 @@
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/lib.php');
-require_once(__DIR__ . '/classes/form/index.php');
 require_once(__DIR__ . '/classes/assignment_manager.php');
-require_once(__DIR__ . '/classes/autograder.php');
+require_once(__DIR__ . '/classes/course_manager.php');
+require_once(__DIR__ . '/classes/form/assign.php');
 
-global $CFG, $USER, $PAGE, $OUTPUT, $SESSION;
+global $CFG, $USER, $PAGE, $OUTPUT, $SESSION, $DB;
 
-$PAGE->set_url(new moodle_url('/mod/autograder/index.php'));
-$PAGE->set_context(\context_system::instance());
-$PAGE->set_title(get_string("title_view", "mod_autograder"));
+$id = required_param('id', PARAM_INT);
 
-redirect(new moodle_url("/mod/autograder/deadlines.php"));
+autograder_delete_instance($id);
