@@ -26,7 +26,6 @@ require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/classes/autograder.php');
 require_once(__DIR__ . '/classes/assignment_manager.php');
 require_once(__DIR__ . '/classes/course_manager.php');
-require_once(__DIR__ . '/classes/file_manager.php');
 
 global $CFG, $USER, $PAGE, $OUTPUT;
 $PAGE->set_url(new moodle_url('/mod/autograder/autograde.php'));
@@ -39,14 +38,14 @@ $assignid = required_param('id', PARAM_INT);
 $assignment_manager = new assignment_manager();
 $autograder = new autograder();
 $course_manager = new course_manager();
-$file_manager = new file_manager();
+
 
 $teaching_courses = $course_manager->user_get_courses_teaching($USER->id);
 $assignment = $assignment_manager->get_assignment($assignid);
 
 $is_student = count(array_filter($teaching_courses, function ($course) {
     global $assignment;
-    return $course->id == $assignment->courseid;
+    return $course->id == $assignment->course;
 })) == 0;
 
 $runobject = $assignment_manager->get_run_command($assignid);
@@ -56,8 +55,6 @@ if($is_student) {
     $out_buffer = $autograder->autograde_single_user($USER->id, $assignid, $runobject->runcommand, $student_cases);
 }
 else {
-    $student_cases = array();
-    $student_cases[] = $testcases[0];
     $out_buffer = $autograder->autograde_assignment($assignid, $runobject->runcommand, $testcases);
 }
 

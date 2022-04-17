@@ -44,7 +44,7 @@ class autograder {
             $user_entry = $DB->get_record("user", ["id" => $key]);
             $username = $user_entry->firstname . " " . $user_entry->lastname;
             $user_buffer = array();
-            $points = $this->autograde_single_assignment($username, $value, $main, $test_cases, $max_points, $user_buffer);
+            $points = $this->autograde_single_assignment($username, $value, $main, $test_cases,$user_buffer);
             $out_buffer[] = [
                 "username" => $username,
                 "result" => $user_buffer,
