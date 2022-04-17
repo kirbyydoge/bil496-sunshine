@@ -193,6 +193,17 @@ app.post("/lasttime", async (req, res) => {
   });
 });
 //
+app.post("/obsrecords", async (req, res) => {
+  let examid = req.body["examid"];
+  let post = {};
+  let resBody = {};
+  let sql = `SELECT * FROM mdl_block_examsobs WHERE examid="${examid}"`;
+  db.query(sql, post, (error, results, fields) => {
+    if (error) throw error;
+    resBody["arr"] = JSON.parse(JSON.stringify(results));
+    res.send(resBody);
+  });
+});
 
 app.listen(process.env.PORT || "3000", () => {
   console.log("server is running..");
