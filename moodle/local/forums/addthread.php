@@ -31,17 +31,19 @@ require_once($CFG->dirroot . '/local/forums/classes/forum_manager.php');
 $PAGE->set_url(new moodle_url('/local/forums/addthread.php'));
 $PAGE->set_context(\context_system::instance());
 
-if (!empty($_POST["forumid"])) {
+$_POST = json_decode(file_get_contents("php://input"), true);
+
+if (empty($_POST["forumid"])) {
     echo json_encode(["result" => "FORUMID_CAN_NOT_BE_NULL"]);
     return;
 }
 
-if (!empty($_POST["title"])) {
+if (empty($_POST["title"])) {
     echo json_encode(["result" => "FORUMID_CAN_NOT_BE_NULL"]);
     return;
 }
 
-if (!empty($_POST["description"])) {
+if (empty($_POST["description"])) {
     echo json_encode(["result" => "DESCRIPTION_CAN_NOT_BE_NULL"]);
     return;
 }

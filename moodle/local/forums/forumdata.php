@@ -27,22 +27,23 @@ global $DB, $OUTPUT, $PAGE, $USER, $CFG;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/local/forums/classes/forum_manager.php');
+require_once($CFG->dirroot . "/local/forums/locallib.php");
 
-$PAGE->set_url(new moodle_url('/local/forums/addreply.php'));
+$PAGE->set_url(new moodle_url('/local/forums/forumdata.php'));
 $PAGE->set_context(\context_system::instance());
 
 $_POST = json_decode(file_get_contents("php://input"), true);
 
-if (empty($_POST["threadid"])) {
-    echo json_encode(["result" => "THREADID_CAN_NOT_BE_NULL"]);
-    return;
-}
-if (empty($_POST["reply"])) {
-    echo json_encode(["result" => "REPLY_CAN_NOT_BE_NULL"]);
+if (empty($_POST["forumid"])) {
+    echo json_encode(["result" => "FORUMID_CAN_NOT_BE_NULL"]);
     return;
 }
 
+$forumid = $_POST["forumid"];
 $forum_manager = new forum_manager();
-$replyid = empty($_POST["replyid"]) ? 0 : (int) $_POST["replyid"];
-$id = $forum_manager->add_reply($USER->id, $_POST["threadid"], $_POST["reply"], $replyid);
-echo json_encode(["id" => $id, "result" => "success"]);
+$threads = $DB->get_records("local_forums_threads", ["forumid" => $forumid]);
+foreach ($threads as $thread) {
+    $thread->username = get_user_name_by_id($thread->userid);
+    unset($thread->userid);
+}
+echo json_encode($threads);

@@ -37,15 +37,13 @@ $PAGE->requires->js_call_amd('local_forums/confirm');
 
 $forumid = required_param('id', PARAM_INT);
 
-echo $OUTPUT->header();
 $forum = $DB->get_record('local_forums', ["id" => $forumid]);
 $threads = $DB->get_records("local_forums_threads", ["forumid" => $forumid]);
 $templatecontext = (object)[
-    'records' => array_values($threads),
-    'editurl' => new moodle_url('/local/forums/edit.php', ["forumid" => $forumid]),
-    'edit' => get_string('edit_forums', 'local_forums'),
-    'delete' => get_string('delete_forums', 'local_forums'),
-    'create' => get_string('create_forums', 'local_forums'),
+    "addreply_url" => new moodle_url("/local/forums/addreply.php"),
+    "addthread_url" => new moodle_url("/local/forums/addthread.php"),
+    "threaddata_url" => new moodle_url("/local/forums/threaddata.php"),
+    "forumdata_url" =>new moodle_url("/local/forums/forumdata.php")
 ];
+
 echo $OUTPUT->render_from_template('local_forums/manage', $templatecontext);
-echo $OUTPUT->footer();

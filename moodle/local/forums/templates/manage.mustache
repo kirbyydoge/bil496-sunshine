@@ -1,184 +1,382 @@
-{{!
-    This file is part of Moodle - https://moodle.org/
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/fontawesome.min.css"
+    />
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    />
 
-    Moodle is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    <title>Forum</title>
+</head>
+<body class="m-0 w-full h-screen">
+<!-- This example requires Tailwind CSS v2.0+ -->
+<div
+        class="fixed z-10 hidden inset-0 overflow-y-auto"
+        aria-labelledby="modal-title"
+        id="modal"
+        role="dialog"
+        aria-modal="true"
+>
+    <div
+            class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+    >
+        <div
+                class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+                aria-hidden="true"
+        ></div>
 
-    Moodle is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+        <span
+                class="hidden sm:inline-block sm:align-middle sm:h-screen"
+                aria-hidden="true"
+        >&#8203;</span
+        >
 
-    You should have received a copy of the GNU General Public License
-    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-}}
-
-<style>
-    .sunshine_title {
-        margin: auto;
-        width: 600px;
-        text-align: center;
-    }
-
-    .left_bar {
-        direction: ltr;
-        overflow: auto;
-        width: 300px;
-    }
-
-    #feed_list {
-        float: left;
-        overflow-x: clip;
-    }
-
-    #feed_list ul {
-        margin-top: 5px;
-        margin-right: 5px;
-        margin-left: -15px;
-        list-style-type: none;
-    }
-
-    #main_content {
-        width: 80%;
-        float: left;
-        overflow: clip;
-    }
-
-    #feed_records {
-        position: fixed;
-        height: 100%;
-        overflow-y: scroll;
-    }
-
-    #feed_records li:hover {
-        background-color: #0c0c0c;
-    }
-
-    #thread_head {
-
-    }
-</style>
-
-<div id="main_container" style="width: 100%">
-    <div id="feed_list" class="left_bar">
-        <div id="feed_search_bar" style="display: flex">
-            <input type="button" class="btn btn-primary" value={{create}} onclick="location.href='{{editurl}}'">
-            <div id="search_bar">
-                <input id="search_box" style="margin-top: 5px; margin-left: 8px">
+        <div
+                class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+        >
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center w-full sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3
+                                class="text-lg leading-6 font-medium text-gray-900"
+                                id="modal-title"
+                        >
+                            Topic Title
+                        </h3>
+                        <input
+                                type="text"
+                                class="p-1 border w-full mt-2 rounded-lg"
+                                id="topicheader1"
+                        />
+                        <h3
+                                class="text-lg leading-6 mt-2 font-medium text-gray-900"
+                                id="modal-title"
+                        >
+                            Topic Title
+                        </h3>
+                        <textarea
+                                type="text"
+                                class="p-1 border w-full mt-2 rounded-lg"
+                                id="topicMessage1"
+                                placeholder=""
+                        >
+                </textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                        type="button"
+                        onclick="createTopic()"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-teal-500 text-base font-medium text-white active:bg-teal-700 transition-all duration-300 ease-linear focus:outline-none ring-0 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                    Create
+                </button>
+                <button
+                        type="button"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 active:bg-gray-50 transition-all duration-300 ease-linear focus:outline-none ring-0 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                    Cancel
+                </button>
             </div>
         </div>
-        <nav id="feed_records">
-            <ul id="records_list">
-                {{#records}}
-                    <li id="{{id}}">
-                        <div class="card" style="width: 260px; margin-bottom: 10px">
-                            <div class="title">
-                                <span class="bold">{{title_of_forum}}</span>
-                            </div>
-                            <div class="snippet">
-                                {{description}}
-                            </div>
-                        </div>
-                    </li>
-                {{/records}}
-        </ul>
-        </nav>
-    </div>
-    <div id="main_content" class="card" hidden>
-        <div id="thread_head"></div>
-        <ul id="0_replies"></ul>
-        <input id="0_comment" type="text">
-        <input id="0" type="button" class="btn btn-primary" value={{create}} onclick="comment(this)">
     </div>
 </div>
 
+<div class="w-full h-full flex">
+    <div class="flex w-1/3 flex-col items-center h-full">
+        <div class="w-full justify-center flex pt-8 p-2">
+            <button
+                    class="bg-teal-500 p-2 text-white rounded-lg mb-4 active:bg-teal-700 transition-all duration-300 ease-linear"
+                    onclick="openTopicModal()"
+					id="createtopic"
+            >
+                Create Topic
+            </button>
+        </div>
+        <hr class="w-[90%]" />
+        <div class="w-full flex flex-col items-center p-2" id="leftbar"></div>
+    </div>
+    <div class="w-full h-full border-l-2" id="rightbar">
+        <div class="flex flex-col w-full h-full items-center justify-center">
+            <i class="fa-solid text-6xl mb-4 fa-comments"></i>
+            <span>No Topic Selected Yet!</span>
+        </div>
+    </div>
+</div>
+</body>
+
 <script>
-    function cleanup() {
-        document.getElementById("0_replies").innerHTML = "";
-    }
+    let forumdata = [];
+    let rightbarElement;
+    let leftbarElement;
+	let forumidparam = location.search.split("?")[1];
+	let isShow = false;
+	let isTeacher = false;
 
-    function set_thread_head(node) {
-        document.getElementById("main_content").hidden = false;
-        let elem = document.getElementById("thread_head");
-        elem.innerHTML = `
-            <p class="bold">${node["title"]}</p>
-            <p>${node["description"]}</p>
-        `;
-    }
-
-    function add_reply(node, target, commentable) {
-        let list = document.getElementById(target);
-        let item = document.createElement("li");
-        if(commentable) {
-            item.innerHTML = `
-                <div class="card">
-                    <p>${node['reply']}</p>
-                    <ul id="${node['id']}_replies"></ul>
-                    <input id="${node['id']}_comment" type="text">
-                    <input id="${node['id']}" type="button" class="btn btn-primary" value={{create}} onclick="comment(this)">
-                </div>
-            `;
-        }
-        else {
-            item.innerHTML = `
-                <div class="card">
-                    <p>${node['reply']}</p>
-                    <ul id="${node['id']}_replies"></ul>
-                </div>
-            `;
-        }
-        list.appendChild(item);
-        if(node.hasOwnProperty("replies")) {
-            for(let i = 0; i < node["replies"].length; i++) {
-                add_reply(node["replies"][i], `${node["id"]}_replies`, false);
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "{{forumdata_url}}");
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhr.send(JSON.stringify(forumid: forumidparam));
+    xhr.onload = () => {
+        let response = JSON.parse(xhr.response);
+        forumdata = [];
+        for(let prop in response) {
+            if(response.hasOwnProperty(prop)) {
+                forumdata.push(response[prop]);
             }
         }
-    }
-
-    function comment(elem) {
-        let url_string = window.location.href;
-        let url = new URL(url_string);
-        let thread_id = url.searchParams.get("id");
-        let split_idx = window.location.href.lastIndexOf("/");
-        let post_url =window.location.href.substring(0, split_idx) + "/addreply.php";
-        let comment = document.getElementById(elem.id + "_comment").value;
-        $.post(post_url, {"replyid": elem.id, "reply": comment, "threadid": thread_id}, function (data, status) {
-            add_reply({"reply": comment});
-            document.getElementById(`${elem.id}_comment`).value = "";
-        }, "json");
-    }
-
-    function handle_click(target) {
-        if (target.nodeName === "UL") {
-            return;
-        }
-        let counter = 5;
-        while(target.nodeName !== "LI" && counter > 0) {
-            target = target.parentElement;
-            counter++;
-        }
-        if(counter === 0) {
-            return;
-        }
-        let split_idx = window.location.href.lastIndexOf("/");
-        let url = window.location.href.substring(0, split_idx) + "/threaddata.php";
-        $.post(url, {"threadid": target.id}, function (data, status) {
-            if(data["result"] !== "success") {
-                console.log(data["result"]);
-                return;
-            }
-            cleanup();
-            set_thread_head(data["main"]);
-            for(let i = 0; i < data["replies"].length; i++) {
-                add_reply(data["replies"][i], "0_replies", true);
-            }
-        }, "json");
-    }
-
-    var records_list = document.getElementById("records_list");
-    records_list.onclick = function(event) {
-        handle_click(event.target);
+        render();
     };
+    function render() {
+		if (!isTeacher) {
+		document.getElementById("createtopic").className = "hidden";
+		}
+        leftbarElement = document.getElementById("leftbar");
+        rightbarElement = document.getElementById("rightbar");
+        forumdata.map((obj) => {
+            let editButtonHTML = document.createElement("button");
+            editButtonHTML.className =
+                    "w-[90%] text-black active:bg-gradient-to-r active:from-indigo-500 active:via-purple-500 active:to-pink-500 transition-all duration-500 active:text-white rounded-lg ease-linear group flex border-b p-2 pb-1 mt-2 border-black flex-col";
+
+               editButtonHTML.innerHTML = `<h class="font-black">${
+      !isShow ? "#" + obj.title : obj.title
+    }</h><span class="text-gray-600 group-active:text-gray-100">${
+      isShow ? obj.description : " "
+    } </span>`;
+
+            editButtonHTML.id = obj.id;
+            editButtonHTML.onclick = function () {
+                let xhr = new XMLHttpRequest();
+                xhr.open("POST", "{{threaddata_url}}");
+                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                xhr.send(JSON.stringify({ threadid: obj.id }));
+                xhr.onload = () => {
+                    rightbarOpen(JSON.parse(xhr.response), obj.id);
+                };
+            };
+            leftbarElement.insertAdjacentElement("afterbegin", editButtonHTML);
+        });
+    };
+
+    function rightbarOpen(obj, index) {
+        rightbarElement = document.getElementById("rightbar");
+        rightbarElement.innerHTML = `
+        <div class="w-full h-full flex flex-col items-center">
+        <div
+          class="w-full border-2 mb-2 shadow-black shadow-sm flex p-4 justify-center items-center"
+        >
+          <h1 class="font-black text-center">${obj.main.title}</h1>
+        </div>
+        <div
+          class="w-[95%] p-2 flex flex-col border border-black  shadow-sm shadow-gray-300 rounded-xl"
+          id="text-area"
+        >
+          <h1 class="border-b border-black font-bold">${obj.main.username}</h1>
+          <span class="mt-2">${obj.main.description}</span>
+        </div>
+        <div class="w-[95%] border border-gray-700 rounded-lg mt-4">
+          <div class="w-full flex items-center py-2 border-b border-gray-700">
+            <span class="ml-2">Followup discussions</span>
+          </div>
+          <div class="w-full p-2 flex flex-col"  >
+
+          <div class="w-full flex flex-col items-end px-2 py-2" id=${
+                index + "discussionarea"
+        }>
+            <input
+              type="text"
+              id=${index + "discussion"}
+              class="p-1 border w-[100%] border-gray-600 rounded-lg mt-2"
+              placeholder="Start a new followup discussion."
+            />
+            <button type="button" class="p-1 border bg-teal-400 rounded-sm ml-1" id="${
+                "discussionbutton" + index
+        }"
+          " >Gönder</button>
+          </div>
+        </div>
+
+      </div>`;
+
+         obj.replies.map((objMessages) => {
+    document.getElementById(index + "discussionarea").insertAdjacentHTML(
+      "beforebegin",
+      `<div class="w-full flex p-2 mt-4 flex-col rounded-lg bg-gray-300" id=${
+        objMessages.username + objMessages.reply
+      }>
+       <h1 class="font-black">${objMessages.username}</h1>
+       <span>${objMessages.reply}</span>
+       <div class="w-full flex flex-col items-end  " id=${
+         "nesteddiscuss" + objMessages.id
+       } >
+      <div class="w-full flex justify-end">
+      <input type="text" id=${
+        "replyinput" + objMessages.id
+      } placeholder="Reply" class="w-[80%] p-1 rounded-lg border" />
+     <button type="button" class="p-1 border bg-teal-400 rounded-sm ml-1" id="${
+       "replybutton" + objMessages.id
+     }"
+   " >Gönder</button></div>
+   
+       </div>
+     </div>
+   </div>`
+    );
+
+            objMessages.replies === 0
+                    ? null
+                    : objMessages.replies.map((replyObj) => {
+                        document
+                                .getElementById("nesteddiscuss" + objMessages.id)
+                                .insertAdjacentHTML(
+                                        "beforebegin",
+                                        `<div class="w-[90%]  mb-2 flex p-2 flex-col rounded-lg bg-gray-100">
+          <h1 class="font-black">${replyObj.username}</h1>
+          <span>${replyObj.reply}</span>
+        </div>`
+                                );
+                    });
+
+            let doc = document.getElementById("replybutton" + objMessages.id);
+            if (doc) {
+                doc.addEventListener("click", function () {
+                    let value = document.getElementById(
+                            "replyinput" + objMessages.id
+                    ).value;
+
+                    if (value.trim() !== "") {
+                        let xhr = new XMLHttpRequest();
+                        xhr.open("POST", "{{addreply_url}}");
+                        xhr.setRequestHeader(
+                                "Content-Type",
+                                "application/json;charset=UTF-8"
+                        );
+                        xhr.send(
+                                JSON.stringify({
+                                    threadid: index,
+                                    replyid: objMessages.id,
+                                    reply: value.trim(),
+                                })
+                        );
+                        xhr.onload = () => {
+                            let xhr = new XMLHttpRequest();
+                            xhr.open("POST", "{{threaddata_url}}");
+                            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                            xhr.send(JSON.stringify({ threadid: index }));
+                            xhr.onload = () => {
+                                rightbarOpen(JSON.parse(xhr.response), index);
+                            };
+                        };
+                    } else {
+                        alert("reply can not be empty");
+                    }
+                });
+            }
+        });
+
+        document
+                .getElementById("discussionbutton" + index)
+                .addEventListener("click", function () {
+                    let value = document.getElementById(index + "discussion").value;
+
+                    if (value.trim() !== "") {
+                        let xhr = new XMLHttpRequest();
+                        xhr.open("POST", "{{addreply_url}}");
+                        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                        xhr.send(
+                                JSON.stringify({
+                                    threadid: index,
+                                    replyid: "0",
+                                    reply: value.trim(),
+                                })
+                        );
+                        xhr.onload = () => {
+                            let xhr = new XMLHttpRequest();
+                            xhr.open("POST", "{{threaddata_url}}");
+                            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                            xhr.send(JSON.stringify({ threadid: index }));
+                            xhr.onload = () => {
+                                rightbarOpen(JSON.parse(xhr.response), index);
+                            };
+                        };
+                    } else {
+                        alert("field can not be empty");
+                    }
+                });
+    }
+
+    function leftbarRender() {
+        document.getElementById("leftbar").innerHTML = "";
+        forumdata.map((obj) => {
+            let editButtonHTML = document.createElement("button");
+            editButtonHTML.className =
+                    "w-[90%] text-black active:bg-gradient-to-r active:from-indigo-500 active:via-purple-500 active:to-pink-500 transition-all duration-500 active:text-white rounded-lg ease-linear group flex border-b p-2 pb-1 mt-2 border-black flex-col";
+
+               editButtonHTML.innerHTML = `<h class="font-black">${
+      !isShow ? "#" + obj.title : obj.title
+    }</h><span class="text-gray-600 group-active:text-gray-100">${
+      isShow ? obj.description : " "
+    } </span>`;
+
+            editButtonHTML.id = obj.id;
+            editButtonHTML.onclick = function () {
+                let xhr = new XMLHttpRequest();
+                xhr.open("POST", "{{threaddata_url}}");
+                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                xhr.send(JSON.stringify({ threadid: obj.id }));
+                xhr.onload = () => {
+                    rightbarOpen(JSON.parse(xhr.response), obj.id);
+                };
+            };
+            leftbarElement.insertAdjacentElement("afterbegin", editButtonHTML);
+        });
+    }
+
+    function openTopicModal() {
+        let Modal = document.getElementById("modal");
+        document.getElementById("topicMessage1").value = "";
+        Modal.className = "fixed z-10  inset-0 overflow-y-auto";
+    }
+
+    function createTopic() {
+        let Modal = document.getElementById("modal");
+        Modal.className = "fixed z-10 hidden inset-0 overflow-y-auto";
+
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "{{addthread_url}}");
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.send(
+                JSON.stringify({
+                    forumid: forumidparam,
+                    title: document.getElementById("topicheader1").value.trim(),
+                    description: document.getElementById("topicMessage1").value.trim(),
+                })
+        );
+        xhr.onload = () => {
+            xhr.open("POST", "{{forumdata_url}}");
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.send(JSON.stringify(forumid: forumidparam));
+            xhr.onload = () => {
+                let response = JSON.parse(xhr.response);
+                forumdata = [];
+                for(let prop in response) {
+                    if(response.hasOwnProperty(prop)) {
+                        forumdata.push(response[prop]);
+                    }
+                }
+                leftbarRender();
+            };
+        };
+    }
 </script>
+
+</html>
