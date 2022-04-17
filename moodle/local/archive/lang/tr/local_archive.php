@@ -52,3 +52,6 @@ $string['delete_record'] = 'Sil';
 $string['delete_message_failed'] = 'Silme işlemi başarısız oldu.';
 $string['setting_enable'] = 'Arşiv sayfanın görünmesi için izin verin.';
 $string['setting_enable_desc'] = 'Bu eklentiden herhangi bir kaydın görüntülenmesini durdurmak için devre dışı bırakın.';
+$string['submitted'] = 'Arşiv kaydı kaydedildi.';
+$string['cancel'] = 'Arşiv kaydı iptal edildi.';
+$string['submit_record'] = "Bir kayıt ekleyin";

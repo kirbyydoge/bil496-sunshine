@@ -39,7 +39,7 @@ $PAGE->set_title('Add a new Archive Record');
 $mform = new edit();
 //Form processing is done here
 if ($mform->is_cancelled()) {
-    redirect($CFG->wwwroot . '/local/archive/manage.php', 'Archive Form is cancelled.');
+    redirect($CFG->wwwroot . '/local/archive/manage.php', get_string('cancel', 'local_archive'));
 } else if ($fromform = $mform->get_data()) {
 
     $manager = new manager();
@@ -64,7 +64,7 @@ if ($mform->is_cancelled()) {
             $fromform->time_created, $fromform->time_modified,
             $draftid, $contextid, $userid);
 
-        redirect($CFG->wwwroot . '/local/archive/manage.php', 'Archive Record has been submitted.');
+        redirect($CFG->wwwroot . '/local/archive/manage.php', get_string('submitted', 'local_archive'));
     }
 }
 
@@ -88,7 +88,7 @@ if($id) {
 
 echo $OUTPUT->header();
 $templatecontext = (object)[
-
+    'submit' => get_string('submit_record', 'local_archive'),
 ];
 
 echo $OUTPUT->render_from_template('local_archive/edit', $templatecontext);

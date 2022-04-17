@@ -117,6 +117,9 @@ class manager {
                 $url .= moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(),
                         $file->get_itemid(), $file->get_filepath(), $file->get_filename(), false);
 
+                if(strpos($filename, " ")) {
+                    $filename = str_replace(" ", "_", $filename);
+                }
                 $filenames .= $filename;
 
                 if($counter<$counting-1) {

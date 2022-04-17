@@ -50,6 +50,7 @@ $records = array();
 foreach($local_archive_rs as $lars) {
     $entry = new stdClass;
     $tbl_files = $manager->get_URL_table($lars->fileid);
+    $entry->id = $lars->id;
     $entry->course_short_name = $lars->course_short_name;
     $entry->files = array();
     foreach($tbl_files as $tbl_file) {
@@ -62,7 +63,7 @@ foreach($local_archive_rs as $lars) {
 }
 
 $templatecontext = (object)[
-    'records' => $records,
+    'records' => array_reverse($records),
     'editurl' => new moodle_url('/local/archive/edit.php'),
     'edit_record' => (get_string('edit_record', 'local_archive')),
     'delete_record' => (get_string('delete_record', 'local_archive')),

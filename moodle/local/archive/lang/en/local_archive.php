@@ -52,3 +52,6 @@ $string['delete_message_failed'] = 'Deletion failed.';
 $string['manage'] = 'Manage archive records.';
 $string['setting_enable'] = 'Enable';
 $string['setting_enable_desc'] = 'Disable to stop any records from this plugin being displayed.';
+$string['submitted'] = 'Archive Record has been submitted.';
+$string['cancel'] = 'Archive Form is cancelled.';
+$string['submit_record'] = "Submit a Record";
