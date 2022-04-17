@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pomodoro Timer</title>
+    <title>{{p_title}}</title>
   </head>
   <body style="overflow: hidden; padding: 0px; margin: 0px">
     <div
@@ -53,15 +53,15 @@
           name="button"
           id="submitbutton"
           onclick="reset()"
-          value="Reset"
-          style="border-radius: 1rem; width: 90px; height: 50px"
+          value={{#reset}}{{.}}{{/reset}}
+          style="border-radius: 1rem; width: 120px; height: 50px"
         />
         <input
           type="button"
           name="button"
           id="submitbutton"
           onclick="start()"
-          value="Start"
+          value={{start}}
           style="border-radius: 1rem; width: 90px; height: 50px"
         />
         <input
@@ -69,8 +69,8 @@
           name="button"
           id="submitbutton"
           onclick="stop()"
-          value="Stop"
-          style="border-radius: 1rem; width: 90px; height: 50px"
+          value={{stop}}
+          style="border-radius: 1rem; width: 120px; height: 50px"
         />
       </div>
     </div>
@@ -113,7 +113,7 @@
                 color:white;
               "
             >
-              30 days total minute: ${arr[0]}
+              {{thirty}} ${arr[0]}
             </span>`
         );
         document.getElementById("log").insertAdjacentHTML(
@@ -137,7 +137,7 @@
                 color:white;
               "
             >
-             Last session minute: ${arr[1]}
+             {{last_session}} ${arr[1]}
             </span>`
         );
       };
@@ -165,7 +165,7 @@
               color:black;
             "
           >
-            Studied ${totalMinute.toFixed(2)} minute
+            {{studied}} ${totalMinute.toFixed(2)} minute
           </span>`
       );
     }
@@ -194,6 +194,7 @@
         }
       });
     }
+
     document.getElementById("counter").innerHTML = value + " " + "Minutes";
 
     function reset() {

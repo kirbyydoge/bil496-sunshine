@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Timer</title>
+    <title>{{timer}}</title>
   </head>
   <body style="overflow: hidden; padding: 0px; margin: 0px">
     <div
@@ -22,7 +22,7 @@
       "
       id="container"
     >
-      <label for="quantity" id="quantity">Minutes</label>
+      <label for="quantity" id="quantity">{{minutes}}</label>
       <input
         id="number"
         value="1"
@@ -36,8 +36,8 @@
         type="button"
         name="button"
         id="submitbutton"
-        onclick="getVal()"
-        value="Submit"
+        onclick="getVal();"
+        value={{submit}}
         style="border-radius: 1rem; width: 120px; height: 50px; margin-top: 5px"
       />
     </div>
@@ -47,7 +47,7 @@
           parseInt(document.getElementById("number").value, 10) < 1 ||
           parseInt(document.getElementById("number").value, 10) > 60
         ) {
-          alert("Please enter a number between 1-60!");
+            alert("Please enter a number between 1-60!");
         } else {
           location.href =
             "./pomodoro.php" +

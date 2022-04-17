@@ -1,0 +1,184 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+
+<style>
+    .sunshine_title {
+        margin: auto;
+        width: 600px;
+        text-align: center;
+    }
+
+    .left_bar {
+        direction: ltr;
+        overflow: auto;
+        width: 300px;
+    }
+
+    #feed_list {
+        float: left;
+        overflow-x: clip;
+    }
+
+    #feed_list ul {
+        margin-top: 5px;
+        margin-right: 5px;
+        margin-left: -15px;
+        list-style-type: none;
+    }
+
+    #main_content {
+        width: 80%;
+        float: left;
+        overflow: clip;
+    }
+
+    #feed_records {
+        position: fixed;
+        height: 100%;
+        overflow-y: scroll;
+    }
+
+    #feed_records li:hover {
+        background-color: #0c0c0c;
+    }
+
+    #thread_head {
+
+    }
+</style>
+
+<div id="main_container" style="width: 100%">
+    <div id="feed_list" class="left_bar">
+        <div id="feed_search_bar" style="display: flex">
+            <input type="button" class="btn btn-primary" value={{create}} onclick="location.href='{{editurl}}'">
+            <div id="search_bar">
+                <input id="search_box" style="margin-top: 5px; margin-left: 8px">
+            </div>
+        </div>
+        <nav id="feed_records">
+            <ul id="records_list">
+                {{#records}}
+                    <li id="{{id}}">
+                        <div class="card" style="width: 260px; margin-bottom: 10px">
+                            <div class="title">
+                                <span class="bold">{{title_of_forum}}</span>
+                            </div>
+                            <div class="snippet">
+                                {{description}}
+                            </div>
+                        </div>
+                    </li>
+                {{/records}}
+        </ul>
+        </nav>
+    </div>
+    <div id="main_content" class="card" hidden>
+        <div id="thread_head"></div>
+        <ul id="0_replies"></ul>
+        <input id="0_comment" type="text">
+        <input id="0" type="button" class="btn btn-primary" value={{create}} onclick="comment(this)">
+    </div>
+</div>
+
+<script>
+    function cleanup() {
+        document.getElementById("0_replies").innerHTML = "";
+    }
+
+    function set_thread_head(node) {
+        document.getElementById("main_content").hidden = false;
+        let elem = document.getElementById("thread_head");
+        elem.innerHTML = `
+            <p class="bold">${node["title"]}</p>
+            <p>${node["description"]}</p>
+        `;
+    }
+
+    function add_reply(node, target, commentable) {
+        let list = document.getElementById(target);
+        let item = document.createElement("li");
+        if(commentable) {
+            item.innerHTML = `
+                <div class="card">
+                    <p>${node['reply']}</p>
+                    <ul id="${node['id']}_replies"></ul>
+                    <input id="${node['id']}_comment" type="text">
+                    <input id="${node['id']}" type="button" class="btn btn-primary" value={{create}} onclick="comment(this)">
+                </div>
+            `;
+        }
+        else {
+            item.innerHTML = `
+                <div class="card">
+                    <p>${node['reply']}</p>
+                    <ul id="${node['id']}_replies"></ul>
+                </div>
+            `;
+        }
+        list.appendChild(item);
+        if(node.hasOwnProperty("replies")) {
+            for(let i = 0; i < node["replies"].length; i++) {
+                add_reply(node["replies"][i], `${node["id"]}_replies`, false);
+            }
+        }
+    }
+
+    function comment(elem) {
+        let url_string = window.location.href;
+        let url = new URL(url_string);
+        let thread_id = url.searchParams.get("id");
+        let split_idx = window.location.href.lastIndexOf("/");
+        let post_url =window.location.href.substring(0, split_idx) + "/addreply.php";
+        let comment = document.getElementById(elem.id + "_comment").value;
+        $.post(post_url, {"replyid": elem.id, "reply": comment, "threadid": thread_id}, function (data, status) {
+            add_reply({"reply": comment});
+            document.getElementById(`${elem.id}_comment`).value = "";
+        }, "json");
+    }
+
+    function handle_click(target) {
+        if (target.nodeName === "UL") {
+            return;
+        }
+        let counter = 5;
+        while(target.nodeName !== "LI" && counter > 0) {
+            target = target.parentElement;
+            counter++;
+        }
+        if(counter === 0) {
+            return;
+        }
+        let split_idx = window.location.href.lastIndexOf("/");
+        let url = window.location.href.substring(0, split_idx) + "/threaddata.php";
+        $.post(url, {"threadid": target.id}, function (data, status) {
+            if(data["result"] !== "success") {
+                console.log(data["result"]);
+                return;
+            }
+            cleanup();
+            set_thread_head(data["main"]);
+            for(let i = 0; i < data["replies"].length; i++) {
+                add_reply(data["replies"][i], "0_replies", true);
+            }
+        }, "json");
+    }
+
+    var records_list = document.getElementById("records_list");
+    records_list.onclick = function(event) {
+        handle_click(event.target);
+    };
+</script>
