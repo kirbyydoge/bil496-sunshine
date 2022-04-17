@@ -41,7 +41,6 @@ $PAGE->set_context(\context_system::instance());
 $PAGE->set_url(new moodle_url('/mod/autograder/view.php'));
 $PAGE->set_title(get_string("title_view", "mod_autograder"));
 
-$assignment_manager = new assignment_manager();
 $course_manager = new course_manager();
 $file_manager = new file_manager();
 
