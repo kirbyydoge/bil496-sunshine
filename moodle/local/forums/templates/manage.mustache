@@ -114,6 +114,269 @@
 </div>
 </body>
 
+<script>
+    let forumdata = [];
+    let rightbarElement;
+    let leftbarElement;
+	let forumidparam = location.search.split("?")[1];
+	let isShow = false;
+	let isTeacher = false;
 
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "{{forumdata_url}}");
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhr.send(JSON.stringify(forumid: forumidparam));
+    xhr.onload = () => {
+        let response = JSON.parse(xhr.response);
+        forumdata = [];
+        for(let prop in response) {
+            if(response.hasOwnProperty(prop)) {
+                forumdata.push(response[prop]);
+            }
+        }
+        render();
+    };
+    function render() {
+		if (!isTeacher) {
+		document.getElementById("createtopic").className = "hidden";
+		}
+        leftbarElement = document.getElementById("leftbar");
+        rightbarElement = document.getElementById("rightbar");
+        forumdata.map((obj) => {
+            let editButtonHTML = document.createElement("button");
+            editButtonHTML.className =
+                    "w-[90%] text-black active:bg-gradient-to-r active:from-indigo-500 active:via-purple-500 active:to-pink-500 transition-all duration-500 active:text-white rounded-lg ease-linear group flex border-b p-2 pb-1 mt-2 border-black flex-col";
+
+               editButtonHTML.innerHTML = `<h class="font-black">${
+      !isShow ? "#" + obj.title : obj.title
+    }</h><span class="text-gray-600 group-active:text-gray-100">${
+      isShow ? obj.description : " "
+    } </span>`;
+
+            editButtonHTML.id = obj.id;
+            editButtonHTML.onclick = function () {
+                let xhr = new XMLHttpRequest();
+                xhr.open("POST", "{{threaddata_url}}");
+                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                xhr.send(JSON.stringify({ threadid: obj.id }));
+                xhr.onload = () => {
+                    rightbarOpen(JSON.parse(xhr.response), obj.id);
+                };
+            };
+            leftbarElement.insertAdjacentElement("afterbegin", editButtonHTML);
+        });
+    };
+
+    function rightbarOpen(obj, index) {
+        rightbarElement = document.getElementById("rightbar");
+        rightbarElement.innerHTML = `
+        <div class="w-full h-full flex flex-col items-center">
+        <div
+          class="w-full border-2 mb-2 shadow-black shadow-sm flex p-4 justify-center items-center"
+        >
+          <h1 class="font-black text-center">${obj.main.title}</h1>
+        </div>
+        <div
+          class="w-[95%] p-2 flex flex-col border border-black  shadow-sm shadow-gray-300 rounded-xl"
+          id="text-area"
+        >
+          <h1 class="border-b border-black font-bold">${obj.main.username}</h1>
+          <span class="mt-2">${obj.main.description}</span>
+        </div>
+        <div class="w-[95%] border border-gray-700 rounded-lg mt-4">
+          <div class="w-full flex items-center py-2 border-b border-gray-700">
+            <span class="ml-2">Followup discussions</span>
+          </div>
+          <div class="w-full p-2 flex flex-col"  >
+
+          <div class="w-full flex flex-col items-end px-2 py-2" id=${
+                index + "discussionarea"
+        }>
+            <input
+              type="text"
+              id=${index + "discussion"}
+              class="p-1 border w-[100%] border-gray-600 rounded-lg mt-2"
+              placeholder="Start a new followup discussion."
+            />
+            <button type="button" class="p-1 border bg-teal-400 rounded-sm ml-1" id="${
+                "discussionbutton" + index
+        }"
+          " >Gönder</button>
+          </div>
+        </div>
+
+      </div>`;
+
+         obj.replies.map((objMessages) => {
+    document.getElementById(index + "discussionarea").insertAdjacentHTML(
+      "beforebegin",
+      `<div class="w-full flex p-2 mt-4 flex-col rounded-lg bg-gray-300" id=${
+        objMessages.username + objMessages.reply
+      }>
+       <h1 class="font-black">${objMessages.username}</h1>
+       <span>${objMessages.reply}</span>
+       <div class="w-full flex flex-col items-end  " id=${
+         "nesteddiscuss" + objMessages.id
+       } >
+      <div class="w-full flex justify-end">
+      <input type="text" id=${
+        "replyinput" + objMessages.id
+      } placeholder="Reply" class="w-[80%] p-1 rounded-lg border" />
+     <button type="button" class="p-1 border bg-teal-400 rounded-sm ml-1" id="${
+       "replybutton" + objMessages.id
+     }"
+   " >Gönder</button></div>
+   
+       </div>
+     </div>
+   </div>`
+    );
+
+            objMessages.replies === 0
+                    ? null
+                    : objMessages.replies.map((replyObj) => {
+                        document
+                                .getElementById("nesteddiscuss" + objMessages.id)
+                                .insertAdjacentHTML(
+                                        "beforebegin",
+                                        `<div class="w-[90%]  mb-2 flex p-2 flex-col rounded-lg bg-gray-100">
+          <h1 class="font-black">${replyObj.username}</h1>
+          <span>${replyObj.reply}</span>
+        </div>`
+                                );
+                    });
+
+            let doc = document.getElementById("replybutton" + objMessages.id);
+            if (doc) {
+                doc.addEventListener("click", function () {
+                    let value = document.getElementById(
+                            "replyinput" + objMessages.id
+                    ).value;
+
+                    if (value.trim() !== "") {
+                        let xhr = new XMLHttpRequest();
+                        xhr.open("POST", "{{addreply_url}}");
+                        xhr.setRequestHeader(
+                                "Content-Type",
+                                "application/json;charset=UTF-8"
+                        );
+                        xhr.send(
+                                JSON.stringify({
+                                    threadid: index,
+                                    replyid: objMessages.id,
+                                    reply: value.trim(),
+                                })
+                        );
+                        xhr.onload = () => {
+                            let xhr = new XMLHttpRequest();
+                            xhr.open("POST", "{{threaddata_url}}");
+                            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                            xhr.send(JSON.stringify({ threadid: index }));
+                            xhr.onload = () => {
+                                rightbarOpen(JSON.parse(xhr.response), index);
+                            };
+                        };
+                    } else {
+                        alert("reply can not be empty");
+                    }
+                });
+            }
+        });
+
+        document
+                .getElementById("discussionbutton" + index)
+                .addEventListener("click", function () {
+                    let value = document.getElementById(index + "discussion").value;
+
+                    if (value.trim() !== "") {
+                        let xhr = new XMLHttpRequest();
+                        xhr.open("POST", "{{addreply_url}}");
+                        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                        xhr.send(
+                                JSON.stringify({
+                                    threadid: index,
+                                    replyid: "0",
+                                    reply: value.trim(),
+                                })
+                        );
+                        xhr.onload = () => {
+                            let xhr = new XMLHttpRequest();
+                            xhr.open("POST", "{{threaddata_url}}");
+                            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                            xhr.send(JSON.stringify({ threadid: index }));
+                            xhr.onload = () => {
+                                rightbarOpen(JSON.parse(xhr.response), index);
+                            };
+                        };
+                    } else {
+                        alert("field can not be empty");
+                    }
+                });
+    }
+
+    function leftbarRender() {
+        document.getElementById("leftbar").innerHTML = "";
+        forumdata.map((obj) => {
+            let editButtonHTML = document.createElement("button");
+            editButtonHTML.className =
+                    "w-[90%] text-black active:bg-gradient-to-r active:from-indigo-500 active:via-purple-500 active:to-pink-500 transition-all duration-500 active:text-white rounded-lg ease-linear group flex border-b p-2 pb-1 mt-2 border-black flex-col";
+
+               editButtonHTML.innerHTML = `<h class="font-black">${
+      !isShow ? "#" + obj.title : obj.title
+    }</h><span class="text-gray-600 group-active:text-gray-100">${
+      isShow ? obj.description : " "
+    } </span>`;
+
+            editButtonHTML.id = obj.id;
+            editButtonHTML.onclick = function () {
+                let xhr = new XMLHttpRequest();
+                xhr.open("POST", "{{threaddata_url}}");
+                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                xhr.send(JSON.stringify({ threadid: obj.id }));
+                xhr.onload = () => {
+                    rightbarOpen(JSON.parse(xhr.response), obj.id);
+                };
+            };
+            leftbarElement.insertAdjacentElement("afterbegin", editButtonHTML);
+        });
+    }
+
+    function openTopicModal() {
+        let Modal = document.getElementById("modal");
+        document.getElementById("topicMessage1").value = "";
+        Modal.className = "fixed z-10  inset-0 overflow-y-auto";
+    }
+
+    function createTopic() {
+        let Modal = document.getElementById("modal");
+        Modal.className = "fixed z-10 hidden inset-0 overflow-y-auto";
+
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "{{addthread_url}}");
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.send(
+                JSON.stringify({
+                    forumid: forumidparam,
+                    title: document.getElementById("topicheader1").value.trim(),
+                    description: document.getElementById("topicMessage1").value.trim(),
+                })
+        );
+        xhr.onload = () => {
+            xhr.open("POST", "{{forumdata_url}}");
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.send(JSON.stringify(forumid: forumidparam));
+            xhr.onload = () => {
+                let response = JSON.parse(xhr.response);
+                forumdata = [];
+                for(let prop in response) {
+                    if(response.hasOwnProperty(prop)) {
+                        forumdata.push(response[prop]);
+                    }
+                }
+                leftbarRender();
+            };
+        };
+    }
+</script>
 
 </html>
