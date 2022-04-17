@@ -27,3 +27,6 @@ $string['forumblock:myaddinstance'] = 'Kontrol paneline yeni bir forum bloğu ek
 $string['forumblock'] = 'Forumlar';
 $string['pluginname'] = 'Forumlar';
 $string['gotoforums'] = 'Yeni bir forum oluşturmak için tıklayınız...';
+$string['shown'] = 'Mevcut forumlar aşağıda gösterilmiştir.';
+$string['goto'] = "";
+$string['discussion'] = ' Tartışma Forumuna gidin';
