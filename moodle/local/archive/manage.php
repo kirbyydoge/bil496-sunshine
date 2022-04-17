@@ -44,21 +44,26 @@ $counter =0;
 $manager = new manager();
 $insert_record = new stdClass();
 
-foreach($local_archive_rs as $lars) {
-    $records = $manager->join_tables($lars->fileid);
-    foreach($records as $r) {
-        $filenames = $r->filename;
-        $urls = $r->url;
-        ///Minor error on filenames: latest filenames are shown.
-    }
-}
-
 echo $OUTPUT->header();
 
+$records = array();
+foreach($local_archive_rs as $lars) {
+    $entry = new stdClass;
+    $tbl_files = $manager->get_URL_table($lars->fileid);
+    $entry->id = $lars->id;
+    $entry->course_short_name = $lars->course_short_name;
+    $entry->files = array();
+    foreach($tbl_files as $tbl_file) {
+        $entry->files[] = [
+            "filename" => $tbl_file->filename,
+            "url" => $tbl_file->url
+        ];
+    }
+    $records[] = $entry;
+}
+
 $templatecontext = (object)[
-    'records' => array_reverse(array_values($records)),
-    'url' => ($urls),
-    'filenames' => $filenames,
+    'records' => array_reverse($records),
     'editurl' => new moodle_url('/local/archive/edit.php'),
     'edit_record' => (get_string('edit_record', 'local_archive')),
     'delete_record' => (get_string('delete_record', 'local_archive')),

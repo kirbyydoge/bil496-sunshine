@@ -25,21 +25,17 @@
 }}
 
 <div style="margin: 20px auto auto auto; width: 65%;">
-<h1>List of Records</h1>
+<h1>{{list}}</h1>
 
 {{#records}}
     <div class="card mt-2 mb-2">
         <div class="card-body">
             <p>{{course_short_name}}</p>
-            <p>
-                {{#filenames}}
-               {{#url}}
-                <a href=
-                {{.}}>
-                    {{.}}
-                </a>
-                {{/url}}{{/filenames}}
-            </p>
+                <p>
+                {{#files}}
+                    <a href="{{url}}">{{filename}}</a><br>
+                {{/files}}
+                </p>
             <input type="button" class="btn btn-primary" value={{edit_record}} onclick="location.href='{{editurl}}?recordid={{id}}'">
             <input type="button" class="local_messageid{{id}} btn btn-danger local_message_delete_button" value={{delete_record}}>
             </div>
