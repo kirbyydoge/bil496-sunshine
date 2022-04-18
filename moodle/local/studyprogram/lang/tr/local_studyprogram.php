@@ -21,7 +21,10 @@
  * @author     Oğuzhan Canpolat
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+ 
+$string["modulename"] = "Çalışma Programı";
+$string["modulenameplural"] = "Çalışma Programları";
+$string["pluginname"] = "Çalışma Programı";
 $string["title_view"] = "Çalışma Programı Görüntüle";
 $string["title_setup"] = "Çalışma Programı Hazırla";
 $string["in_development"] = "Geliştirmeler devam ediyor...";

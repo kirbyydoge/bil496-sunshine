@@ -22,6 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string["modulename"] = "Study Program";
+$string["modulenameplural"] = "Study Programs";
+$string["pluginname"] = "Study Program";
 $string["title_view"] = "View Study Program";
 $string["title_setup"] = "Setup Study Program";
 $string["in_development"] = "Still in development...";
