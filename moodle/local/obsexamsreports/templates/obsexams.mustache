@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>OBS Table</title>
+  </head>
+  <body class="m-0 w-full h-screen">
+    <div
+      class="w-full h-full overflow-hidden bg-purple-500 flex justify-center items-center"
+    >
+      <div class="w-[60%] min-h-max px-4">
+        <div
+          class="flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-pink-900 text-white"
+        >
+          <div class="rounded-t mb-0 px-4 py-3 border-0">
+            <div class="flex flex-wrap items-center">
+              <div class="relative w-full px-4 max-w-full flex-grow flex-1">
+                <h1 class="text-white text-lg font-black">OBS Table</h1>
+              </div>
+            </div>
+          </div>
+          <div class="w-full max-h-[500px] overflow-y-scroll">
+            <table
+              class="items-center w-full max-h-[200px] bg-transparent border-collapse"
+            >
+              <thead>
+                <tr>
+                  <th
+                    class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center bg-pink-800 text-pink-300 border-pink-700"
+                  >
+                    Date
+                  </th>
+                  <th
+                    class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center bg-pink-800 text-pink-300 border-pink-700"
+                  >
+                    Exam ID
+                  </th>
+                  <th
+                    class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center bg-pink-800 text-pink-300 border-pink-700"
+                  >
+                    Email
+                  </th>
+                  <th
+                    class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center bg-pink-800 text-pink-300 border-pink-700"
+                  >
+                    State
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    let tbody = document.getElementById("tbody");
+    let arr = [];
+
+    let xhr = new XMLHttpRequest();
+    
+    xhr.open("POST", "http://127.0.0.1:3000/obsrecords");
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhr.send(JSON.stringify({ examid: "{{#mylist}}{{.}}{{/mylist}}" }));
+    xhr.onload = () => {
+      arr = JSON.parse(xhr.response).arr;
+      arr.map((obj) => {
+       
+        let date = new Date(parseInt(obj.reg_date, 10));
+        tbody.insertAdjacentHTML(
+          "afterbegin",
+          `
+    <tr>
+              <td
+                class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+              >
+                ${date.toLocaleString()}
+              </td>
+              <td
+                class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+              >
+                ${obj.examid}
+              </td>
+              <td
+                class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+              >
+              ${obj.email}
+              </td>
+              <td
+                class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+              >
+              ${obj.state}
+              </td>
+            </tr>`
+        );
+      });
+    };
+  </script>
+</html>
