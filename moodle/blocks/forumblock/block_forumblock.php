@@ -29,9 +29,7 @@ class block_forumblock extends block_base {
         $this->title = get_string('pluginname', 'block_forumblock');
     }
 
-
     function get_content() {
-
         global $DB, $CFG, $PAGE;
 
         if ($this->content !== NULL) {
@@ -48,13 +46,9 @@ class block_forumblock extends block_base {
         if($courseid==1) {
             $url .= get_string('shown','block_forumblock') . '<br>';
             foreach ($forums as $fr) {
-                $course = $DB->get_records("course", ["id" => $fr->courseid]);
-                foreach ($course as $cs) {
-                    if ($cs->id == $fr->courseid) {
-                        $content = $cs->shortname . " " . $cs->fullname;
-                    }
-                }
-                $urls = new moodle_url("/local/forums/manage.php", ["id" => $fr->courseid]);
+                $course = $DB->get_record("course", ["id" => $fr->courseid]);
+                $content = $course->shortname . " - " . $fr->title;
+                $urls = new moodle_url("/local/forums/manage.php", ["id" => $fr->id]);
                 $url .= html_writer::link($urls, $content) . '<br>';
             }
             $url2 = new \moodle_url('/local/forums/createforum.php');
@@ -62,16 +56,12 @@ class block_forumblock extends block_base {
                 html_writer::link($url2, get_string('gotoforums', 'block_forumblock')),
             );
         } else {
-            $forums = $DB->get_records("local_forums", ["courseid"=>$courseid]);
-            $course = $DB->get_records("course", ["id" => $courseid]);
-            foreach($course as $cs) {
-                if ($cs->id == $courseid) {
-                    $content = get_string('goto', 'block_forumblock') . $cs->shortname . " " . $cs->fullname .
-                               get_string('discussion', 'block_forumblock');
-                }
+            $forums = $DB->get_records("local_forums", ["courseid" => $courseid]);
+            foreach($forums as $fr) {
+                $content = $fr->title;
+                $urls = new moodle_url("/local/forums/manage.php", ["id" => $fr->id]);
+                $url .= html_writer::link($urls, $content) . '<br>';
             }
-            $urls = new moodle_url("/local/forums/manage.php", ["id" => $forums->courseid]);
-            $url = html_writer::link($urls, $content) . '<br>';
         }
 
         $this->content->text = $url;
