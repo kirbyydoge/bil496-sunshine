@@ -181,7 +181,7 @@ class Cardinal {
             $course_events = calendar_get_events($start_time, $end_time, false, false, $course->id);
             $user_events[$course->id] = array();
             foreach ($course_events as $event) {
-                if ($event->eventtype == "due") {
+                if ($event->eventtype == "due" || $event->eventtype == "assignment") {
                     $user_events[] = [
                         EVENT_ID => $event->id,
                         EVENT_COURSEID => $course->id,
