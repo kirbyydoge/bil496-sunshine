@@ -48,8 +48,8 @@ else if($data) {
     $courseid = $data->course_select;
     $title = $data->forum_title;
     $student_lock = $data->student_lock ? 1 : 0;
-    $forum_manager->create_forum($USER->id, $courseid, $title, $student_lock);
-    redirect($CFG->wwwroot . '/local/forums/manage.php');
+    $forumids = $forum_manager->create_forum($USER->id, $courseid, $title, $student_lock);
+    redirect($CFG->wwwroot . '/local/forums/manage.php?id=' . $forumids);
 }
 
 $template_context = [

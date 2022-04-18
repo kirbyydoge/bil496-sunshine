@@ -32,7 +32,7 @@ class forum_manager {
         $entry->title = $title;
         $entry->studentlock = $student_lock;
         $entry->timecreate = date_format(new DateTime("NOW"), 'Y-m-d h:i:s');
-        return $DB->insert_record("local_forums", $entry);
+        return $DB->insert_record("local_forums", $entry, $returnid=true, $bulk=false);
     }
 
     public function create_thread(int $userid, int $forumid, string $title, string $description) {
