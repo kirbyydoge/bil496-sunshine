@@ -104,23 +104,22 @@ class Cardinal {
         require_once($CFG->dirroot.'/calendar/lib.php');
 
         $event = new stdClass();
-        $event->eventtype = STUDY_ADVICE_TYPE; // Constant defined somewhere in your code - this can be any string value you want. It is a way to identify the event.
+        $event->eventtype = "user";
         $event->type = CALENDAR_EVENT_TYPE_ACTION; // This is used for events we only want to display on the calendar, and are not needed on the block_myoverview.
         $event->name = $studyevent[EVENT_NAME];
         $event->description = get_string("start_study", "local_studyprogram");
         $event->format = FORMAT_HTML;
-        $event->courseid = $studyevent[EVENT_COURSEID];
+        $event->courseid = 0;
         $event->groupid = 0;
         $event->userid = 0;
         $event->modulename = 0;
-        //$event->modulename = "local_studyprogram"; // Setting modulename makes these events invisible for some reason.
-        $event->instance = 3;
+        $event->instance = 0;
         $event->timestart = $studyevent[EVENT_STUDY_START];
         $event->timesort = $studyevent[EVENT_STUDY_START];
         $event->visible = true;
         $event->timeduration = 0;
 
-        $db_entry = calendar_event::create($event);
+        $db_entry = calendar_event::create($event, false);
         return $db_entry->id;
     }
 
@@ -182,7 +181,7 @@ class Cardinal {
             $course_events = calendar_get_events($start_time, $end_time, false, false, $course->id);
             $user_events[$course->id] = array();
             foreach ($course_events as $event) {
-                if ($event->eventtype == "due") {
+                if ($event->eventtype == "due" || $event->eventtype == "assignment") {
                     $user_events[] = [
                         EVENT_ID => $event->id,
                         EVENT_COURSEID => $course->id,
