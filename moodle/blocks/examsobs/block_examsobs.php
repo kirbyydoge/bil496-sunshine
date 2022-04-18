@@ -25,7 +25,7 @@ class block_examsobs extends block_base {
         );
         $this->content->footer = html_writer::div(
             
-            html_writer::link($url, "Click Here to start OBS"),
+            html_writer::link($url, "Click here to start OBS"),
         );
       
         return $this->content;
