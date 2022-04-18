@@ -115,10 +115,12 @@
 </body>
 
 <script>
+    let url = new URL(location);
+
     let forumdata = [];
     let rightbarElement;
     let leftbarElement;
-	let forumidparam = location.search.split("?")[1];
+	let forumidparam = url.searchParams.get("id");
 	let isShow = false;
     let onlyTeachers = {{student_lock}};
 	let isTeacher = {{is_teacher}};
