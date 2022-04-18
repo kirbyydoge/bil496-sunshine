@@ -32,22 +32,25 @@ class plagiarism_checker {
 
     public function check_plagarism_mock(int $assignmentid) {
         global $CFG;
-        return [
-            [
-                "first_name" => "Nikola Tesla",
-                "first_id" => 5,
-                "first_moodle_url" => $CFG->wwwroot . "/user/profile.php?id=5",
-                "first_file" => "Main.java",
-                "first_percent" => 95,
-                "second_name" => "Thomas Edison",
-                "second_id" => 6,
-                "second_moodle_url" => $CFG->wwwroot . "/user/profile.php?id=6",
-                "second_file" => "Main.java",
-                "second_percent" => 95,
-                "lines" => 8,
-                "match_url" => "http://moss.stanford.edu/results/6/6271149796407/match0.html"
-            ]
-        ];
+        $rows = $this->post_process_rows("localhost/mock_report/index.html");
+        $data = $this->post_process_names($rows);
+        return $data;
+//        return [
+//            [
+//                "first_name" => "Nikola Tesla",
+//                "first_id" => 5,
+//                "first_moodle_url" => $CFG->wwwroot . "/user/profile.php?id=5",
+//                "first_file" => "Main.java",
+//                "first_percent" => 95,
+//                "second_name" => "Thomas Edison",
+//                "second_id" => 6,
+//                "second_moodle_url" => $CFG->wwwroot . "/user/profile.php?id=6",
+//                "second_file" => "Main.java",
+//                "second_percent" => 95,
+//                "lines" => 8,
+//                "match_url" => "http://moss.stanford.edu/results/6/6271149796407/match0.html"
+//            ]
+//        ];
     }
 
     public function check_plagiarism(int $assignmentid) {
