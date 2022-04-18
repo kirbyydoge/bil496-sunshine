@@ -43,3 +43,7 @@ $string['forums:manageforums'] = 'Manage Forums';
 $string['delete_forums'] = 'Delete forum';
 $string['delete_forums_confirm'] = 'Are you sure you want to delete the forum?';
 $string['delete_forums_failed'] = 'Deletion failed.';
+$string['title_create_forum'] = "Create Forum";
+$string['course_select'] = 'Related Course';
+$string['forum_title'] = 'Forum Title';
+$string['form_lock_student'] = 'Only teachers can create topics';

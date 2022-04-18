@@ -24,12 +24,13 @@
 
 class forum_manager {
 
-    public function create_forum(int $userid, int $courseid, string $title) {
+    public function create_forum(int $userid, int $courseid, string $title, int $student_lock) {
         global $DB;
         $entry = new stdClass();
         $entry->userid = $userid;
         $entry->courseid = $courseid;
         $entry->title = $title;
+        $entry->studentlock = $student_lock;
         $entry->timecreate = date_format(new DateTime("NOW"), 'Y-m-d h:i:s');
         return $DB->insert_record("local_forums", $entry);
     }

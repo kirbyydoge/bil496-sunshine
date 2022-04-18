@@ -120,12 +120,13 @@
     let leftbarElement;
 	let forumidparam = location.search.split("?")[1];
 	let isShow = false;
-	let isTeacher = false;
+    let onlyTeachers = {{student_lock}};
+	let isTeacher = {{is_teacher}};
 
     let xhr = new XMLHttpRequest();
     xhr.open("POST", "{{forumdata_url}}");
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhr.send(JSON.stringify(forumid: forumidparam));
+    xhr.send(JSON.stringify({forumid: forumidparam}));
     xhr.onload = () => {
         let response = JSON.parse(xhr.response);
         forumdata = [];
@@ -137,8 +138,8 @@
         render();
     };
     function render() {
-		if (!isTeacher) {
-		document.getElementById("createtopic").className = "hidden";
+		if (onlyTeachers && !isTeacher) {
+		    document.getElementById("createtopic").className = "hidden";
 		}
         leftbarElement = document.getElementById("leftbar");
         rightbarElement = document.getElementById("rightbar");
@@ -364,7 +365,7 @@
         xhr.onload = () => {
             xhr.open("POST", "{{forumdata_url}}");
             xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-            xhr.send(JSON.stringify(forumid: forumidparam));
+            xhr.send(JSON.stringify({forumid: forumidparam}));
             xhr.onload = () => {
                 let response = JSON.parse(xhr.response);
                 forumdata = [];

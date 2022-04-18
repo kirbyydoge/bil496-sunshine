@@ -44,6 +44,7 @@ class create_forum extends moodleform {
             get_string("course_select","local_forums"), $choices);
         $mform->setDefault("course_select", $courses[0]->id);
         $mform->addElement("text", "forum_title", get_string("forum_title", "local_forums"));
+        $mform->addElement("advcheckbox", "student_lock", get_string("form_lock_student", "local_forums"));
         $this->add_action_buttons();
     }
 
