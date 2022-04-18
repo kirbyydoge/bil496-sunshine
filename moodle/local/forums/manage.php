@@ -25,7 +25,7 @@
 
 require_once(__DIR__ . '/../../config.php');
 
-global $DB, $OUTPUT, $PAGE, $CFG;
+global $USER, $DB, $OUTPUT, $PAGE, $CFG;
 
 require_login();
 
@@ -34,16 +34,27 @@ $PAGE->set_context(\context_system::instance());
 $PAGE->set_title(get_string('forums', 'local_forums'));
 $PAGE->set_heading(get_string('manage_forums', 'local_forums'));
 $PAGE->requires->js_call_amd('local_forums/confirm');
+require_once(__DIR__ . '/classes/course_manager.php');
+
+$course_manager = new course_manager();
 
 $forumid = required_param('id', PARAM_INT);
-
 $forum = $DB->get_record('local_forums', ["id" => $forumid]);
 $threads = $DB->get_records("local_forums_threads", ["forumid" => $forumid]);
+$teaching_courses = $course_manager->user_get_courses_teaching($USER->id);
+
+$is_teacher = count(array_filter($teaching_courses, function ($course) {
+    global $forum;
+    return $course->id == $forum->courseid;
+})) != 0;
+
 $templatecontext = (object)[
     "addreply_url" => new moodle_url("/local/forums/addreply.php"),
     "addthread_url" => new moodle_url("/local/forums/addthread.php"),
     "threaddata_url" => new moodle_url("/local/forums/threaddata.php"),
-    "forumdata_url" =>new moodle_url("/local/forums/forumdata.php")
+    "forumdata_url" => new moodle_url("/local/forums/forumdata.php"),
+    "student_lock" => $forum->studentlock,
+    "is_teacher" => $is_teacher
 ];
 
 echo $OUTPUT->render_from_template('local_forums/manage', $templatecontext);

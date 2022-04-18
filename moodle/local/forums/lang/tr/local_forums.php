@@ -41,3 +41,7 @@ $string['forums:manageforums'] = 'Manage Forums';
 $string['delete_forums'] = 'Forumu silin';
 $string['delete_forums_coniform'] = 'Forumu silmek istediğinize emin misiniz?';
 $string['delete_forums_failed'] = 'Silme işlemi başarısız oldu.';
+$string['title_create_forum'] = "Forum Oluştur";
+$string['course_select'] = 'İlgili Ders';
+$string['forum_title'] = 'Forum Başlığı';
+$string['form_lock_student'] = 'Sadece öğretmenler konu açabilsin';

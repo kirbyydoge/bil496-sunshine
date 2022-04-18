@@ -11,6 +11,7 @@
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
                 <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="title" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="studentlock" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="timecreate" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
             </FIELDS>
             <KEYS>
