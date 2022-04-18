@@ -59,7 +59,6 @@ function autograder_get_coursemodule_info($coursemodule) {
     }
     $result = new cached_cm_info();
     $result->name = $assignment->name;
-    $result->iconurl = new moodle_url("/mod/autograder/theme/icon.svg");
     return $result;
 }
 
