@@ -58,5 +58,47 @@
       </div>
     </div>
   </body>
-  
+  <script>
+    let tbody = document.getElementById("tbody");
+    let arr = [];
+
+    let xhr = new XMLHttpRequest();
+    
+    xhr.open("POST", "http://127.0.0.1:3000/obsrecords");
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhr.send(JSON.stringify({ examid: "{{#mylist}}{{.}}{{/mylist}}" }));
+    xhr.onload = () => {
+      arr = JSON.parse(xhr.response).arr;
+      arr.map((obj) => {
+       
+        let date = new Date(parseInt(obj.reg_date, 10));
+        tbody.insertAdjacentHTML(
+          "afterbegin",
+          `
+    <tr>
+              <td
+                class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+              >
+                ${date.toLocaleString()}
+              </td>
+              <td
+                class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+              >
+                ${obj.examid}
+              </td>
+              <td
+                class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+              >
+              ${obj.email}
+              </td>
+              <td
+                class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+              >
+              ${obj.state}
+              </td>
+            </tr>`
+        );
+      });
+    };
+  </script>
 </html>
